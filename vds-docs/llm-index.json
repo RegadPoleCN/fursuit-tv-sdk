@@ -1,0 +1,363 @@
+{
+  "version": 1,
+  "root": "vds-docs",
+  "count": 43,
+  "purpose": "LLM retrieval index for the mirrored VDS docs",
+  "sections": [
+    {
+      "section": "root",
+      "docs": [
+        {
+          "title": "认证方式与服务器端点",
+          "path": "认证方式与服务器端点.md",
+          "kind": "reference",
+          "keywords": ["认证", "端点", "apiKey", "Authorization", "requestId"]
+        }
+      ]
+    },
+    {
+      "section": "基础接口",
+      "docs": [
+        {
+          "title": "接入实践参考",
+          "path": "基础接口/接入实践参考.md",
+          "kind": "guide",
+          "keywords": ["签名管理", "令牌更新", "请求封装", "requestId", "HelloWorld"]
+        },
+        {
+          "title": "签名交换",
+          "path": "基础接口/签名交换.md",
+          "kind": "api",
+          "method": "POST",
+          "endpoint": "/api/auth/token",
+          "keywords": ["token", "apiKey", "clientId", "clientSecret"]
+        },
+        {
+          "title": "签名换新",
+          "path": "基础接口/签名换新.md",
+          "kind": "api",
+          "method": "POST",
+          "endpoint": "/api/auth/token/refresh",
+          "keywords": ["refresh", "token refresh", "过期", "换新"]
+        },
+        {
+          "title": "签名请求方式",
+          "path": "基础接口/签名请求方式.md",
+          "kind": "index",
+          "keywords": ["基础接口", "索引", "认证", "HelloWorld", "RequestID"]
+        },
+        {
+          "title": "请求验证接口（HelloWorld）",
+          "path": "基础接口/请求验证接口（HelloWorld）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/base/hello-world",
+          "keywords": ["连通性", "验证", "requestId", "helloworld"]
+        },
+        {
+          "title": "RequestID 查询",
+          "path": "基础接口/RequestID查询.md",
+          "kind": "reference",
+          "keywords": ["requestId", "日志", "排查", "查询"]
+        }
+      ]
+    },
+    {
+      "section": "开始接入",
+      "docs": [
+        {
+          "title": "快速跑通流程",
+          "path": "开始接入/快速跑通流程.md",
+          "kind": "guide",
+          "keywords": ["首次接入", "exchange", "refresh", "hello-world"]
+        },
+        {
+          "title": "快速示例",
+          "path": "开始接入/快速示例.md",
+          "kind": "sample",
+          "keywords": ["Java", "Node.js", "Go", "Python", "cURL"]
+        }
+      ]
+    },
+    {
+      "section": "VDS账户",
+      "docs": [
+        {
+          "title": "授权端点（Authorize，account.sso.authorize）",
+          "path": "VDS账户/授权端点（Authorize，account.sso.authorize）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/account/sso/authorize",
+          "keywords": ["OAuth", "authorize", "redirect_uri", "state"]
+        },
+        {
+          "title": "签名交换端点（Token，account.sso.token）",
+          "path": "VDS账户/签名交换端点（Token，account.sso.token）.md",
+          "kind": "api",
+          "method": "POST",
+          "endpoint": "/api/proxy/account/sso/token",
+          "keywords": ["OAuth", "access_token", "authorization_code", "Bearer"]
+        },
+        {
+          "title": "用户信息端点（UserInfo，account.sso.userinfo）",
+          "path": "VDS账户/用户信息端点（UserInfo，account.sso.userinfo）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/account/sso/userinfo",
+          "keywords": ["OAuth", "userinfo", "sub", "nickname", "avatar_url"]
+        },
+        {
+          "title": "VDS账户快速接入（OAuth）",
+          "path": "VDS账户/VDS账户快速接入（OAuth）.md",
+          "kind": "guide",
+          "keywords": ["OAuth", "接入", "授权", "token", "userinfo"]
+        }
+      ]
+    },
+    {
+      "section": "Fursuit.TV 兽频道",
+      "docs": [
+        {
+          "title": "健康检查（furtv.health）",
+          "path": "Fursuit.TV 兽频道/基础能力-健康与版本/健康检查（furtv.health）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/health",
+          "keywords": ["health", "status", "可用性"]
+        },
+        {
+          "title": "安卓版本信息（furtv.version.android）",
+          "path": "Fursuit.TV 兽频道/基础能力-健康与版本/安卓版本信息（furtv.version.android）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/version/android",
+          "keywords": ["android", "version", "update", "apk"]
+        },
+        {
+          "title": "安卓版本检查（furtv.version.android.check）",
+          "path": "Fursuit.TV 兽频道/基础能力-健康与版本/安卓版本检查（furtv.version.android.check）.md",
+          "kind": "api",
+          "method": "POST",
+          "endpoint": "/api/proxy/furtv/version/android/check",
+          "keywords": ["android", "version check", "needUpdate", "forceUpdate"]
+        },
+        {
+          "title": "主题包清单（furtv.themepacks.manifest）",
+          "path": "Fursuit.TV 兽频道/基础能力-主题资源/主题包清单（furtv.themepacks.manifest）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/theme-packs/manifest",
+          "keywords": ["theme", "manifest", "zip_url", "资源"]
+        },
+        {
+          "title": "热门推荐（furtv.discovery.popular）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-推荐能力/热门推荐（furtv.discovery.popular）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/popular",
+          "keywords": ["popular", "推荐", "热度", "users"]
+        },
+        {
+          "title": "随机推荐（furtv.discovery.random）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-推荐能力/随机推荐（furtv.discovery.random）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/fursuit/random",
+          "keywords": ["random", "推荐", "count", "personalized"]
+        },
+        {
+          "title": "按物种搜索（furtv.discovery.species.search）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-检索能力/按物种搜索（furtv.discovery.species.search）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/search/species/:species",
+          "keywords": ["species", "search", "path parameter", "物种"]
+        },
+        {
+          "title": "搜索建议（furtv.discovery.search.suggestions）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-检索能力/搜索建议（furtv.discovery.search.suggestions）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/search/suggestions",
+          "keywords": ["autocomplete", "suggestions", "q"]
+        },
+        {
+          "title": "搜索（furtv.discovery.search）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-检索能力/搜索（furtv.discovery.search）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/search",
+          "keywords": ["search", "q", "type", "cursor", "pagination"]
+        },
+        {
+          "title": "热门地区（furtv.discovery.locations.popular）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-检索能力/热门地区（furtv.discovery.locations.popular）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/locations/popular",
+          "keywords": ["location", "popular", "province", "city"]
+        },
+        {
+          "title": "物种列表（furtv.discovery.species）",
+          "path": "Fursuit.TV 兽频道/发现与搜索-检索能力/物种列表（furtv.discovery.species）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/species",
+          "keywords": ["species", "统计", "总数"]
+        },
+        {
+          "title": "用户资料公开信息（furtv.users.profile）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-基础信息/用户资料公开信息（furtv.users.profile）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/:username",
+          "keywords": ["profile", "username", "destinations", "privacy"]
+        },
+        {
+          "title": "用户点赞状态（furtv.fursuit.likestatus）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-基础信息/用户点赞状态（furtv.fursuit.likestatus）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/fursuit/like-status/:username",
+          "keywords": ["like", "status", "can_like", "is_liked"]
+        },
+        {
+          "title": "用户基础信息ID查询（furtv.users.id）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-基础信息/用户基础信息ID查询（furtv.users.id）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/id/:id",
+          "keywords": ["user id", "profile", "id lookup"]
+        },
+        {
+          "title": "用户关系公开列表（furtv.relationships.user）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-关系与访客/用户关系公开列表（furtv.relationships.user）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/relationships/user/:userId",
+          "keywords": ["relationships", "partner", "公开列表"]
+        },
+        {
+          "title": "用户访客记录（furtv.users.visitors）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-关系与访客/用户访客记录（furtv.users.visitors）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/:username/visitors",
+          "keywords": ["visitors", "访客", "show_visitor_details"]
+        },
+        {
+          "title": "用户商店商品（furtv.users.storeproducts）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-徽章与商店/用户商店商品（furtv.users.storeproducts）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/:username/store-products",
+          "keywords": ["store", "products", "merchant", "external_url"]
+        },
+        {
+          "title": "用户社交徽章列表（furtv.users.socialbadges）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-徽章与商店/用户社交徽章列表（furtv.users.socialbadges）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/:username/social-badges",
+          "keywords": ["badges", "social badges", "glb_url"]
+        },
+        {
+          "title": "用户社交徽章详情（furtv.users.socialbadges.detail）",
+          "path": "Fursuit.TV 兽频道/用户公开资料-徽章与商店/用户社交徽章详情（furtv.users.socialbadges.detail）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/users/:username/social-badges/:userBadgeId",
+          "keywords": ["badge detail", "userBadgeId", "awarded_at"]
+        },
+        {
+          "title": "学校详情（furtv.schools.detail）",
+          "path": "Fursuit.TV 兽频道/学校与角色-学校/学校详情（furtv.schools.detail）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/schools/:schoolId",
+          "keywords": ["school", "detail", "student_count"]
+        },
+        {
+          "title": "学校搜索（furtv.schools.search）",
+          "path": "Fursuit.TV 兽频道/学校与角色-学校/学校搜索（furtv.schools.search）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/schools/search",
+          "keywords": ["school search", "query", "logo_url"]
+        },
+        {
+          "title": "用户学校信息（furtv.schools.user）",
+          "path": "Fursuit.TV 兽频道/学校与角色-学校/用户学校信息（furtv.schools.user）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/schools/user/:userId",
+          "keywords": ["school user", "class_name", "graduation_year"]
+        },
+        {
+          "title": "用户角色列表（furtv.characters.user）",
+          "path": "Fursuit.TV 兽频道/学校与角色-角色/用户角色列表（furtv.characters.user）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/characters/user/:username",
+          "keywords": ["characters", "roles", "崽崽"]
+        },
+        {
+          "title": "聚会年度统计（furtv.gatherings.stats.thisyear）",
+          "path": "Fursuit.TV 兽频道/聚会-列表与统计/聚会年度统计（furtv.gatherings.stats.thisyear）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/stats/this-year",
+          "keywords": ["gathering stats", "this year", "total"]
+        },
+        {
+          "title": "聚会月历距离（furtv.gatherings.monthlydistance）",
+          "path": "Fursuit.TV 兽频道/聚会-列表与统计/聚会月历距离（furtv.gatherings.monthlydistance）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/monthly-distance",
+          "keywords": ["distance", "month", "lat", "lng"]
+        },
+        {
+          "title": "聚会月历（furtv.gatherings.monthly）",
+          "path": "Fursuit.TV 兽频道/聚会-列表与统计/聚会月历（furtv.gatherings.monthly）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/monthly",
+          "keywords": ["calendar", "monthly", "gatherings", "year", "month"]
+        },
+        {
+          "title": "聚会附近模式（furtv.gatherings.nearbymode）",
+          "path": "Fursuit.TV 兽频道/聚会-列表与统计/聚会附近模式（furtv.gatherings.nearbymode）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/nearby-mode",
+          "keywords": ["nearby", "intent_gathering_ids", "mode"]
+        },
+        {
+          "title": "聚会附近（furtv.gatherings.nearby）",
+          "path": "Fursuit.TV 兽频道/聚会-列表与统计/聚会附近（furtv.gatherings.nearby）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/nearby",
+          "keywords": ["nearby", "map", "lat", "lng"]
+        },
+        {
+          "title": "聚会详情（furtv.gatherings.detail）",
+          "path": "Fursuit.TV 兽频道/聚会-详情与报名/聚会详情（furtv.gatherings.detail）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/:id",
+          "keywords": ["gathering detail", "agenda", "tags", "registration_stats"]
+        },
+        {
+          "title": "聚会报名列表（furtv.gatherings.registrations）",
+          "path": "Fursuit.TV 兽频道/聚会-详情与报名/聚会报名列表（furtv.gatherings.registrations）.md",
+          "kind": "api",
+          "method": "GET",
+          "endpoint": "/api/proxy/furtv/gatherings/:id/registrations",
+          "keywords": ["registrations", "approved", "checked_in"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+config:
+  validation: true
+  warningsAsErrors: false
+
+style:
+  WildcardImport:
+    active: true
+
+complexity: 
+  TooManyFunctions:
+    allowedFunctionsPerFile: 15
+    allowedFunctionsPerEnum: 15
+    allowedFunctionsPerClass: 15
+    allowedFunctionsPerInterface: 15
+    allowedFunctionsPerObject: 15
