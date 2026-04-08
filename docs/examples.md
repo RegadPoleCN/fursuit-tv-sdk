@@ -12,18 +12,20 @@ SDK 提供四种初始化方式，适用于不同的使用场景：
 // 方式 1: 使用 apiKey（适用于已有 apiKey 的用户）
 // 认证头：X-Api-Key
 // 适用场景：已有 VDS 颁发的 apiKey，简单的服务端调用
+// 说明：apiKey 通过签名交换接口获取（使用 appId + appSecret）
 val sdk1 = FursuitTvSdk(apiKey = "your-api-key")
 
-// 方式 2: 使用 clientId + clientSecret（推荐，适用于新用户）
-// 认证头：Authorization: Bearer <access_token>
-// 适用场景：需要 OAuth 2.0 客户端凭证流程，SDK 自动管理令牌刷新
+// 方式 2: 使用 appId + appSecret（推荐，适用于新用户）
+// 认证头：Authorization: Bearer <accessToken>
+// 适用场景：签名认证流程，SDK 自动管理令牌刷新
+// 说明：accessToken 和 apiKey 是同一个值
 val sdk2 = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 // 获取初始令牌
 runBlocking {
-    sdk2.auth.exchangeToken(clientId, clientSecret)
+    sdk2.auth.exchangeToken(appId, appSecret)
 }
 
 // 方式 3: 使用 OAuth 本地回调（适用于需要用户授权的应用）
@@ -35,14 +37,15 @@ val config = OAuthConfig(
     callbackPath = "/callback",
     stateTimeoutMinutes = 10
 )
-val sdk3 = FursuitTvSdk.initWithOAuth("your-app-id", config)
+val sdk3 = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 runBlocking {
-    val tokenInfo = sdk3.auth.initWithOAuth("your-app-id", config)
+    val tokenInfo = sdk3.auth.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 }
 
 // 方式 4: 使用 accessToken（适用于已有访问令牌的用户）
-// 认证头：Authorization: Bearer <access_token>
+// 认证头：Authorization: Bearer <accessToken>
 // 适用场景：已有通过其他方式获取的访问令牌（如从持久化存储恢复）
+// 说明：accessToken 即 apiKey，两者是同一个值
 val sdk4 = FursuitTvSdk(
     accessToken = "your-access-token",
     baseUrl = "https://open-global.vdsentnet.com"
@@ -60,14 +63,20 @@ sdk4.close()
 | 初始化方式 | 认证头 | 适用场景 | 是否需要用户授权 | 令牌管理 |
 |-----------|--------|---------|----------------|---------|
 | `apiKey` | `X-Api-Key` | 已有 apiKey 的简单服务端调用 | 否 | 长期有效，无需刷新 |
-| `clientId` + `clientSecret` | `Authorization: Bearer` | OAuth 2.0 客户端凭证流程 | 否 | 自动刷新（剩余 <= 300 秒） |
+| `appId` + `appSecret` | `Authorization: Bearer` | 签名认证流程 | 否 | 自动刷新（剩余 <= 300 秒） |
 | OAuth 本地回调 | `Authorization: Bearer` | 需要用户授权的完整 OAuth 流程 | 是 | 自动刷新（剩余 <= 300 秒） |
 | `accessToken` | `Authorization: Bearer` | 已有访问令牌的场景 | 视情况而定 | 需手动管理或使用 getApiKey |
+
+**重要说明**：
+- apiKey 和 accessToken 是同一个值，通过签名交换接口获取
+- 使用 appId + appSecret 初始化时，SDK 自动调用签名交换接口获取 accessToken
+- accessToken 可用于 Authorization: Bearer 头，也可用于 X-Api-Key 头
+- OAuth 流程的 access_token 仅用于 Authorization: Bearer 头
 
 ### 选择建议
 
 - **已有 apiKey**：使用方式 1（apiKey）
-- **新用户，服务端调用**：使用方式 2（clientId + clientSecret）
+- **新用户，服务端调用**：使用方式 2（appId + appSecret）
 - **需要用户授权**：使用方式 3（OAuth 本地回调）
 - **从存储恢复令牌**：使用方式 4（accessToken）
 

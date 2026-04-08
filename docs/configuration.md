@@ -104,24 +104,31 @@ val config = OAuthConfig(
 - 使用平台特定的 URL 打开机制
 - iOS/macOS 可使用 Universal Links
 
-### OAuth 2.0 客户端凭证流程
+### OAuth 2.0 客户端凭证流程（签名认证）
 
-SDK 支持 OAuth 2.0 客户端凭证流程进行身份验证。使用 `clientId` 和 `clientSecret` 获取访问令牌。
+SDK 支持使用 appId 和 appSecret 进行签名认证。通过签名交换接口获取 accessToken（即 apiKey）。
 
 ```kotlin
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 
 // 获取初始令牌
 runBlocking {
     sdk.auth.exchangeToken(
-        clientId = "your-client-id",
-        clientSecret = "your-client-secret"
+        appId = "vap_xxxxxxxxxxxxxxxx",
+        appSecret = "your-app-secret"
     )
 }
 ```
+
+SDK 会自动管理令牌的刷新（当剩余有效期 <= 300 秒时）。
+
+**说明**：
+- appId 即 clientId，appSecret 即 clientSecret，统一使用 app 命名
+- 通过签名交换接口获取的 accessToken 和 apiKey 是同一个值
+- 可用于 Authorization: Bearer 或 X-Api-Key 认证头
 
 ### OAuth 回调服务器配置
 
@@ -163,28 +170,37 @@ http://localhost:8080/callback
 3. `stateTimeoutMinutes` 应根据用户授权流程的预计时间设置
 4. 启用 PKCE 可以提供更高的安全性，推荐在生产环境中使用
 
-### OAuth 2.0 客户端凭证流程
+## 自动令牌刷新
 
-SDK 支持 OAuth 2.0 客户端凭证流程进行身份验证。使用 `clientId` 和 `clientSecret` 获取访问令牌。
+当使用 `appId` 和 `appSecret` 初始化 SDK 时，SDK 会自动管理令牌的刷新：
+
+1. 初始调用 `exchangeToken()` 获取访问令牌（accessToken 即 apiKey）
+2. 当令牌剩余有效期 <= 300 秒（5 分钟）时，自动调用 `refreshToken()` 刷新
+3. 如果刷新失败，会自动回退到 `exchangeToken()` 重新获取
 
 ```kotlin
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 
-// 获取初始令牌
+// 首次获取令牌
 runBlocking {
-    sdk.auth.exchangeToken(
-        clientId = "your-client-id",
-        clientSecret = "your-client-secret"
-    )
+    sdk.auth.exchangeToken(appId, appSecret)
 }
+
+// 后续 API 调用会自动检查并刷新令牌
+val userProfile = sdk.user.getUserProfile("username")
 ```
 
-### 令牌自动管理
+也可以使用 `getApiKey()` 方法手动控制刷新逻辑：
 
-当使用 `clientId` 和 `clientSecret` 初始化 SDK 时，令牌会在 401 错误时自动刷新，无需手动干预。
+```kotlin
+runBlocking {
+    val accessToken = sdk.auth.getApiKey(appId, appSecret)
+    // accessToken 已经是最新的有效令牌
+}
+```
 
 ## 配置示例
 
@@ -196,13 +212,13 @@ val config = SdkConfig(
 )
 ```
 
-### 基本配置（使用 clientId + clientSecret）
+### 基本配置（使用 appId + appSecret）
 
 ```kotlin
-// 直接使用 clientId 和 clientSecret 初始化
+// 直接使用 appId 和 appSecret 初始化
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 ```
 
@@ -274,21 +290,21 @@ val sdk = FursuitTvSdk(apiKey = "your-api-key")
 当使用以下方式初始化 SDK 时，所有请求会自动添加 `Authorization: Bearer` 头：
 
 ```kotlin
-// 方式 1: 使用 clientId + clientSecret 初始化
+// 方式 1: 使用 appId + appSecret 初始化（签名认证）
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
-// 请求头：Authorization: Bearer <access_token>
+// 请求头：Authorization: Bearer <accessToken>（accessToken 即 apiKey）
 
 // 方式 2: 使用 OAuth 本地回调
 val config = OAuthConfig(callbackHost = "localhost", callbackPort = 8080)
-val sdk = FursuitTvSdk.initWithOAuth("your-app-id", config)
+val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 // 请求头：Authorization: Bearer <oauth-token>
 
 // 方式 3: 直接使用 accessToken
 val sdk = FursuitTvSdk(accessToken = "your-access-token")
-// 请求头：Authorization: Bearer <access_token>
+// 请求头：Authorization: Bearer <accessToken>
 ```
 
 ### 认证头选择逻辑
@@ -296,9 +312,15 @@ val sdk = FursuitTvSdk(accessToken = "your-access-token")
 | 初始化方式 | 认证头 | 说明 |
 |-----------|--------|------|
 | `apiKey` | `X-Api-Key` | 适用于简单的 API 密钥认证 |
-| `clientId` + `clientSecret` | `Authorization: Bearer` | 适用于 OAuth 2.0 客户端凭证流程，支持令牌自动刷新 |
+| `appId` + `appSecret` | `Authorization: Bearer` | 适用于签名认证流程，支持令牌自动刷新 |
 | OAuth 本地回调 | `Authorization: Bearer` | 适用于 OAuth 2.0 授权码模式，需要用户授权 |
 | `accessToken` | `Authorization: Bearer` | 适用于已有访问令牌的场景 |
+
+**重要说明**：
+- apiKey 和 accessToken 是同一个值，通过签名交换接口（POST /api/auth/token）获取
+- 使用 appId + appSecret 初始化时，SDK 自动调用签名交换接口获取 accessToken
+- accessToken 可用于 Authorization: Bearer 头，也可用于 X-Api-Key 头
+- OAuth 流程的 access_token 仅用于 Authorization: Bearer 头
 
 ## 使用配置
 
@@ -323,8 +345,9 @@ println("Current log level: ${currentConfig.logLevel}")
 
 2. **认证头选择**：
    - 使用 `apiKey` 初始化时，SDK 使用 `X-Api-Key` 头，适用于简单的 API 密钥认证场景
-   - 使用 `clientId` + `clientSecret` 初始化时，SDK 使用 `Authorization: Bearer` 头，适用于 OAuth 2.0 流程，支持令牌自动刷新
-   - 推荐使用 OAuth 2.0 方式（clientId + clientSecret），提供更安全的令牌管理机制
+   - 使用 `appId` + `appSecret` 初始化时，SDK 使用 `Authorization: Bearer` 头，适用于签名认证流程，支持令牌自动刷新
+   - 使用 OAuth 本地回调时，SDK 使用 `Authorization: Bearer` 头，适用于需要用户授权的场景
+   - 推荐使用签名认证方式（appId + appSecret），提供更安全的令牌管理机制
 
 3. **超时设置**：根据网络环境调整超时设置。在较差的网络环境下，建议增加超时时间。
 
@@ -334,4 +357,6 @@ println("Current log level: ${currentConfig.logLevel}")
 
 6. **Base URL**：使用 VDS 官方 API 时，应设置为 `https://open-global.vdsentnet.com`。
 
-7. **自动令牌刷新**：使用 `clientId` + `clientSecret` 初始化时，SDK 会在收到 401 错误时自动刷新令牌，无需手动处理。
+7. **自动令牌刷新**：使用 `appId` + `appSecret` 或 OAuth 本地回调初始化时，SDK 会自动管理令牌刷新（剩余有效期 <= 300 秒时触发），无需手动处理。
+
+8. **PKCE 安全**：在生产环境中使用 OAuth 时，建议启用 PKCE（Proof Key for Code Exchange）以提供更高的安全性。

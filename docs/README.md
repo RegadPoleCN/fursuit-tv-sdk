@@ -51,28 +51,38 @@ val sdk = FursuitTvSdk(config)
 
 **认证头**: `X-Api-Key: your-api-key`
 
-**适用场景**: 已有 VDS 颁发的 apiKey，适用于简单的服务端到服务端调用。
+**说明**: 
+- apiKey 通过签名交换接口获取（使用 appId + appSecret）
+- apiKey 和 accessToken 是两个不同的值
+- apiKey 用于 X-Api-Key 认证头
+- 适用于简单的服务端到服务端调用
 
-#### 方式 2: 使用 clientId + clientSecret（推荐，适用于新用户）
+#### 方式 2: 使用 appId + appSecret（推荐，适用于新用户）
 
 ```kotlin
-// 使用 clientId 和 clientSecret 初始化
+// 使用 appId 和 appSecret 初始化
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 
 // 获取初始令牌
 runBlocking {
-    sdk.auth.exchangeToken(clientId, clientSecret)
+    sdk.auth.exchangeToken(appId, appSecret)
 }
 
 // SDK 会自动管理令牌刷新（当剩余有效期 <= 300 秒时自动刷新）
 ```
 
-**认证头**: `Authorization: Bearer <access_token>`
+**认证头**: `X-Api-Key: <apiKey>`（优先）或 `Authorization: Bearer <accessToken>`
 
-**适用场景**: 新用户，需要完整的 OAuth 2.0 客户端凭证流程。SDK 会自动调用 token exchange 获取初始令牌，并在令牌即将过期时自动刷新。
+**说明**:
+- appId 即 clientId，appSecret 即 clientSecret，统一使用 app 命名
+- SDK 自动调用签名交换接口获取 accessToken 和 apiKey
+- accessToken 和 apiKey 是两个不同的值
+- accessToken 用于 Authorization: Bearer 头
+- apiKey 用于 X-Api-Key 头（SDK 优先使用）
+- 支持令牌自动刷新机制
 
 #### 方式 3: OAuth 本地回调（适用于需要用户授权的应用）
 
@@ -84,19 +94,23 @@ val config = OAuthConfig(
     callbackPath = "/callback"
 )
 
-// 使用 OAuth 初始化 SDK
-val sdk = FursuitTvSdk.initWithOAuth("your-app-id", config)
+// 使用 OAuth 初始化 SDK（自动完成整个授权流程）
+val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 
-// 启动 OAuth 授权流程
+// 或者使用 AuthManager 手动控制
+val sdk2 = FursuitTvSdk()
 runBlocking {
-    val result = sdk.auth.initiateOAuthFlow("your-app-id", config)
-    // result.code 包含授权码，可用于交换令牌
+    val tokenInfo = sdk2.auth.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
+    // tokenInfo 包含访问令牌和用户信息
 }
 ```
 
 **认证头**: `Authorization: Bearer <oauth-token>`
 
-**适用场景**: 需要用户登录并授权的应用场景。SDK 会启动本地回调服务器，自动接收 OAuth 授权回调并提取授权码。
+**说明**:
+- 完整的 OAuth 2.0 授权码模式，需要用户登录并授权
+- 仅需要 appId，不需要 appSecret
+- 适用于需要用户授权的应用场景
 
 **OAuth 本地回调自动授权流程**:
 1. SDK 启动本地 HTTP 服务器监听回调端口
@@ -113,34 +127,38 @@ runBlocking {
 SDK 的 OAuth 实现在不同平台上有不同的行为：
 
 - **JVM 平台**：自动打开系统浏览器，本地回调服务器监听授权回调
+- **JS 平台（Browser）**：使用 postMessage API 监听回调，无需启动服务器
 - **JS 平台（Node.js）**：需手动打开授权 URL，本地 HTTP 服务器接收回调
 - **Native 平台**：使用平台特定的 URL 打开机制，支持自定义 URL Scheme
 
 详细实现和平台差异请查看 [跨平台 OAuth 实现](oauth.md)。
 
-#### 方式 4: 使用 access_token（适用于已有访问令牌的用户）
+#### 方式 4: 使用 accessToken（适用于已有访问令牌的用户）
 
 ```kotlin
-// 直接使用已有的 access_token 初始化
+// 直接使用已有的 accessToken 初始化
 val sdk = FursuitTvSdk(
     accessToken = "your-access-token",
     baseUrl = "https://open-global.vdsentnet.com"
 )
 ```
 
-**认证头**: `Authorization: Bearer <access_token>`
+**认证头**: `Authorization: Bearer <accessToken>`
 
-**适用场景**: 已有通过其他方式获取的访问令牌（例如从持久化存储中恢复）。
+**说明**:
+- accessToken 是签名交换接口返回的访问令牌
+- accessToken 和 apiKey 是两个不同的值
+- 适用于已有通过其他方式获取的访问令牌（例如从持久化存储中恢复）
 
 ### 认证
 
 #### 交换令牌
 
 ```kotlin
-// 使用 clientId 和 clientSecret 交换令牌
+// 使用 appId 和 appSecret 交换令牌（签名交换）
 val tokenInfo = sdk.auth.exchangeToken(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 ```
 
@@ -174,19 +192,28 @@ SDK 根据初始化方式自动选择认证头格式：
 | 初始化方式 | 认证头格式 | 说明 |
 |-----------|-----------|------|
 | `apiKey` | `X-Api-Key: your-api-key` | 适用于简单的 API 密钥认证 |
-| `clientId` + `clientSecret` | `Authorization: Bearer <access_token>` | 适用于 OAuth 2.0 客户端凭证流程 |
+| `appId` + `appSecret` | `X-Api-Key: <apiKey>`（优先） | 适用于签名认证流程，支持令牌自动刷新 |
 | OAuth 本地回调 | `Authorization: Bearer <oauth-token>` | 适用于需要用户授权的 OAuth 2.0 授权码模式 |
-| `accessToken` | `Authorization: Bearer <access_token>` | 适用于已有访问令牌的场景 |
+| `accessToken` | `Authorization: Bearer <accessToken>` | 适用于已有访问令牌的场景 |
+
+**重要说明**:
+- apiKey 和 accessToken 是签名交换接口返回的两个不同的值
+- apiKey 用于 X-Api-Key 认证头
+- accessToken 用于 Authorization: Bearer 认证头
+- 使用 appId + appSecret 初始化时，SDK 优先使用 X-Api-Key 头
+- 同时传入两种认证头时，服务端优先使用 X-Api-Key
 
 **X-Api-Key 头**：
 - 使用 `X-Api-Key: your-api-key` 请求头
-- 适用于服务端到服务端调用
+- 适用于简单的服务端到服务端调用
 - 通过 `apiKey` 参数或 `SdkConfig.apiKey` 配置
+- 不支持令牌自动刷新
 
 **Authorization: Bearer 头**：
 - 使用 `Authorization: Bearer access_token` 请求头
 - OAuth 2.0 标准认证头格式，符合 RFC 6750 规范
-- 通过 OAuth 流程、clientId+clientSecret 或直接传入 accessToken 后自动使用
+- 通过 OAuth 流程、appId+appSecret 或直接传入 accessToken 后自动使用
+- 支持令牌自动刷新机制
 
 ### 调用 API
 
@@ -253,8 +280,8 @@ fun main() = runBlocking {
     val sdk = FursuitTvSdk(apiKey = "your-api-key")
     
     try {
-        // 认证
-        val tokenInfo = sdk.auth.exchangeToken("client-id", "client-secret")
+        // 认证（签名交换）
+        val tokenInfo = sdk.auth.exchangeToken("vap_xxxxxxxxxxxxxxxx", "your-app-secret")
         
         // 获取用户资料
         val userProfile = sdk.user.getUserProfile("username")
@@ -263,7 +290,7 @@ fun main() = runBlocking {
         val popular = sdk.search.getPopular()
         
     } catch (e: FursuitTvSdkException) {
-        println("错误: ${e.message}")
+        println("错误：${e.message}")
     } finally {
         sdk.close()
     }
