@@ -552,7 +552,7 @@ val sdk = FursuitTvSdk(config)
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-org/fursuit-tv-sdk.git
+git clone https://github.com/RegadPoleCN/fursuit-tv-sdk.git
 cd fursuit-tv-sdk
 
 # 编译所有目标
@@ -584,11 +584,8 @@ open build/reports/tests/allTests/index.html
 ### 代码规范
 
 ```bash
-# 格式化代码
-./gradlew ktlintFormat
-
 # 检查代码规范
-./gradlew ktlintCheck
+./gradlew detekt
 ```
 
 ### 发布流程
@@ -605,7 +602,7 @@ open build/reports/tests/allTests/index.html
 - [完整 API 文档](docs/api/)
 - [配置指南](docs/configuration.md)
 - [使用示例](docs/examples.md)
-- [VDS 认证文档](vds-docs/)
+- [VDS 认证文档](https://developer.vds.pub/docs)
 - [Kotlin 官方文档](https://kotlinlang.org)
 - [Ktor 客户端文档](https://ktor.io)
 
@@ -614,9 +611,9 @@ open build/reports/tests/allTests/index.html
 欢迎提交 Issue 和 Pull Request！
 
 1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
+2. 创建特性分支
+3. 提交更改
+4. 推送到分支
 5. 开启 Pull Request
 
 ## 📄 许可证
@@ -625,7 +622,7 @@ open build/reports/tests/allTests/index.html
 
 ## 👥 维护者
 
-- **RegadPole** - [@regadpole](https://github.com/regadpole)
+- **RegadPole** - [@RegadPoleCN](https://github.com/RegadPoleCN)
 
 ## 🙏 致谢
 
