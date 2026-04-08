@@ -91,32 +91,34 @@ val sdk = FursuitTvSdk(config)
 
 **适用场景**：已有 apiKey 的用户，快速集成，无需处理令牌交换流程。
 
-#### 方式 2: 使用 clientId + clientSecret（适用于服务端应用）
+#### 方式 2: 使用 appId + appSecret（推荐，适用于新用户）
 
-适用于服务端应用，通过签名交换获取访问令牌。SDK 会在获取令牌后使用 `X-Api-Key` 进行认证。
+如果您还没有 apiKey，可以使用 appId 和 appSecret 初始化 SDK。SDK 会调用签名交换接口获取 accessToken 和 apiKey，并自动管理令牌的刷新。SDK 会使用 `X-Api-Key` 进行认证。
 
 ```kotlin
-// 使用 clientId 和 clientSecret 初始化
+// 使用 appId 和 appSecret 初始化
 val sdk = FursuitTvSdk(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 
-// 手动获取初始令牌（在协程中）
+// 获取初始令牌（在协程中）
 runBlocking {
     sdk.auth.exchangeToken(
-        clientId = "your-client-id",
-        clientSecret = "your-client-secret"
+        appId = "vap_xxxxxxxxxxxxxxxx",
+        appSecret = "your-app-secret"
     )
 }
 // SDK 会自动管理令牌的刷新（当剩余有效期 <= 300 秒时）
 ```
 
-**适用场景**：服务端应用、后台任务、需要长期访问 API 的场景。
+**适用场景**：新用户，服务端应用，需要长期访问 API 的场景。SDK 会自动调用签名交换接口获取 accessToken 和 apiKey（两个不同的值），并在令牌即将过期时自动刷新。
 
 #### 方式 3: OAuth 2.0 授权（适用于需要用户授权的应用）
 
 适用于需要用户登录和授权的应用场景。SDK 提供自动化的 OAuth 流程，支持本地回调服务器。
+
+**注意**：OAuth 流程仅需要 `appId`，不需要 `appSecret`。
 
 **基本用法（使用默认本地回调）：**
 
@@ -126,8 +128,7 @@ val sdk = FursuitTvSdk()
 
 // 使用 initWithOAuth 方法，自动启动本地回调服务器并打开浏览器
 val oauthResult = sdk.auth.initWithOAuth(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx"
 )
 
 // oauthResult 包含授权后的完整信息
@@ -145,22 +146,15 @@ println("用户名：${oauthResult.username}")
 ```kotlin
 // 使用 OAuthConfig 自定义回调参数
 val config = OAuthConfig(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret",
-    redirectUri = "http://localhost:8080/callback",  // 自定义本地回调地址
-    callbackPort = 8080,                              // 本地回调服务器端口
-    state = "custom-state-string"                     // 自定义 state 参数（可选）
+    callbackHost = "localhost",
+    callbackPort = 8080,
+    callbackPath = "/callback"
 )
 
 val sdk = FursuitTvSdk()
-val oauthResult = sdk.auth.initWithOAuth(config)
-
-// 或者使用带命名参数的版本
 val oauthResult = sdk.auth.initWithOAuth(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret",
-    redirectUri = "http://localhost:8080/callback",
-    callbackPort = 8080
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    config = config
 )
 ```
 
@@ -168,11 +162,11 @@ val oauthResult = sdk.auth.initWithOAuth(
 
 | 参数 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `clientId` | String | - | 客户端 ID（必需） |
-| `clientSecret` | String | - | 客户端密钥（必需） |
-| `redirectUri` | String | `http://localhost:{port}/callback` | OAuth 回调 URI |
-| `callbackPort` | Int | 随机可用端口 | 本地回调服务器监听端口 |
-| `state` | String | 自动生成 | CSRF 保护参数，建议保持默认 |
+| `callbackHost` | String | `"localhost"` | 回调服务器主机 |
+| `callbackPort` | Int | `8080` | 本地回调服务器端口 |
+| `callbackPath` | String | `"/callback"` | OAuth 回调路径 |
+| `stateTimeoutMinutes` | Int | `10` | State 参数超时时间（分钟） |
+| `enablePkce` | Boolean | `false` | 是否启用 PKCE |
 
 **🌍 跨平台 OAuth 支持说明：**
 
@@ -213,11 +207,14 @@ val sdk = FursuitTvSdk(config)
 
 ```kotlin
 val tokenInfo = sdk.auth.exchangeToken(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
-println("访问令牌：${tokenInfo.accessToken}")
+println("访问令牌（accessToken）：${tokenInfo.accessToken}")
+println("API 密钥（apiKey）：${tokenInfo.apiKey}")
 ```
+
+**注意**：签名交换接口返回的 `accessToken` 和 `apiKey` 是两个不同的值。
 
 #### OAuth 2.0 自动授权流程（推荐）
 
@@ -246,19 +243,22 @@ val sdk = FursuitTvSdk()
 
 // 1. 生成授权 URL
 val authorizeUrl = sdk.auth.getOAuthAuthorizeUrl(
-    clientId = "your-client-id",
-    redirectUri = "http://localhost:8080/callback"
+    OAuthAuthorizeParams(
+        appId = "vap_xxxxxxxxxxxxxxxx",
+        redirectUri = "http://localhost:8080/callback"
+    )
 )
 
 // 2. 在浏览器中打开授权 URL
 // 用户完成授权后，会从回调 URL 获取 authorization_code
 
-// 3. 使用授权码交换令牌
+// 3. 使用授权码交换令牌（OAuth 流程仅需 appId）
 val oauthToken = sdk.auth.exchangeOAuthToken(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret",
-    code = "authorization-code",
-    redirectUri = "http://localhost:8080/callback"
+    OAuthTokenRequest(
+        appId = "vap_xxxxxxxxxxxxxxxx",
+        code = "authorization-code",
+        redirectUri = "http://localhost:8080/callback"
+    )
 )
 
 // 4. 获取用户信息（可选）
@@ -272,13 +272,16 @@ SDK 根据初始化方式的不同，使用两种认证头：
 | 初始化方式 | 认证头 | 说明 |
 |-----------|--------|------|
 | **apiKey** | `X-Api-Key: your-api-key` | 直接使用 apiKey 进行认证 |
-| **clientId + clientSecret** | `X-Api-Key: <access_token>` | 通过签名交换获取访问令牌，使用 X-Api-Key 头 |
-| **OAuth 2.0** | `Authorization: Bearer <access_token>` | 通过 OAuth 授权获取访问令牌，使用 Bearer 认证 |
+| **appId + appSecret** | `X-Api-Key: <apiKey>`（优先） | 通过签名交换获取 accessToken 和 apiKey（两个不同的值），SDK 优先使用 X-Api-Key 头 |
+| **OAuth 2.0** | `Authorization: Bearer <access_token>` | 通过 OAuth 授权获取 access_token，使用 Bearer 认证 |
 | **access_token** | `Authorization: Bearer <access_token>` | 直接使用已有的 access_token，使用 Bearer 认证 |
 
 **重要区别**：
-- `X-Api-Key`：用于服务端到服务端的认证，通过 clientId/clientSecret 或 apiKey 直接访问 API
-- `Authorization: Bearer`：用于用户授权场景，代表用户执行操作，需要用户登录授权
+- **签名认证**（appId + appSecret）：返回 `accessToken` 和 `apiKey` 两个不同的值
+  - `apiKey` 用于 `X-Api-Key` 认证头（SDK 优先使用）
+  - `accessToken` 用于 `Authorization: Bearer` 认证头
+  - 服务端优先使用 `X-Api-Key` 认证头
+- **OAuth 流程**：仅返回 `access_token`，使用 `Authorization: Bearer` 认证头
 
 ## 📦 API 模块
 
@@ -449,14 +452,16 @@ try {
 SDK 实现了自动令牌刷新机制，当令牌剩余有效期 <= 300 秒（5 分钟）时会自动刷新：
 
 ```kotlin
-// 使用 getApiKey 方法会自动检查并刷新令牌
-val apiKey = sdk.auth.getApiKey(
-    clientId = "your-client-id",
-    clientSecret = "your-client-secret"
+// 使用 getValidAccessToken 方法会自动检查并刷新令牌
+val accessToken = sdk.auth.getValidAccessToken(
+    appId = "vap_xxxxxxxxxxxxxxxx",
+    appSecret = "your-app-secret"
 )
 // 如果令牌即将过期，会自动刷新
 // 如果刷新失败，会自动回退到 exchangeToken
 ```
+
+**注意**：签名认证返回的 `accessToken` 和 `apiKey` 是两个不同的值，刷新时会同时更新这两个值。
 
 ### 异常类型说明
 
