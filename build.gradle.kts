@@ -1,3 +1,5 @@
+import dev.detekt.gradle.Detekt
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -8,8 +10,6 @@ plugins {
 repositories {
     mavenCentral()
 }
-
-val buildOutputDir = "buildSrc/build/outputs"
 
 group = "me.regadpole"
 version = "1.0-SNAPSHOT"
@@ -82,13 +82,6 @@ kotlin {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
-                implementation(libs.ktor.server.websockets)
-            }
-        }
-        
-        jvmMain {
-            dependencies {
-                // JVM 平台特定依赖（如果有）
             }
         }
 
@@ -115,11 +108,6 @@ kotlin {
     }
 }
 
-// Configure build outputs
-tasks.withType<org.gradle.jvm.tasks.Jar> {
-    destinationDirectory.set(file(buildOutputDir))
-}
-
 // Configure detekt
 detekt {
     buildUponDefaultConfig = true
@@ -128,12 +116,21 @@ detekt {
     source.from(files("src"))
 }
 
+tasks.withType<Detekt>().configureEach {
+    reports {
+        checkstyle.required.set(true)
+        html.required.set(true)
+        sarif.required.set(true)
+        markdown.required.set(true)
+    }
+}
+
 // Maven Publish Configuration
 publishing {
     publications {
         withType<MavenPublication> {
             pom {
-                name.set("Fursuit.TV SDK")
+                name.set("fursuit-tv-sdk")
                 description.set("Cross-platform SDK for Fursuit.TV API built with Kotlin Multiplatform")
                 url.set("https://github.com/RegadPoleCN/fursuit-tv-sdk")
                 
