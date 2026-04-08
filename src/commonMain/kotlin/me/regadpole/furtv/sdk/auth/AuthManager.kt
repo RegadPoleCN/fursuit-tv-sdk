@@ -14,6 +14,7 @@ import io.ktor.http.contentType
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 
 /**
@@ -239,9 +240,14 @@ public class AuthManager(
             callbackPath = config.callbackPath,
             timeoutSeconds = config.stateTimeoutMinutes * 60L
         )
-        val handler = createOAuthCallbackHandler(serverConfig)
+        val handler = OAuthCallbackHandler(serverConfig)
         
-        val state = generateState()
+        val state = Random.nextBytes(16).let { bytes ->
+            bytes.joinToString("") { byte ->
+                val hex = byte.toInt().and(0xFF).toString(16)
+                if (hex.length == 1) "0$hex" else hex
+            }
+        }
         val redirectUri = handler.callbackUrl
         
         val authorizeParams = OAuthAuthorizeParams(

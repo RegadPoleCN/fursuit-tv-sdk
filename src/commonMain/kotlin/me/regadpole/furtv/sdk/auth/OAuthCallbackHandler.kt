@@ -1,8 +1,22 @@
 package me.regadpole.furtv.sdk.auth
 
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.cio.CIO
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
+import io.ktor.util.collections.ConcurrentMap
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * OAuth 回调服务器配置
@@ -64,31 +78,113 @@ public class OAuthCallbackException(
 ) : Exception(message, cause)
 
 /**
- * OAuth 回调处理器接口
- * 统一的接口定义，所有平台使用相同的 API
+ * OAuth 回调处理器
+ * 使用 Ktor CIO 引擎启动嵌入式 HTTP 服务器
+ * 
+ * @param config OAuth 回调服务器配置
  */
-public interface OAuthCallbackHandler {
+public class OAuthCallbackHandler(
+    private val config: OAuthCallbackServerConfig
+) {
     /**
      * 回调 URL
      */
-    public val callbackUrl: String
-    
-    /**
-     * 启动回调处理器并等待回调
-     * @param authorizeUrl 授权 URL，用于打开浏览器
-     * @return OAuthCallbackResult 回调结果
-     */
-    public suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult
-    
-    /**
-     * 停止回调处理器
-     */
-    public suspend fun stop()
-}
+    public val callbackUrl: String get() = config.buildCallbackUrl()
 
 /**
  * 生成随机 state 参数用于 CSRF 保护
  * 使用加密安全的随机数生成器生成 32 字符的十六进制字符串
  * @return 随机生成的 state 字符串
  */
-public expect fun generateState(): String
+public fun generateState(): String {
+    val bytes = ByteArray(16) { Random.nextInt(256).toByte() }
+    return bytes.joinToString("") { byte ->
+        val hex = (byte.toInt() and 0xFF).toString(16).padStart(2, '0')
+        hex
+    }
+}
+
+
+    
+    private val server = embeddedServer(CIO, port = config.callbackPort, host = config.callbackHost) {
+        routing {
+            get(config.callbackPath) {
+                handleCallback(this.call)
+            }
+        }
+    }
+    
+    private val pendingCallbacks = ConcurrentMap<String, CompletableDeferred<OAuthCallbackResult>>()
+    private val mutex = Mutex()
+    
+    /**
+     * 启动回调处理器并等待回调
+     * @param authorizeUrl 授权 URL，用于打开浏览器
+     * @return OAuthCallbackResult 回调结果
+     */
+    public suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
+        val deferred = CompletableDeferred<OAuthCallbackResult>()
+        val state = extractStateFromUrl(authorizeUrl)
+        
+        return mutex.withLock {
+            try {
+                server.start(wait = false)
+                
+                if (state != null) {
+                    pendingCallbacks[state] = deferred
+                }
+                
+                val timeoutDuration = config.timeoutSeconds.seconds
+                val result = withTimeoutOrNull(timeoutDuration) {
+                    deferred.await()
+                }
+                
+                if (result == null) {
+                    OAuthCallbackResult.Error("OAuth callback timeout")
+                } else {
+                    result
+                }
+            } catch (e: Exception) {
+                OAuthCallbackResult.Error("Failed to start server: ${e.message}", e)
+            } finally {
+                pendingCallbacks.clear()
+                server.stop(gracePeriodMillis = 1000, timeoutMillis = 2000)
+            }
+        }
+    }
+    
+    /**
+     * 停止回调处理器
+     */
+    public suspend fun stop() {
+        try {
+            server.stop(gracePeriodMillis = 1000, timeoutMillis = 2000)
+        } catch (e: Exception) {
+            // Ignore
+        }
+    }
+    
+    private fun extractStateFromUrl(url: String): String? {
+        return url.substringAfter("state=", "").substringBefore("&")
+            .takeIf { it.isNotEmpty() }
+    }
+    
+    private suspend fun handleCallback(call: ApplicationCall) {
+        val code = call.request.queryParameters["code"]
+        val state = call.request.queryParameters["state"]
+        
+        if (code == null || state == null) {
+            call.respondText("Missing code or state", status = HttpStatusCode.BadRequest)
+            return
+        }
+        
+        val deferred = pendingCallbacks[state]
+        if (deferred == null) {
+            call.respondText("Unknown state", status = HttpStatusCode.BadRequest)
+            return
+        }
+        
+        deferred.complete(OAuthCallbackResult.Success(code, state))
+        call.respondText("Success")
+    }
+}
