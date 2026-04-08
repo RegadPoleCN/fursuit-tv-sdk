@@ -23,6 +23,9 @@ kotlin {
             useJUnitPlatform()
         }
     }
+    
+    // Configure JVM toolchain to auto-provision JDK 17
+    jvmToolchain(17)
 
     js {
         nodejs {
