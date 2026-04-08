@@ -295,6 +295,7 @@ public class AuthManager(
 
         val newTokenInfo = TokenInfo(
             accessToken = response.data.accessToken,
+            apiKey = "",  // OAuth 流程没有 apiKey，设置为空字符串
             expiresAt = Clock.System.now().toEpochMilliseconds() + (response.data.expiresIn * 1000),
             tokenType = response.data.tokenType
         )
