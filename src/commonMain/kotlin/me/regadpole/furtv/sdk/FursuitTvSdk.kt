@@ -20,35 +20,30 @@ import io.ktor.client.HttpClient
  * ```kotlin
  * // 方式 1: 使用 apiKey（适用于已有 apiKey 的用户）
  * // 认证头：X-Api-Key
+ * // 说明：apiKey 通过签名交换接口获取（使用 appId + appSecret）
  * val sdk = FursuitTvSdk(apiKey = "your-api-key")
  *
- * // 方式 2: 使用 accessToken（适用于已有访问令牌的用户）
+ * // 方式 2: 使用 appId + appSecret（推荐，适用于新用户）
  * // 认证头：Authorization: Bearer <accessToken>
- * val sdk = FursuitTvSdk(accessToken = "your-access-token", baseUrl = "https://open-global.vdsentnet.com")
- *
- * // 方式 3: 使用 OAuth 认证（推荐，适用于需要完整 OAuth 流程的应用）
- * // 认证头：Authorization: Bearer <oauth-token>
- * val config = OAuthConfig(clientId = "xxx", clientSecret = "xxx", redirectUri = "xxx")
- * val sdk = FursuitTvSdk.initWithOAuth("your-app-id", config)
- *
- * // 方式 4: 使用 clientId 和 clientSecret（适用于新用户）
- * // 认证头：Authorization: Bearer <token>（自动管理）
+ * // 说明：SDK 会自动调用签名交换接口获取 accessToken（即 apiKey）
  * val sdk = FursuitTvSdk(
- *     clientId = "your-client-id",
- *     clientSecret = "your-client-secret"
+ *     appId = "vap_xxxxxxxxxxxxxxxx",
+ *     appSecret = "your-app-secret"
  * )
  * runBlocking {
- *     sdk.auth.exchangeToken(clientId, clientSecret)
+ *     sdk.auth.exchangeToken(appId, appSecret)
  * }
  *
- * // 方式 5: 使用自定义配置（Builder 模式）
- * val config = SdkConfig.builder()
- *     .apiKey("your-api-key")
- *     .baseUrl("https://open-global.vdsentnet.com")
- *     .logLevel(LogLevel.DEBUG)
- *     .requestTimeout(60000)
- *     .build()
- * val sdk = FursuitTvSdk(config)
+ * // 方式 3: 使用 OAuth 认证（适用于需要用户授权的应用）
+ * // 认证头：Authorization: Bearer <oauth-token>
+ * // 说明：完整的 OAuth 2.0 授权码模式，需要用户登录授权
+ * val config = OAuthConfig(callbackHost = "localhost", callbackPort = 8080)
+ * val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
+ *
+ * // 方式 4: 使用 accessToken（适用于已有访问令牌的用户）
+ * // 认证头：Authorization: Bearer <accessToken>
+ * // 说明：accessToken 即 apiKey，两者是同一个值
+ * val sdk = FursuitTvSdk(accessToken = "your-access-token")
  *
  * // 调用 API
  * val userProfile = sdk.user.getUserProfile("username")
@@ -120,24 +115,24 @@ public class FursuitTvSdk {
     }
 
     /**
-     * 使用 clientId 和 clientSecret 初始化 SDK（推荐方式）
-     * 适用于新用户，SDK 会自动调用 token exchange 获取初始令牌
+     * 使用 appId 和 appSecret 初始化 SDK（推荐方式）
+     * 适用于新用户，SDK 会自动调用签名交换接口获取 accessToken（即 apiKey）
      * 并自动管理令牌的刷新（当剩余有效期 <= 300 秒时）
      * 
-     * 认证头：Authorization: Bearer <token>
+     * 认证头：Authorization: Bearer <accessToken>
      * 
-     * @param clientId 客户端 ID
-     * @param clientSecret 客户端密钥
+     * @param appId 应用 ID（格式 vap_xxxx）
+     * @param appSecret 应用密钥
      * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      */
-    public constructor(clientId: String, clientSecret: String, baseUrl: String = "https://open-global.vdsentnet.com") {
+    public constructor(appId: String, appSecret: String, baseUrl: String = "https://open-global.vdsentnet.com") {
         this.config = SdkConfig.builder()
             .apiKey("") // 临时空 apiKey，后续通过 exchangeToken 获取
             .baseUrl(baseUrl)
             .build()
         this.auth = AuthManager(config)
         // 注意：此构造函数不会自动获取令牌
-        // 用户需要在协程作用域中手动调用 auth.exchangeToken(clientId, clientSecret)
+        // 用户需要在协程作用域中手动调用 auth.exchangeToken(appId, appSecret)
         // 或者使用 AuthManager 提供的其他异步方法
         this.httpClient = HttpClientConfig.createClient(config, null)
     }

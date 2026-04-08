@@ -32,6 +32,8 @@ public class AuthManager(
     // 令牌信息
     private var tokenInfo: TokenInfo? = null
     // 是否为 OAuth 令牌（决定使用哪种认证头）
+    // true: OAuth 流程的 access_token，使用 Authorization: Bearer
+    // false: 签名交换的令牌，使用 X-Api-Key（优先）或 Authorization: Bearer
     private var isOAuthToken: Boolean = false
 
     /**
@@ -39,6 +41,12 @@ public class AuthManager(
      * @return 当前访问令牌，如果未认证则返回 null
      */
     public fun getAccessToken(): String? = tokenInfo?.accessToken
+
+    /**
+     * 获取当前 API 密钥
+     * @return 当前 API 密钥，如果未认证则返回 null
+     */
+    public fun getApiKey(): String? = tokenInfo?.apiKey
 
     /**
      * 检查是否已认证
@@ -65,27 +73,34 @@ public class AuthManager(
     }
 
     /**
-     * 签名交换 - 使用 clientId 和 clientSecret 获取令牌
+     * 签名交换 - 使用 appId 和 appSecret 获取令牌
      * 端点：POST /api/auth/token
-     * @param clientId 客户端 ID
-     * @param clientSecret 客户端密钥
-     * @return TokenInfo 包含访问令牌
+     * 
+     * 此方法用于获取签名认证所需的 accessToken 和 apiKey
+     * accessToken 用于 Authorization: Bearer 认证头
+     * apiKey 用于 X-Api-Key 认证头
+     * 两者是不同的值
+     * 
+     * @param appId 应用 ID（格式 vap_xxxx）
+     * @param appSecret 应用密钥
+     * @return TokenInfo 包含 accessToken 和 apiKey
      */
-    public suspend fun exchangeToken(clientId: String, clientSecret: String): TokenInfo {
+    public suspend fun exchangeToken(appId: String, appSecret: String): TokenInfo {
         val response = httpClient.post("${config.baseUrl}/api/auth/token") {
             contentType(ContentType.Application.Json)
-            setBody(TokenExchangeRequest(clientId, clientSecret))
+            setBody(TokenExchangeRequest(appId, appSecret))
         }.body<TokenExchangeResponse>()
 
         val newTokenInfo = TokenInfo(
             accessToken = response.data.accessToken,
+            apiKey = response.data.apiKey,
             expiresAt = Clock.System.now().toEpochMilliseconds() + (response.data.expiresIn * 1000),
             tokenType = response.data.tokenType
         )
 
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
-            isOAuthToken = false  // 标记为非 OAuth 令牌（使用 X-Api-Key）
+            isOAuthToken = false  // 标记为非 OAuth 令牌
             updateHttpClient()
         }
 
@@ -113,6 +128,7 @@ public class AuthManager(
 
         val newTokenInfo = TokenInfo(
             accessToken = response.data.accessToken,
+            apiKey = response.data.apiKey,
             expiresAt = Clock.System.now().toEpochMilliseconds() + (response.data.expiresIn * 1000),
             tokenType = response.data.tokenType
         )
@@ -126,25 +142,25 @@ public class AuthManager(
     }
 
     /**
-     * 获取 API 密钥（自动刷新）
+     * 获取有效的访问令牌（自动刷新）
      * 提供统一的获取令牌方法，实现自动检查和刷新逻辑
      * 遵循文档中的伪代码逻辑：
      * 1. 如果没有令牌或已过期，调用 exchangeToken
      * 2. 如果剩余有效期 <= 300 秒，调用 refreshToken
      * 3. 如果刷新失败，回退到 exchangeToken
      * 
-     * 注意：此方法需要 clientId 和 clientSecret 作为回退凭证
-     * @param clientId 客户端 ID（用于回退）
-     * @param clientSecret 客户端密钥（用于回退）
-     * @return 当前或刷新后的访问令牌
+     * 注意：此方法需要 appId 和 appSecret 作为回退凭证
+     * @param appId 应用 ID（用于回退）
+     * @param appSecret 应用密钥（用于回退）
+     * @return 当前或刷新后的访问令牌（accessToken）
      */
-    public suspend fun getApiKey(clientId: String, clientSecret: String): String {
+    public suspend fun getValidAccessToken(appId: String, appSecret: String): String {
         return tokenMutex.withLock {
             val now = Clock.System.now().toEpochMilliseconds()
             
             // 1. 如果没有令牌或已过期，获取新令牌
             if (tokenInfo == null || tokenInfo?.isExpired() == true) {
-                exchangeToken(clientId, clientSecret)
+                exchangeToken(appId, appSecret)
                 return@withLock tokenInfo!!.accessToken
             }
             
@@ -157,7 +173,7 @@ public class AuthManager(
                     // 3. 刷新失败，回退到 exchangeToken
                     // 记录异常但不抛出，继续执行 exchangeToken
                     // 注意：这里捕获通用 Exception 是因为网络错误可能是多种类型
-                    exchangeToken(clientId, clientSecret)
+                    exchangeToken(appId, appSecret)
                 }
             }
             
@@ -169,9 +185,9 @@ public class AuthManager(
      * 如果需要，刷新令牌
      * 检查令牌是否过期（剩余时间 <= 300 秒），如果是则自动刷新
      * @return TokenInfo 当前或刷新后的令牌信息，如果未认证则返回 null
-     * @deprecated 使用 [getApiKey] 代替，该方法需要 clientId 和 clientSecret
+     * @deprecated 使用 [getValidAccessToken] 代替，该方法需要 appId 和 appSecret
      */
-    @Deprecated("Use getApiKey(clientId, clientSecret) instead", ReplaceWith("getApiKey(clientId, clientSecret)"))
+    @Deprecated("Use getValidAccessToken(appId, appSecret) instead", ReplaceWith("getValidAccessToken(appId, appSecret)"))
     public suspend fun refreshTokenIfNeeded(): TokenInfo? {
         return tokenMutex.withLock {
             if (tokenInfo?.isExpired() == true) {
@@ -191,7 +207,7 @@ public class AuthManager(
      */
     public fun getOAuthAuthorizeUrl(params: OAuthAuthorizeParams): String {
         val queryParams = buildString {
-            append("?client_id=${params.clientId}")
+            append("?client_id=${params.appId}")
             append("&redirect_uri=${params.redirectUri}")
             params.state?.let { append("&state=$it") }
             params.scope?.let { append("&scope=$it") }
@@ -229,7 +245,7 @@ public class AuthManager(
         val redirectUri = handler.callbackUrl
         
         val authorizeParams = OAuthAuthorizeParams(
-            clientId = appId,
+            appId = appId,
             redirectUri = redirectUri,
             state = state,
             scope = scope
@@ -311,11 +327,16 @@ public class AuthManager(
      * 使用新的访问令牌重新配置 HTTP 客户端
      * 根据令牌类型选择合适的认证头：
      * - OAuth 令牌：使用 Authorization Bearer
-     * - 签名交换令牌：使用 X-Api-Key
+     * - 签名交换令牌：使用 X-Api-Key（优先）
      */
     private fun updateHttpClient() {
-        // OAuth 场景使用 Authorization Bearer，其他场景使用 X-Api-Key
-        httpClient = HttpClientConfig.createClient(config, tokenInfo?.accessToken, !isOAuthToken)
+        // OAuth 场景使用 Authorization Bearer，签名交换场景使用 X-Api-Key
+        // 对于签名交换，优先使用 apiKey（通过 useApiKey 参数控制）
+        httpClient = HttpClientConfig.createClient(
+            config, 
+            if (isOAuthToken) tokenInfo?.accessToken else tokenInfo?.apiKey,
+            !isOAuthToken  // useApiKey = true 表示使用 X-Api-Key 头
+        )
     }
 
     /**

@@ -4,14 +4,14 @@ import kotlinx.datetime.Clock
 import kotlinx.serialization.Serializable
 
 /**
- * 令牌交换请求
+ * 签名交换请求（用于获取 apiKey/accessToken）
  * 用于签名交换接口的请求体
- * @param clientId 客户端 ID
- * @param clientSecret 客户端密钥
+ * @param appId 应用 ID（格式 vap_xxxx），与 clientId 等价
+ * @param clientSecret 应用密钥（与 appSecret 等价）
  */
 @Serializable
 public data class TokenExchangeRequest(
-    public val clientId: String,
+    public val appId: String,
     public val clientSecret: String
 )
 
@@ -31,14 +31,17 @@ public data class TokenExchangeResponse(
 
 /**
  * 令牌数据
- * 包含访问令牌信息
- * @param accessToken 访问令牌，用于 API 认证
+ * 包含访问令牌信息（签名交换接口返回）
+ * 注意：accessToken 和 apiKey 是两个不同的值
+ * @param accessToken 访问令牌，用于 Authorization: Bearer 认证头
+ * @param apiKey API 密钥，用于 X-Api-Key 认证头
  * @param expiresIn 令牌有效期（秒）
  * @param tokenType 令牌类型，通常为 "Bearer"
  */
 @Serializable
 public data class TokenData(
     public val accessToken: String,
+    public val apiKey: String,
     public val expiresIn: Int,
     public val tokenType: String
 )
@@ -70,15 +73,15 @@ public data class TokenRefreshResponse(
 
 /**
  * OAuth 授权 URL 参数
- * 用于生成 OAuth 授权 URL 的参数
- * @param clientId 客户端 ID
+ * 用于生成 OAuth 授权 URL 的参数（OAuth 流程）
+ * @param appId 应用 ID（格式 vap_xxxx）
  * @param redirectUri 授权后重定向 URI
  * @param state 可选的状态参数，用于防止 CSRF 攻击
  * @param scope 可选的权限范围
  */
 @Serializable
 public data class OAuthAuthorizeParams(
-    public val clientId: String,
+    public val appId: String,
     public val redirectUri: String,
     public val state: String? = null,
     public val scope: String? = null
@@ -86,7 +89,7 @@ public data class OAuthAuthorizeParams(
 
 /**
  * OAuth 配置
- * 用于配置 OAuth 回调参数
+ * 用于配置 OAuth 回调参数（OAuth 流程）
  * @param callbackHost 回调主机，默认为 "localhost"
  * @param callbackPort 回调端口，默认为 8080
  * @param callbackPath 回调路径，默认为 "/callback"
@@ -104,9 +107,9 @@ public data class OAuthConfig(
 
 /**
  * OAuth 令牌请求
- * 用于 OAuth 令牌交换接口的请求体
- * @param appId 应用 ID
- * @param code 授权码
+ * 用于 OAuth 令牌交换接口的请求体（OAuth 流程）
+ * @param appId 应用 ID（格式 vap_xxxx）
+ * @param code 授权码（从 OAuth 授权回调中获取）
  * @param redirectUri 重定向 URI（必须与授权时一致）
  */
 @Serializable
@@ -132,8 +135,8 @@ public data class OAuthTokenResponse(
 
 /**
  * OAuth 令牌数据
- * 包含 OAuth 访问令牌信息
- * @param accessToken 访问令牌
+ * 包含 OAuth 访问令牌信息（OAuth 流程）
+ * @param accessToken 访问令牌（OAuth 流程专用）
  * @param expiresIn 有效期（秒）
  * @param tokenType 令牌类型
  * @param scope 授权的权限范围
@@ -179,13 +182,15 @@ public data class UserInfoData(
 /**
  * 令牌信息
  * SDK 内部使用的令牌存储结构
- * @param accessToken 访问令牌
+ * @param accessToken 访问令牌，用于 Authorization: Bearer 认证头
+ * @param apiKey API 密钥，用于 X-Api-Key 认证头
  * @param expiresAt 过期时间戳（毫秒）
  * @param tokenType 令牌类型
  */
 @Serializable
 public data class TokenInfo(
     public val accessToken: String,
+    public val apiKey: String,
     public val expiresAt: Long,
     public val tokenType: String
 ) {
