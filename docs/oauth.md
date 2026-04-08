@@ -308,141 +308,93 @@ if (savedToken != null && !isTokenExpired(savedExpiresAt)) {
 
 ## 跨平台实现
 
-### JVM 平台
+### 统一实现架构
 
-**实现方式**：
-- 使用 `java.awt.Desktop.browse()` 打开系统默认浏览器
-- 使用 Ktor 启动本地 HTTP 服务器监听回调
-- 授权完成后自动关闭回调服务器
+SDK 的 OAuth 实现已完全统一到 commonMain 中，所有平台使用相同的代码：
 
-**代码示例**：
+**核心特性**：
+- ✅ **统一代码**：所有平台使用相同的 OAuthCallbackHandler 实现
+- ✅ **简化维护**：移除了 expect/actual 机制和平台特定代码
+- ✅ **Ktor CIO 引擎**：所有平台使用 Ktor CIO 启动本地 HTTP 服务器
+- ✅ **一致行为**：所有平台的 OAuth 流程完全一致
+
+**平台支持说明**：
+
+| 平台 | OAuth 支持 | 说明 |
+|------|-----------|------|
+| **JVM** | ✅ 完全支持 | 使用 Ktor CIO 启动本地 HTTP 服务器 |
+| **JS (Node.js)** | ✅ 完全支持 | 使用 Ktor CIO 启动本地 HTTP 服务器 |
+| **JS (Browser)** | ❌ 不支持 | 浏览器环境无法运行 HTTP 服务器 |
+| **Native (iOS/macOS)** | ✅ 完全支持 | 使用 Ktor CIO 启动本地 HTTP 服务器 |
+| **Native (Linux/Windows)** | ✅ 完全支持 | 使用 Ktor CIO 启动本地 HTTP 服务器 |
+
+**重要说明**：
+- Browser 环境不支持 OAuth 回调功能，因为浏览器无法运行 HTTP 服务器
+- 如果需要在 Browser 环境中使用 OAuth，需要通过后端服务代理 OAuth 流程
+- 所有支持的平台都使用完全相同的实现，确保一致的行为
+
+### 工作原理
 
 ```kotlin
-// JVM 平台特定实现
-class JvmOAuthPlatform : OAuthPlatform {
-    override fun openBrowser(url: String) {
-        if (Desktop.isDesktopSupported()) {
-            Desktop.getDesktop().browse(URI(url))
-        } else {
-            throw UnsupportedOperationException("不支持打开浏览器")
-        }
-    }
-    
-    override fun startCallbackServer(port: Int): CallbackServer {
-        return KtorCallbackServer(port)
-    }
+// 1. 创建 OAuth 回调处理器
+val handler = OAuthCallbackHandler(config)
+
+// 2. 启动本地 HTTP 服务器
+server.start(wait = false)
+
+// 3. 打开浏览器进行授权
+openBrowser(authorizeUrl)
+
+// 4. 等待回调
+val result = withTimeout(timeout) {
+    pendingCallbacks[state]?.await()
+}
+
+// 5. 处理回调结果
+when (result) {
+    is OAuthCallbackResult.Success -> exchangeToken(result.code)
+    is OAuthCallbackResult.Error -> handleError(result.error)
+}
+
+// 6. 关闭服务器
+server.stop()
+```
+
+### 使用示例
+
+```kotlin
+// 配置 OAuth
+val config = OAuthConfig(
+    callbackHost = "localhost",
+    callbackPort = 8080,
+    callbackPath = "/callback",
+    stateTimeoutMinutes = 10
+)
+
+// 使用 OAuth 初始化 SDK
+val sdk = FursuitTvSdk()
+runBlocking {
+    val tokenInfo = sdk.auth.initWithOAuth(
+        appId = "vap_xxxxxxxxxxxxxxxx",
+        config = config
+    )
+    println("OAuth 授权成功，access_token: ${tokenInfo.accessToken}")
 }
 ```
 
-**特点**：
-- ✅ 自动打开浏览器
-- ✅ 完整的本地回调服务器
-- ✅ 支持 PKCE
-- ✅ 自动关闭回调服务器
-- ⚠️ 需要图形环境（无头服务器不支持）
+### 架构优势
 
-**适用场景**：
-- 桌面应用
-- 有图形界面的服务器
-- 开发调试环境
+**之前的架构（expect/actual）**：
+- ❌ 代码分散在多个平台目录
+- ❌ 需要维护多个实现
+- ❌ 容易出现平台差异 bug
+- ❌ 测试覆盖复杂
 
-### JS 平台（Node.js）
-
-**实现方式**：
-- 使用 `open` npm 包打开浏览器（可选）
-- 使用 Ktor JS 或 Node.js HTTP 服务器监听回调
-- 需要手动处理浏览器打开
-
-**代码示例**：
-
-```kotlin
-// JS 平台特定实现
-class JsOAuthPlatform : OAuthPlatform {
-    override fun openBrowser(url: String) {
-        // 在 Node.js 环境中，可以使用 open 包
-        // 或者提示用户手动打开
-        println("请在浏览器中打开：$url")
-    }
-    
-    override fun startCallbackServer(port: Int): CallbackServer {
-        return NodeHttpCallbackServer(port)
-    }
-}
-```
-
-**特点**：
-- ⚠️ 可能需要手动打开浏览器
-- ✅ 本地 HTTP 服务器接收回调
-- ✅ 适用于无头环境
-- ⚠️ 需要更长的超时时间
-- ✅ 适用于后端服务
-
-**适用场景**：
-- Node.js 后端服务
-- 命令行工具
-- CI/CD 环境
-
-### Native 平台
-
-**实现方式**：
-- **iOS/macOS**：使用 `NSWorkspace.shared.open()` 或 `UIApplication.shared.open()`
-- **Windows**：使用 `ProcessBuilder` 打开默认浏览器
-- **Linux**：使用 `xdg-open` 命令
-- 支持自定义 URL Scheme 和 Universal Links
-
-**代码示例**：
-
-```kotlin
-// iOS/macOS 平台特定实现
-class DarwinOAuthPlatform : OAuthPlatform {
-    override fun openBrowser(url: String) {
-        NSWorkspace.shared.open(NSURL.URLWithString(url))
-    }
-    
-    override fun startCallbackServer(port: Int): CallbackServer {
-        return CurlCallbackServer(port)
-    }
-}
-
-// Windows 平台特定实现
-class WindowsOAuthPlatform : OAuthPlatform {
-    override fun openBrowser(url: String) {
-        ProcessBuilder("cmd.exe", "/c", "start", url).start()
-    }
-}
-
-// Linux 平台特定实现
-class LinuxOAuthPlatform : OAuthPlatform {
-    override fun openBrowser(url: String) {
-        ProcessBuilder("xdg-open", url).start()
-    }
-}
-```
-
-**特点**：
-- ✅ 使用平台特定的 URL 打开机制
-- ✅ 支持自定义 URL Scheme
-- ✅ iOS/macOS 支持 Universal Links
-- ✅ 适用于移动应用
-- ⚠️ 需要配置 URL Scheme
-
-**适用场景**：
-- iOS/macOS 应用
-- Android 应用（通过 Kotlin Multiplatform）
-- Windows/Linux 桌面应用
-- 移动应用
-
-### 平台差异对比表
-
-| 特性 | JVM | JS (Node.js) | Native |
-|------|-----|--------------|--------|
-| 自动打开浏览器 | ✅ | ⚠️ (可选) | ✅ |
-| 本地回调服务器 | ✅ | ✅ | ✅ |
-| 自定义 URL Scheme | ⚠️ | ⚠️ | ✅ |
-| Universal Links | ❌ | ❌ | ✅ (iOS/macOS) |
-| PKCE 支持 | ✅ | ✅ | ✅ |
-| 无头环境支持 | ❌ | ✅ | ⚠️ |
-| 移动端支持 | ❌ | ❌ | ✅ |
+**现在的架构（统一实现）**：
+- ✅ 所有代码在 commonMain
+- ✅ 只需维护一个实现
+- ✅ 所有平台行为一致
+- ✅ 测试覆盖简单高效
 
 ## 安全最佳实践
 

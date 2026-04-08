@@ -170,14 +170,13 @@ val oauthResult = sdk.auth.initWithOAuth(
 
 **🌍 跨平台 OAuth 支持说明：**
 
-SDK 的 OAuth 实现使用 Ktor CIO 引擎，支持全平台：
+SDK 的 OAuth 实现已完全统一到 commonMain 中，所有平台使用相同的实现：
 
-- **JVM 平台**：使用 CIO 嵌入式服务器，自动启动本地 HTTP 回调服务器
-- **JS 平台（Browser）**：使用 postMessage API 监听回调消息，无需启动服务器
-- **JS 平台（Node.js）**：使用 CIO 服务器，支持本地回调
-- **Native 平台（iOS/macOS/Linux/Windows）**：使用 CIO 嵌入式服务器，支持本地回调
-
-SDK 会根据运行平台自动选择合适的实现，无需手动配置。
+- **统一实现**：所有平台使用 Ktor CIO 引擎启动本地 HTTP 回调服务器
+- **简化架构**：移除了 expect/actual 机制和平台特定代码
+- **JS 平台**：仅支持 Node.js 环境，不支持 Browser 环境
+  - Browser 环境无法运行 HTTP 服务器，因此不支持 OAuth 回调
+  - 需要在 Node.js 环境中运行，或使用后端服务代理 OAuth 流程
 
 详见 [跨平台 OAuth 实现](docs/oauth.md)。
 
@@ -521,10 +520,11 @@ val sdk = FursuitTvSdk(config)
 
 ### JS 平台
 
-- **要求**: Node.js 16+ 或现代浏览器
+- **要求**: Node.js 16+
 - **HTTP 客户端**: ktor-client-js
 - **构建命令**: `./gradlew jsJar`
 - **测试命令**: `./gradlew jsTest`
+- **注意**: JS 平台仅支持 Node.js 环境，不支持 Browser 环境。OAuth 回调功能需要运行 HTTP 服务器，浏览器环境无法实现此功能。
 
 ### Native 平台
 
