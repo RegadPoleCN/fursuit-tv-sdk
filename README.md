@@ -6,6 +6,10 @@
 [![Platform](https://img.shields.io/badge/Platform-JVM%20%7C%20JS%20%7C%20Native-lightgrey.svg)](https://kotlinlang.org/docs/multiplatform.html)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+本仓库中大量使用ai进行编写，请酌情看待本仓库的代码质量和文档质量。如有问题请在issue与仓库开发者联系。
+
+本仓库为第三方sdk，与兽频道及VDS官方无关，请不要混淆概念。
+
 基于 Kotlin Multiplatform 构建的跨平台 SDK，为 Fursuit.TV 和 VDS 账户系统提供完整的 API 访问能力。支持 JVM、JS 和 Native（iOS、macOS、Linux、Windows）平台。
 
 ## 📖 目录
