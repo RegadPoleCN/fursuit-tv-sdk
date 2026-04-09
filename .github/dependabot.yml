@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # Gradle dependencies (weekly check)
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "gradle"
+    commit-message:
+      prefix: "chore(deps)"
+    reviewers:
+      - "RegadPoleCN"
+    groups:
+      kotlin-dependencies:
+        patterns:
+          - "kotlin*"
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlinx:*"
+        update-types:
+          - "minor"
+          - "patch"
+      
+      ktor-dependencies:
+        patterns:
+          - "io.ktor:*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions (monthly check)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Shanghai"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci)"
+    reviewers:
+      - "RegadPoleCN"
