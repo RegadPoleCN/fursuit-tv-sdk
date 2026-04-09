@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 public data class TokenExchangeRequest(
     public val appId: String,
-    public val clientSecret: String
+    public val clientSecret: String,
 )
 
 /**
@@ -26,7 +26,7 @@ public data class TokenExchangeRequest(
 public data class TokenExchangeResponse(
     public val success: Boolean,
     public val data: TokenData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -43,7 +43,7 @@ public data class TokenData(
     public val accessToken: String,
     public val apiKey: String,
     public val expiresIn: Int,
-    public val tokenType: String
+    public val tokenType: String,
 )
 
 /**
@@ -54,7 +54,7 @@ public data class TokenData(
  */
 @Serializable
 public data class TokenRefreshRequest(
-    val dummy: String? = null // 占位符，实际不会发送
+    val dummy: String? = null, // 占位符，实际不会发送
 )
 
 /**
@@ -68,7 +68,7 @@ public data class TokenRefreshRequest(
 public data class TokenRefreshResponse(
     public val success: Boolean,
     public val data: TokenData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -84,7 +84,7 @@ public data class OAuthAuthorizeParams(
     public val appId: String,
     public val redirectUri: String,
     public val state: String? = null,
-    public val scope: String? = null
+    public val scope: String? = null,
 )
 
 /**
@@ -102,7 +102,7 @@ public data class OAuthConfig(
     public val callbackPort: Int = 8080,
     public val callbackPath: String = "/callback",
     public val stateTimeoutMinutes: Int = 10,
-    public val enablePkce: Boolean = false
+    public val enablePkce: Boolean = false,
 )
 
 /**
@@ -116,7 +116,7 @@ public data class OAuthConfig(
 public data class OAuthTokenRequest(
     public val appId: String,
     public val code: String,
-    public val redirectUri: String
+    public val redirectUri: String,
 )
 
 /**
@@ -130,7 +130,7 @@ public data class OAuthTokenRequest(
 public data class OAuthTokenResponse(
     public val success: Boolean,
     public val data: OAuthTokenData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -146,7 +146,7 @@ public data class OAuthTokenData(
     public val accessToken: String,
     public val expiresIn: Int,
     public val tokenType: String,
-    public val scope: String? = null
+    public val scope: String? = null,
 )
 
 /**
@@ -160,7 +160,7 @@ public data class OAuthTokenData(
 public data class UserInfoResponse(
     public val success: Boolean,
     public val data: UserInfoData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -176,7 +176,7 @@ public data class UserInfoData(
     public val sub: String,
     public val nickname: String? = null,
     public val avatarUrl: String? = null,
-    public val email: String? = null
+    public val email: String? = null,
 )
 
 /**
@@ -192,7 +192,7 @@ public data class TokenInfo(
     public val accessToken: String,
     public val apiKey: String,
     public val expiresAt: Long,
-    public val tokenType: String
+    public val tokenType: String,
 ) {
     /**
      * 令牌刷新窗口（毫秒）

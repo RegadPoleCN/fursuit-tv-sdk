@@ -4,10 +4,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.post
-import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 
 /**
@@ -18,9 +16,8 @@ import io.ktor.http.contentType
  */
 public class BaseApi(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://open-global.vdsentnet.com"
+    private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-
     /**
      * HelloWorld - 请求验证接口
      * 用于验证 API 连通性和请求格式是否正确
@@ -39,8 +36,9 @@ public class BaseApi(
      * @return HealthData 包含服务状态、版本和运行时间
      */
     public suspend fun health(): HealthData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/health")
-            .body<HealthResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/health")
+                .body<HealthResponse>()
         return response.data
     }
 
@@ -51,8 +49,9 @@ public class BaseApi(
      * @return AndroidVersionData 包含版本号、下载链接、更新日志等
      */
     public suspend fun getAndroidVersion(): AndroidVersionData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/version/android")
-            .body<AndroidVersionResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/version/android")
+                .body<AndroidVersionResponse>()
         return response.data
     }
 
@@ -66,12 +65,13 @@ public class BaseApi(
      */
     public suspend fun checkAndroidVersion(
         currentVersion: String,
-        currentVersionCode: Int? = null
+        currentVersionCode: Int? = null,
     ): AndroidVersionCheckData {
-        val response = httpClient.post("$baseUrl/api/proxy/furtv/version/android/check") {
-            contentType(ContentType.Application.Json)
-            setBody(AndroidVersionCheckRequest(currentVersion, currentVersionCode))
-        }.body<AndroidVersionCheckResponse>()
+        val response =
+            httpClient.post("$baseUrl/api/proxy/furtv/version/android/check") {
+                contentType(ContentType.Application.Json)
+                setBody(AndroidVersionCheckRequest(currentVersion, currentVersionCode))
+            }.body<AndroidVersionCheckResponse>()
         return response.data
     }
 
@@ -82,8 +82,9 @@ public class BaseApi(
      * @return ThemePacksManifestData 包含主题包版本和列表
      */
     public suspend fun getThemePacksManifest(): ThemePacksManifestData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/theme-packs/manifest")
-            .body<ThemePacksManifestResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/theme-packs/manifest")
+                .body<ThemePacksManifestResponse>()
         return response.data
     }
 }

@@ -1,5 +1,16 @@
 package me.regadpole.furtv.sdk.http
 
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
 import me.regadpole.furtv.sdk.exception.ApiException
 import me.regadpole.furtv.sdk.exception.AuthenticationException
 import me.regadpole.furtv.sdk.exception.NetworkException
@@ -7,25 +18,12 @@ import me.regadpole.furtv.sdk.exception.NotFoundException
 import me.regadpole.furtv.sdk.exception.TokenExpiredException
 import me.regadpole.furtv.sdk.exception.ValidationException
 import me.regadpole.furtv.sdk.model.SdkConfig
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.HttpResponseValidator
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.json.Json
 
 /**
  * HTTP 客户端配置
  * 负责创建和配置 Ktor HTTP 客户端，包括序列化、日志、认证、重试等功能
  */
 public object HttpClientConfig {
-
     private const val REQUEST_ID_LENGTH = 16
     private const val SUCCESS_STATUS_START = 200
     private const val SUCCESS_STATUS_END = 299
@@ -50,15 +48,17 @@ public object HttpClientConfig {
         config: SdkConfig,
         accessToken: String? = null,
         useApiKeyOnly: Boolean = true,
-        requestIdGenerator: () -> String = { generateRequestId() }
+        requestIdGenerator: () -> String = { generateRequestId() },
     ): HttpClient {
         return HttpClient {
             install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    prettyPrint = true
-                    isLenient = true
-                })
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        prettyPrint = true
+                        isLenient = true
+                    },
+                )
             }
 
             install(Logging) {
@@ -78,7 +78,7 @@ public object HttpClientConfig {
                         // 使用 Authorization Bearer（OAuth/accessToken）
                         append("Authorization", "Bearer $accessToken")
                     }
-                    
+
                     append("X-Request-ID", requestIdGenerator())
                     contentType(ContentType.Application.Json)
                     append("Accept", "application/json")
@@ -146,20 +146,23 @@ public object HttpClientConfig {
      */
     private fun throwExceptionForStatusCode(statusCode: Int, errorBody: String?) {
         val errorMessage = errorBody ?: "Unknown error"
-        val exception = when (statusCode) {
-            UNAUTHORIZED -> TokenExpiredException("Authentication failed: $errorMessage")
-            FORBIDDEN -> AuthenticationException("Access forbidden: $errorMessage")
-            NOT_FOUND -> NotFoundException("Resource not found: $errorMessage")
-            BAD_REQUEST -> ValidationException("Invalid request: $errorMessage")
-            in SERVER_ERROR_START..SERVER_ERROR_END -> ApiException(
-                statusCode,
-                "Server error: $errorMessage"
-            )
-            else -> ApiException(
-                statusCode,
-                "HTTP error $statusCode: $errorMessage"
-            )
-        }
+        val exception =
+            when (statusCode) {
+                UNAUTHORIZED -> TokenExpiredException("Authentication failed: $errorMessage")
+                FORBIDDEN -> AuthenticationException("Access forbidden: $errorMessage")
+                NOT_FOUND -> NotFoundException("Resource not found: $errorMessage")
+                BAD_REQUEST -> ValidationException("Invalid request: $errorMessage")
+                in SERVER_ERROR_START..SERVER_ERROR_END ->
+                    ApiException(
+                        statusCode,
+                        "Server error: $errorMessage",
+                    )
+                else ->
+                    ApiException(
+                        statusCode,
+                        "HTTP error $statusCode: $errorMessage",
+                    )
+            }
         throw exception
     }
 
@@ -175,7 +178,8 @@ public object HttpClientConfig {
             is AuthenticationException,
             is NotFoundException,
             is ValidationException,
-            is ApiException -> throw cause
+            is ApiException,
+            -> throw cause
             else -> throw NetworkException("Network error: ${cause.message}", cause)
         }
     }

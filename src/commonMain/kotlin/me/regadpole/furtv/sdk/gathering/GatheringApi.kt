@@ -1,16 +1,12 @@
 package me.regadpole.furtv.sdk.gathering
 
-import me.regadpole.furtv.sdk.model.GatheringMonthlyParams
-import me.regadpole.furtv.sdk.model.GatheringNearbyParams
-import me.regadpole.furtv.sdk.model.GatheringRegistrationsParams
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import me.regadpole.furtv.sdk.model.GatheringMonthlyParams
+import me.regadpole.furtv.sdk.model.GatheringNearbyParams
+import me.regadpole.furtv.sdk.model.GatheringRegistrationsParams
 
 /**
  * 聚会相关 API
@@ -20,9 +16,8 @@ import io.ktor.http.contentType
  */
 public class GatheringApi(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://open-global.vdsentnet.com"
+    private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-
     /**
      * 获取聚会年度统计
      * 获取当前年度的聚会统计数据
@@ -30,8 +25,9 @@ public class GatheringApi(
      * @return GatheringStatsData 聚会统计数据
      */
     public suspend fun getGatheringStatsThisYear(): GatheringStatsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/stats/this-year")
-            .body<GatheringStatsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/stats/this-year")
+                .body<GatheringStatsResponse>()
         return response.data
     }
 
@@ -43,10 +39,11 @@ public class GatheringApi(
      * @return List<GatheringMonthlyItem> 聚会列表
      */
     public suspend fun getGatheringMonthly(params: GatheringMonthlyParams): List<GatheringMonthlyItem> {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly") {
-            parameter("year", params.year)
-            parameter("month", params.month)
-        }.body<GatheringMonthlyResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly") {
+                parameter("year", params.year)
+                parameter("month", params.month)
+            }.body<GatheringMonthlyResponse>()
         return response.data
     }
 
@@ -68,12 +65,13 @@ public class GatheringApi(
      * @return List<GatheringWithDistance> 带距离的聚会列表
      */
     public suspend fun getGatheringMonthlyDistance(params: GatheringMonthlyParams): List<GatheringWithDistance> {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
-            parameter("year", params.year)
-            parameter("month", params.month)
-            params.lat?.let { parameter("lat", it) }
-            params.lng?.let { parameter("lng", it) }
-        }.body<GatheringMonthlyDistanceResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
+                parameter("year", params.year)
+                parameter("month", params.month)
+                params.lat?.let { parameter("lat", it) }
+                params.lng?.let { parameter("lng", it) }
+            }.body<GatheringMonthlyDistanceResponse>()
         return response.data
     }
 
@@ -89,7 +87,7 @@ public class GatheringApi(
         year: Int,
         month: Int,
         lat: Double? = null,
-        lng: Double? = null
+        lng: Double? = null,
     ): List<GatheringWithDistance> {
         return getGatheringMonthlyDistance(GatheringMonthlyParams(year, month, lat, lng))
     }
@@ -102,11 +100,12 @@ public class GatheringApi(
      * @return List<GatheringNearby> 附近聚会列表
      */
     public suspend fun getGatheringNearby(params: GatheringNearbyParams): List<GatheringNearby> {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby") {
-            parameter("lat", params.lat)
-            parameter("lng", params.lng)
-            params.radius?.let { parameter("radius", it) }
-        }.body<GatheringNearbyResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby") {
+                parameter("lat", params.lat)
+                parameter("lng", params.lng)
+                params.radius?.let { parameter("radius", it) }
+            }.body<GatheringNearbyResponse>()
         return response.data
     }
 
@@ -120,7 +119,7 @@ public class GatheringApi(
     public suspend fun getGatheringNearby(
         lat: Double,
         lng: Double,
-        radius: Int? = null
+        radius: Int? = null,
     ): List<GatheringNearby> {
         return getGatheringNearby(GatheringNearbyParams(lat, lng, radius))
     }
@@ -132,8 +131,9 @@ public class GatheringApi(
      * @return GatheringNearbyModeData 附近模式数据
      */
     public suspend fun getGatheringNearbyMode(): GatheringNearbyModeData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby-mode")
-            .body<GatheringNearbyModeResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby-mode")
+                .body<GatheringNearbyModeResponse>()
         return response.data
     }
 
@@ -145,8 +145,9 @@ public class GatheringApi(
      * @return GatheringDetail 聚会详情
      */
     public suspend fun getGatheringDetail(id: String): GatheringDetail {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$id")
-            .body<GatheringDetailResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$id")
+                .body<GatheringDetailResponse>()
         return response.data
     }
 
@@ -158,11 +159,12 @@ public class GatheringApi(
      * @return GatheringRegistrationsData 报名列表数据
      */
     public suspend fun getGatheringRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations") {
-            params.status?.let { parameter("status", it) }
-            params.cursor?.let { parameter("cursor", it) }
-            params.limit?.let { parameter("limit", it) }
-        }.body<GatheringRegistrationsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations") {
+                params.status?.let { parameter("status", it) }
+                params.cursor?.let { parameter("cursor", it) }
+                params.limit?.let { parameter("limit", it) }
+            }.body<GatheringRegistrationsResponse>()
         return response.data
     }
 
@@ -178,7 +180,7 @@ public class GatheringApi(
         id: String,
         status: String? = null,
         cursor: String? = null,
-        limit: Int? = null
+        limit: Int? = null,
     ): GatheringRegistrationsData {
         return getGatheringRegistrations(GatheringRegistrationsParams(id, status, cursor, limit))
     }

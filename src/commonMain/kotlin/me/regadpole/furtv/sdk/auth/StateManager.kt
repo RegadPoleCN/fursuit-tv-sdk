@@ -1,22 +1,21 @@
 package me.regadpole.furtv.sdk.auth
 
+import kotlin.concurrent.Volatile
+import kotlin.random.Random
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlin.concurrent.Volatile
-import kotlin.random.Random
-import kotlin.time.Duration.Companion.minutes
 
 /**
  * State 管理器
  * 负责 OAuth 流程中 state 参数的生成、验证和管理
  * 提供加密安全的 state 生成、存储、验证和超时失效功能
- * 
+ *
  * State 特性：
  * - 加密安全：使用 SecureRandom 生成随机字符串
  * - 一次有效：使用后自动删除
@@ -24,7 +23,6 @@ import kotlin.time.Duration.Companion.minutes
  * - 线程安全：使用 ConcurrentMap 存储
  */
 public object StateManager {
-
     private const val STATE_LENGTH = 32
     private const val DEFAULT_TIMEOUT_MINUTES = 10
     private const val CLEANUP_DELAY_MILLIS = 60000L
@@ -34,7 +32,7 @@ public object StateManager {
 
     @Volatile
     private var cleanupRunning = false
-    
+
     // 使用 SupervisorJob 确保子协程失败不会影响父协程
     private val cleanupJob = SupervisorJob()
     private val cleanupScope = CoroutineScope(Dispatchers.Default + cleanupJob)
@@ -68,7 +66,7 @@ public object StateManager {
     public fun storeState(state: String, timeoutMinutes: Int = DEFAULT_TIMEOUT_MINUTES) {
         val expiresAt = Clock.System.now().plus(timeoutMinutes.minutes)
         stateStorage[state] = StateEntry(expiresAt = expiresAt)
-        
+
         if (!cleanupRunning) {
             scheduleCleanup()
         }
@@ -82,14 +80,14 @@ public object StateManager {
      */
     public fun isStateValid(state: String): Boolean {
         val entry = stateStorage[state] ?: return false
-        
+
         val now = Clock.System.now()
         val isValid = now < entry.expiresAt
-        
+
         if (!isValid) {
             stateStorage.remove(state)
         }
-        
+
         return isValid
     }
 
@@ -103,7 +101,7 @@ public object StateManager {
         if (!isStateValid(state)) {
             return false
         }
-        
+
         stateStorage.remove(state)
         return true
     }
@@ -114,7 +112,7 @@ public object StateManager {
      */
     private fun scheduleCleanup() {
         cleanupRunning = true
-        
+
         // 使用独立的 Scope 启动后台清理任务
         cleanupScope.launch {
             @Suppress("SwallowedException", "TooGenericExceptionCaught")
@@ -157,6 +155,6 @@ public object StateManager {
      * @property expiresAt 过期时间
      */
     private data class StateEntry(
-        val expiresAt: Instant
+        val expiresAt: Instant,
     )
 }

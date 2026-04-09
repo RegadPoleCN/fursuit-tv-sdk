@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 public data class SchoolDetailResponse(
     public val success: Boolean,
     public val data: SchoolDetail,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -33,7 +33,7 @@ public data class SchoolDetail(
     public val description: String? = null,
     public val location: String? = null,
     public val studentCount: Int,
-    public val createdAt: String
+    public val createdAt: String,
 )
 
 /**
@@ -43,7 +43,7 @@ public data class SchoolDetail(
 public data class SchoolSearchResponse(
     public val success: Boolean,
     public val data: SchoolSearchData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -54,7 +54,7 @@ public data class SchoolSearchResponse(
 @Serializable
 public data class SchoolSearchData(
     public val schools: List<SchoolInfo>,
-    public val totalCount: Int
+    public val totalCount: Int,
 )
 
 /**
@@ -70,7 +70,7 @@ public data class SchoolInfo(
     public val id: String,
     public val name: String,
     public val logoUrl: String? = null,
-    public val location: String? = null
+    public val location: String? = null,
 )
 
 /**
@@ -80,7 +80,7 @@ public data class SchoolInfo(
 public data class UserSchoolResponse(
     public val success: Boolean,
     public val data: UserSchoolData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -98,7 +98,7 @@ public data class UserSchoolData(
     public val school: SchoolDetail? = null,
     public val className: String? = null,
     public val graduationYear: Int? = null,
-    public val enrollmentYear: Int? = null
+    public val enrollmentYear: Int? = null,
 )
 
 // ==================== 角色 ====================
@@ -110,7 +110,7 @@ public data class UserSchoolData(
 public data class UserCharactersResponse(
     public val success: Boolean,
     public val data: UserCharactersData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -122,7 +122,7 @@ public data class UserCharactersResponse(
 @Serializable
 public data class UserCharactersData(
     public val username: String,
-    public val characters: List<CharacterInfo>
+    public val characters: List<CharacterInfo>,
 )
 
 /**
@@ -142,5 +142,5 @@ public data class CharacterInfo(
     public val species: String? = null,
     public val avatarUrl: String? = null,
     public val description: String? = null,
-    public val isPrimary: Boolean = false
+    public val isPrimary: Boolean = false,
 )

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 public data class GatheringStatsResponse(
     public val success: Boolean,
     public val data: GatheringStatsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -28,7 +28,7 @@ public data class GatheringStatsData(
     public val total: Int,
     public val upcoming: Int,
     public val ongoing: Int,
-    public val completed: Int
+    public val completed: Int,
 )
 
 /**
@@ -38,7 +38,7 @@ public data class GatheringStatsData(
 public data class GatheringMonthlyResponse(
     public val success: Boolean,
     public val data: List<GatheringMonthlyItem>,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -57,7 +57,7 @@ public data class GatheringMonthlyItem(
     public val startDate: String,
     public val endDate: String? = null,
     public val location: String? = null,
-    public val status: String
+    public val status: String,
 )
 
 /**
@@ -68,7 +68,7 @@ public data class GatheringMonthlyItem(
 public data class GatheringMonthlyDistanceResponse(
     public val success: Boolean,
     public val data: List<GatheringWithDistance>,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -87,7 +87,7 @@ public data class GatheringWithDistance(
     public val startDate: String,
     public val location: String? = null,
     public val distance: Double? = null,
-    public val status: String
+    public val status: String,
 )
 
 /**
@@ -97,7 +97,7 @@ public data class GatheringWithDistance(
 public data class GatheringNearbyResponse(
     public val success: Boolean,
     public val data: List<GatheringNearby>,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -118,7 +118,7 @@ public data class GatheringNearby(
     public val lat: Double,
     public val lng: Double,
     public val distance: Double,
-    public val startDate: String
+    public val startDate: String,
 )
 
 /**
@@ -128,7 +128,7 @@ public data class GatheringNearby(
 public data class GatheringNearbyModeResponse(
     public val success: Boolean,
     public val data: GatheringNearbyModeData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -140,7 +140,7 @@ public data class GatheringNearbyModeResponse(
 @Serializable
 public data class GatheringNearbyModeData(
     public val mode: String,
-    public val intentGatheringIds: List<String>
+    public val intentGatheringIds: List<String>,
 )
 
 // ==================== 聚会详情与报名 ====================
@@ -152,7 +152,7 @@ public data class GatheringNearbyModeData(
 public data class GatheringDetailResponse(
     public val success: Boolean,
     public val data: GatheringDetail,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -185,7 +185,7 @@ public data class GatheringDetail(
     public val tags: List<String>? = null,
     public val registrationStats: RegistrationStats,
     public val status: String,
-    public val organizer: OrganizerInfo
+    public val organizer: OrganizerInfo,
 )
 
 /**
@@ -199,7 +199,7 @@ public data class GatheringDetail(
 public data class AgendaItem(
     public val time: String,
     public val title: String,
-    public val description: String? = null
+    public val description: String? = null,
 )
 
 /**
@@ -217,7 +217,7 @@ public data class RegistrationStats(
     public val approved: Int,
     public val pending: Int,
     public val checkedIn: Int,
-    public val capacity: Int? = null
+    public val capacity: Int? = null,
 )
 
 /**
@@ -233,7 +233,7 @@ public data class OrganizerInfo(
     public val userId: String,
     public val username: String,
     public val displayName: String,
-    public val avatarUrl: String? = null
+    public val avatarUrl: String? = null,
 )
 
 /**
@@ -243,7 +243,7 @@ public data class OrganizerInfo(
 public data class GatheringRegistrationsResponse(
     public val success: Boolean,
     public val data: GatheringRegistrationsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -256,7 +256,7 @@ public data class GatheringRegistrationsResponse(
 public data class GatheringRegistrationsData(
     public val gatheringId: String,
     public val registrations: List<Registration>,
-    public val totalCount: Int
+    public val totalCount: Int,
 )
 
 /**
@@ -280,5 +280,5 @@ public data class Registration(
     public val avatarUrl: String? = null,
     public val status: String,
     public val checkedIn: Boolean,
-    public val registeredAt: String
+    public val registeredAt: String,
 )

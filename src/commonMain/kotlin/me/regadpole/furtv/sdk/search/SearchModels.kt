@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 public data class PopularResponse(
     public val success: Boolean,
     public val data: PopularData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -20,7 +20,7 @@ public data class PopularResponse(
  */
 @Serializable
 public data class PopularData(
-    public val users: List<PopularUser>
+    public val users: List<PopularUser>,
 )
 
 /**
@@ -36,7 +36,7 @@ public data class PopularUser(
     public val username: String,
     public val displayName: String,
     public val avatarUrl: String? = null,
-    public val popularity: Int
+    public val popularity: Int,
 )
 
 // ==================== 随机推荐 ====================
@@ -48,7 +48,7 @@ public data class PopularUser(
 public data class RandomFursuitResponse(
     public val success: Boolean,
     public val data: List<RandomFursuit>,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -64,7 +64,7 @@ public data class RandomFursuit(
     public val username: String,
     public val displayName: String,
     public val avatarUrl: String? = null,
-    public val species: String? = null
+    public val species: String? = null,
 )
 
 // ==================== 搜索 ====================
@@ -76,7 +76,7 @@ public data class RandomFursuit(
 public data class SearchResponse(
     public val success: Boolean,
     public val data: SearchData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -90,7 +90,7 @@ public data class SearchResponse(
 public data class SearchData(
     public val results: List<SearchResult>,
     public val nextCursor: String? = null,
-    public val hasMore: Boolean
+    public val hasMore: Boolean,
 )
 
 /**
@@ -108,7 +108,7 @@ public data class SearchResult(
     public val username: String? = null,
     public val displayName: String? = null,
     public val avatarUrl: String? = null,
-    public val description: String? = null
+    public val description: String? = null,
 )
 
 // ==================== 搜索建议 ====================
@@ -120,7 +120,7 @@ public data class SearchResult(
 public data class SearchSuggestionsResponse(
     public val success: Boolean,
     public val data: SearchSuggestionsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -129,7 +129,7 @@ public data class SearchSuggestionsResponse(
  */
 @Serializable
 public data class SearchSuggestionsData(
-    public val suggestions: List<String>
+    public val suggestions: List<String>,
 )
 
 // ==================== 物种搜索 ====================
@@ -141,7 +141,7 @@ public data class SearchSuggestionsData(
 public data class SpeciesSearchResponse(
     public val success: Boolean,
     public val data: SpeciesSearchData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -155,7 +155,7 @@ public data class SpeciesSearchResponse(
 public data class SpeciesSearchData(
     public val species: String,
     public val users: List<SpeciesUser>,
-    public val totalCount: Int
+    public val totalCount: Int,
 )
 
 /**
@@ -169,7 +169,7 @@ public data class SpeciesSearchData(
 public data class SpeciesUser(
     public val username: String,
     public val displayName: String,
-    public val avatarUrl: String? = null
+    public val avatarUrl: String? = null,
 )
 
 // ==================== 物种列表 ====================
@@ -181,7 +181,7 @@ public data class SpeciesUser(
 public data class SpeciesListResponse(
     public val success: Boolean,
     public val data: SpeciesListData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -193,7 +193,7 @@ public data class SpeciesListResponse(
 @Serializable
 public data class SpeciesListData(
     public val species: List<SpeciesInfo>,
-    public val totalCount: Int
+    public val totalCount: Int,
 )
 
 /**
@@ -205,7 +205,7 @@ public data class SpeciesListData(
 @Serializable
 public data class SpeciesInfo(
     public val name: String,
-    public val count: Int
+    public val count: Int,
 )
 
 // ==================== 热门地区 ====================
@@ -217,7 +217,7 @@ public data class SpeciesInfo(
 public data class PopularLocationsResponse(
     public val success: Boolean,
     public val data: PopularLocationsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -226,7 +226,7 @@ public data class PopularLocationsResponse(
  */
 @Serializable
 public data class PopularLocationsData(
-    public val locations: List<LocationInfo>
+    public val locations: List<LocationInfo>,
 )
 
 /**
@@ -240,5 +240,5 @@ public data class PopularLocationsData(
 public data class LocationInfo(
     public val province: String,
     public val city: String? = null,
-    public val count: Int
+    public val count: Int,
 )

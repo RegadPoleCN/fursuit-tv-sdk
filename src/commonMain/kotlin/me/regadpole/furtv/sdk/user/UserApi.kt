@@ -12,9 +12,8 @@ import io.ktor.client.request.get
  */
 public class UserApi(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://open-global.vdsentnet.com"
+    private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-
     /**
      * 获取用户资料公开信息
      * 端点：GET /api/proxy/furtv/users/:username
@@ -22,8 +21,9 @@ public class UserApi(
      * @return UserProfile 用户资料信息
      */
     public suspend fun getUserProfile(username: String): UserProfile {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/$username")
-            .body<UserProfileResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username")
+                .body<UserProfileResponse>()
         return response.data
     }
 
@@ -34,8 +34,9 @@ public class UserApi(
      * @return UserBasicInfo 用户基本信息
      */
     public suspend fun getUserById(id: String): UserBasicInfo {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/id/$id")
-            .body<UserByIdResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/id/$id")
+                .body<UserByIdResponse>()
         return response.data
     }
 
@@ -46,8 +47,9 @@ public class UserApi(
      * @return LikeStatus 点赞状态信息
      */
     public suspend fun getLikeStatus(username: String): LikeStatus {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/fursuit/like-status/$username")
-            .body<LikeStatusResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/fursuit/like-status/$username")
+                .body<LikeStatusResponse>()
         return response.data
     }
 
@@ -58,8 +60,9 @@ public class UserApi(
      * @return RelationshipsData 用户关系列表
      */
     public suspend fun getUserRelationships(userId: String): RelationshipsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/relationships/user/$userId")
-            .body<RelationshipsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/relationships/user/$userId")
+                .body<RelationshipsResponse>()
         return response.data
     }
 
@@ -70,8 +73,9 @@ public class UserApi(
      * @return VisitorsData 访客记录列表
      */
     public suspend fun getUserVisitors(username: String): VisitorsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/$username/visitors")
-            .body<VisitorsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/visitors")
+                .body<VisitorsResponse>()
         return response.data
     }
 
@@ -82,8 +86,9 @@ public class UserApi(
      * @return StoreProductsData 商店商品列表
      */
     public suspend fun getUserStoreProducts(username: String): StoreProductsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/$username/store-products")
-            .body<StoreProductsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/store-products")
+                .body<StoreProductsResponse>()
         return response.data
     }
 
@@ -94,8 +99,9 @@ public class UserApi(
      * @return SocialBadgesData 社交徽章列表
      */
     public suspend fun getUserSocialBadges(username: String): SocialBadgesData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges")
-            .body<SocialBadgesResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges")
+                .body<SocialBadgesResponse>()
         return response.data
     }
 
@@ -107,8 +113,9 @@ public class UserApi(
      * @return SocialBadgeDetail 徽章详细信息
      */
     public suspend fun getSocialBadgeDetail(username: String, userBadgeId: String): SocialBadgeDetail {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges/$userBadgeId")
-            .body<SocialBadgeDetailResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges/$userBadgeId")
+                .body<SocialBadgeDetailResponse>()
         return response.data
     }
 }

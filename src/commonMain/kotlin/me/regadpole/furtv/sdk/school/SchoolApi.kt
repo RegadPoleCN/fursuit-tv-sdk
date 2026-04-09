@@ -1,12 +1,10 @@
 package me.regadpole.furtv.sdk.school
 
-import me.regadpole.furtv.sdk.model.SchoolSearchParams
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import me.regadpole.furtv.sdk.model.SchoolSearchParams
 
 /**
  * 学校和角色相关 API
@@ -16,9 +14,8 @@ import io.ktor.http.contentType
  */
 public class SchoolApi(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://open-global.vdsentnet.com"
+    private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-
     /**
      * 获取学校详情
      * 获取指定学校的详细信息
@@ -27,8 +24,9 @@ public class SchoolApi(
      * @return SchoolDetail 学校详情
      */
     public suspend fun getSchoolDetail(schoolId: String): SchoolDetail {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/schools/$schoolId")
-            .body<SchoolDetailResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/schools/$schoolId")
+                .body<SchoolDetailResponse>()
         return response.data
     }
 
@@ -40,11 +38,12 @@ public class SchoolApi(
      * @return SchoolSearchData 搜索结果
      */
     public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
-            parameter("query", params.query)
-            params.cursor?.let { parameter("cursor", it) }
-            params.limit?.let { parameter("limit", it) }
-        }.body<SchoolSearchResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
+                parameter("query", params.query)
+                params.cursor?.let { parameter("cursor", it) }
+                params.limit?.let { parameter("limit", it) }
+            }.body<SchoolSearchResponse>()
         return response.data
     }
 
@@ -58,7 +57,7 @@ public class SchoolApi(
     public suspend fun searchSchools(
         query: String,
         cursor: String? = null,
-        limit: Int? = null
+        limit: Int? = null,
     ): SchoolSearchData {
         return searchSchools(SchoolSearchParams(query, cursor, limit))
     }
@@ -71,8 +70,9 @@ public class SchoolApi(
      * @return UserSchoolData 用户学校信息
      */
     public suspend fun getUserSchool(userId: String): UserSchoolData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/schools/user/$userId")
-            .body<UserSchoolResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/schools/user/$userId")
+                .body<UserSchoolResponse>()
         return response.data
     }
 
@@ -84,8 +84,9 @@ public class SchoolApi(
      * @return UserCharactersData 角色列表
      */
     public suspend fun getUserCharacters(username: String): UserCharactersData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/characters/user/$username")
-            .body<UserCharactersResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/characters/user/$username")
+                .body<UserCharactersResponse>()
         return response.data
     }
 }

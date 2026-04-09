@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 public data class UserProfileResponse(
     public val success: Boolean,
     public val data: UserProfile,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -35,7 +35,7 @@ public data class UserProfile(
     public val species: String? = null,
     public val location: String? = null,
     public val destinations: List<String>? = null,
-    public val privacy: UserPrivacySettings
+    public val privacy: UserPrivacySettings,
 )
 
 /**
@@ -47,7 +47,7 @@ public data class UserProfile(
 @Serializable
 public data class UserPrivacySettings(
     public val showVisitorDetails: Boolean,
-    public val showRelationships: Boolean
+    public val showRelationships: Boolean,
 )
 
 /**
@@ -57,7 +57,7 @@ public data class UserPrivacySettings(
 public data class UserByIdResponse(
     public val success: Boolean,
     public val data: UserBasicInfo,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -73,7 +73,7 @@ public data class UserBasicInfo(
     public val id: String,
     public val username: String,
     public val displayName: String,
-    public val avatarUrl: String? = null
+    public val avatarUrl: String? = null,
 )
 
 // ==================== 点赞状态 ====================
@@ -86,7 +86,7 @@ public data class UserBasicInfo(
 public data class LikeStatusResponse(
     public val success: Boolean,
     public val data: LikeStatus,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -100,7 +100,7 @@ public data class LikeStatusResponse(
 public data class LikeStatus(
     public val canLike: Boolean,
     public val isLiked: Boolean,
-    public val likeCount: Int
+    public val likeCount: Int,
 )
 
 // ==================== 关系与访客 ====================
@@ -112,7 +112,7 @@ public data class LikeStatus(
 public data class RelationshipsResponse(
     public val success: Boolean,
     public val data: RelationshipsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -126,7 +126,7 @@ public data class RelationshipsResponse(
 public data class RelationshipsData(
     public val userId: String,
     public val partners: List<RelationshipPartner>,
-    public val totalCount: Int
+    public val totalCount: Int,
 )
 
 /**
@@ -144,7 +144,7 @@ public data class RelationshipPartner(
     public val username: String,
     public val displayName: String,
     public val avatarUrl: String? = null,
-    public val relationshipType: String
+    public val relationshipType: String,
 )
 
 /**
@@ -154,7 +154,7 @@ public data class RelationshipPartner(
 public data class VisitorsResponse(
     public val success: Boolean,
     public val data: VisitorsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -170,7 +170,7 @@ public data class VisitorsData(
     public val username: String,
     public val visitors: List<Visitor>,
     public val totalCount: Int,
-    public val showVisitorDetails: Boolean
+    public val showVisitorDetails: Boolean,
 )
 
 /**
@@ -188,7 +188,7 @@ public data class Visitor(
     public val username: String,
     public val displayName: String,
     public val avatarUrl: String? = null,
-    public val visitedAt: String
+    public val visitedAt: String,
 )
 
 // ==================== 徽章与商店 ====================
@@ -200,7 +200,7 @@ public data class Visitor(
 public data class StoreProductsResponse(
     public val success: Boolean,
     public val data: StoreProductsData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -214,7 +214,7 @@ public data class StoreProductsResponse(
 public data class StoreProductsData(
     public val username: String,
     public val isMerchant: Boolean,
-    public val products: List<StoreProduct>
+    public val products: List<StoreProduct>,
 )
 
 /**
@@ -236,7 +236,7 @@ public data class StoreProduct(
     public val price: Double? = null,
     public val currency: String? = null,
     public val externalUrl: String? = null,
-    public val imageUrl: String? = null
+    public val imageUrl: String? = null,
 )
 
 /**
@@ -246,7 +246,7 @@ public data class StoreProduct(
 public data class SocialBadgesResponse(
     public val success: Boolean,
     public val data: SocialBadgesData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -258,7 +258,7 @@ public data class SocialBadgesResponse(
 @Serializable
 public data class SocialBadgesData(
     public val username: String,
-    public val badges: List<SocialBadge>
+    public val badges: List<SocialBadge>,
 )
 
 /**
@@ -278,7 +278,7 @@ public data class SocialBadge(
     public val description: String? = null,
     public val iconUrl: String? = null,
     public val glbUrl: String? = null,
-    public val awardedAt: String
+    public val awardedAt: String,
 )
 
 /**
@@ -288,7 +288,7 @@ public data class SocialBadge(
 public data class SocialBadgeDetailResponse(
     public val success: Boolean,
     public val data: SocialBadgeDetail,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -311,5 +311,5 @@ public data class SocialBadgeDetail(
     public val iconUrl: String? = null,
     public val glbUrl: String? = null,
     public val awardedAt: String,
-    public val awardedBy: String? = null
+    public val awardedBy: String? = null,
 )

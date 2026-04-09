@@ -8,7 +8,7 @@
  */
 public open class FursuitTvSdkException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : Exception(message, cause)
 
 /**
@@ -23,7 +23,7 @@ public class ApiException(
     public val statusCode: Int,
     message: String,
     public val errorCode: String? = null,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
 /**
@@ -34,7 +34,7 @@ public class ApiException(
  */
 public class NetworkException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
 /**
@@ -45,7 +45,7 @@ public class NetworkException(
  */
 public class TokenExpiredException(
     message: String = "Access token has expired",
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
 /**
@@ -56,7 +56,7 @@ public class TokenExpiredException(
  */
 public class AuthenticationException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
 /**
@@ -67,7 +67,7 @@ public class AuthenticationException(
  */
 public class ValidationException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
 /**
@@ -78,5 +78,5 @@ public class ValidationException(
  */
 public class NotFoundException(
     message: String,
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)

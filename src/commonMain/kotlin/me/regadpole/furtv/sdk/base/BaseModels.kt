@@ -20,7 +20,7 @@ public data class HelloWorldResponse(
     public val message: String,
     public val verify: String,
     public val appId: String,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -31,7 +31,7 @@ public data class HelloWorldResponse(
 public data class HealthResponse(
     public val success: Boolean,
     public val data: HealthData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -44,7 +44,7 @@ public data class HealthResponse(
 public data class HealthData(
     public val status: String,
     public val version: String,
-    public val uptime: Long
+    public val uptime: Long,
 )
 
 /**
@@ -54,7 +54,7 @@ public data class HealthData(
 public data class AndroidVersionResponse(
     public val success: Boolean,
     public val data: AndroidVersionData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -74,7 +74,7 @@ public data class AndroidVersionData(
     public val downloadUrl: String,
     public val updateTime: String,
     public val minSupportedVersion: String,
-    public val changelog: List<String>
+    public val changelog: List<String>,
 )
 
 /**
@@ -86,7 +86,7 @@ public data class AndroidVersionData(
 @Serializable
 public data class AndroidVersionCheckRequest(
     public val currentVersion: String,
-    public val currentVersionCode: Int? = null
+    public val currentVersionCode: Int? = null,
 )
 
 /**
@@ -97,7 +97,7 @@ public data class AndroidVersionCheckRequest(
 public data class AndroidVersionCheckResponse(
     public val success: Boolean,
     public val data: AndroidVersionCheckData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -112,7 +112,7 @@ public data class AndroidVersionCheckData(
     public val needUpdate: Boolean,
     public val forceUpdate: Boolean,
     public val currentVersion: VersionInfo,
-    public val latestVersion: AndroidVersionData
+    public val latestVersion: AndroidVersionData,
 )
 
 /**
@@ -124,7 +124,7 @@ public data class AndroidVersionCheckData(
 @Serializable
 public data class VersionInfo(
     public val version: String,
-    public val versionCode: Int
+    public val versionCode: Int,
 )
 
 /**
@@ -135,7 +135,7 @@ public data class VersionInfo(
 public data class ThemePacksManifestResponse(
     public val success: Boolean,
     public val data: ThemePacksManifestData,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -146,7 +146,7 @@ public data class ThemePacksManifestResponse(
 @Serializable
 public data class ThemePacksManifestData(
     public val version: String,
-    public val packs: List<ThemePack>
+    public val packs: List<ThemePack>,
 )
 
 /**
@@ -162,5 +162,5 @@ public data class ThemePack(
     public val id: String,
     public val name: String,
     public val zipUrl: String,
-    public val updatedAt: String
+    public val updatedAt: String,
 )

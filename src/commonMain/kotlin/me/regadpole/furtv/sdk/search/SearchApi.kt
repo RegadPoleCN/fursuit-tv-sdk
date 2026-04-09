@@ -1,13 +1,11 @@
 package me.regadpole.furtv.sdk.search
 
-import me.regadpole.furtv.sdk.model.RandomFursuitParams
-import me.regadpole.furtv.sdk.model.SearchParams
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import me.regadpole.furtv.sdk.model.RandomFursuitParams
+import me.regadpole.furtv.sdk.model.SearchParams
 
 /**
  * 搜索和发现 API
@@ -17,9 +15,8 @@ import io.ktor.http.contentType
  */
 public class SearchApi(
     private val httpClient: HttpClient,
-    private val baseUrl: String = "https://open-global.vdsentnet.com"
+    private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-
     /**
      * 获取热门推荐
      * 获取当前热门用户列表
@@ -27,8 +24,9 @@ public class SearchApi(
      * @return PopularData 包含热门用户列表
      */
     public suspend fun getPopular(): PopularData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/popular")
-            .body<PopularResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/popular")
+                .body<PopularResponse>()
         return response.data
     }
 
@@ -40,10 +38,11 @@ public class SearchApi(
      * @return List<RandomFursuit> 随机推荐的用户列表
      */
     public suspend fun getRandomFursuit(params: RandomFursuitParams): List<RandomFursuit> {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
-            params.count?.let { parameter("count", it) }
-            params.personalized?.let { parameter("personalized", it) }
-        }.body<RandomFursuitResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
+                params.count?.let { parameter("count", it) }
+                params.personalized?.let { parameter("personalized", it) }
+            }.body<RandomFursuitResponse>()
         return response.data
     }
 
@@ -65,12 +64,13 @@ public class SearchApi(
      * @return SearchData 搜索结果和分页信息
      */
     public suspend fun search(params: SearchParams): SearchData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/search") {
-            parameter("q", params.query)
-            params.type?.let { parameter("type", it) }
-            params.cursor?.let { parameter("cursor", it) }
-            params.limit?.let { parameter("limit", it) }
-        }.body<SearchResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/search") {
+                parameter("q", params.query)
+                params.type?.let { parameter("type", it) }
+                params.cursor?.let { parameter("cursor", it) }
+                params.limit?.let { parameter("limit", it) }
+            }.body<SearchResponse>()
         return response.data
     }
 
@@ -86,7 +86,7 @@ public class SearchApi(
         query: String,
         type: String? = null,
         cursor: String? = null,
-        limit: Int? = null
+        limit: Int? = null,
     ): SearchData {
         return search(SearchParams(query, type, cursor, limit))
     }
@@ -99,9 +99,10 @@ public class SearchApi(
      * @return List<String> 搜索建议列表
      */
     public suspend fun getSearchSuggestions(query: String): List<String> {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/search/suggestions") {
-            parameter("q", query)
-        }.body<SearchSuggestionsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/search/suggestions") {
+                parameter("q", query)
+            }.body<SearchSuggestionsResponse>()
         return response.data.suggestions
     }
 
@@ -113,8 +114,9 @@ public class SearchApi(
      * @return SpeciesSearchData 搜索结果
      */
     public suspend fun searchBySpecies(species: String): SpeciesSearchData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/search/species/$species")
-            .body<SpeciesSearchResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/search/species/$species")
+                .body<SpeciesSearchResponse>()
         return response.data
     }
 
@@ -125,8 +127,9 @@ public class SearchApi(
      * @return SpeciesListData 物种列表和统计
      */
     public suspend fun getSpeciesList(): SpeciesListData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/species")
-            .body<SpeciesListResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/species")
+                .body<SpeciesListResponse>()
         return response.data
     }
 
@@ -137,8 +140,9 @@ public class SearchApi(
      * @return PopularLocationsData 热门地区列表
      */
     public suspend fun getPopularLocations(): PopularLocationsData {
-        val response = httpClient.get("$baseUrl/api/proxy/furtv/locations/popular")
-            .body<PopularLocationsResponse>()
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/locations/popular")
+                .body<PopularLocationsResponse>()
         return response.data
     }
 }

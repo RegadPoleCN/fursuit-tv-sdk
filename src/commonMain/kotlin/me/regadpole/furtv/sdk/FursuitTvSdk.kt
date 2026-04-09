@@ -1,5 +1,6 @@
 package me.regadpole.furtv.sdk
 
+import io.ktor.client.HttpClient
 import me.regadpole.furtv.sdk.auth.AuthManager
 import me.regadpole.furtv.sdk.auth.OAuthConfig
 import me.regadpole.furtv.sdk.auth.TokenInfo
@@ -10,7 +11,6 @@ import me.regadpole.furtv.sdk.model.SdkConfig
 import me.regadpole.furtv.sdk.school.SchoolApi
 import me.regadpole.furtv.sdk.search.SearchApi
 import me.regadpole.furtv.sdk.user.UserApi
-import io.ktor.client.HttpClient
 
 /**
  * Fursuit.TV SDK 主客户端
@@ -60,9 +60,9 @@ public class FursuitTvSdk {
     /**
      * 使用 API 密钥初始化 SDK（Java 友好）
      * 使用默认配置创建 SDK 实例
-     * 
+     *
      * 认证头：X-Api-Key
-     * 
+     *
      * @param apiKey VDS 颁发的 API 密钥，用于认证和授权
      */
     public constructor(apiKey: String) {
@@ -73,9 +73,9 @@ public class FursuitTvSdk {
 
     /**
      * 使用 API 密钥和自定义基础 URL 初始化 SDK
-     * 
+     *
      * 认证头：X-Api-Key
-     * 
+     *
      * @param apiKey VDS 颁发的 API 密钥
      * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      * @param tokenInfo 可选的令牌信息，用于恢复之前的认证状态
@@ -84,32 +84,35 @@ public class FursuitTvSdk {
     public constructor(
         apiKey: String,
         baseUrl: String = "https://open-global.vdsentnet.com",
-        tokenInfo: TokenInfo? = null
+        tokenInfo: TokenInfo? = null,
     ) {
-        this.config = SdkConfig.builder()
-            .apiKey(apiKey)
-            .baseUrl(baseUrl)
-            .build()
+        this.config =
+            SdkConfig.builder()
+                .apiKey(apiKey)
+                .baseUrl(baseUrl)
+                .build()
         this.httpClient = HttpClientConfig.createClient(config, tokenInfo?.accessToken)
-        this.auth = AuthManager(config).apply {
-            tokenInfo?.let { setTokenInfo(it) }
-        }
+        this.auth =
+            AuthManager(config).apply {
+                tokenInfo?.let { setTokenInfo(it) }
+            }
     }
 
     /**
      * 使用访问令牌初始化 SDK
      * 适用于已有访问令牌的用户（例如从 OAuth 流程或其他认证方式获得）
-     * 
+     *
      * 认证头：Authorization: Bearer <accessToken>
-     * 
+     *
      * @param accessToken 访问令牌
      * @param baseUrl API 基础 URL，默认为 https://api.fursuit.tv
      */
     public constructor(accessToken: String, baseUrl: String = "https://api.fursuit.tv") {
-        this.config = SdkConfig.builder()
-            .apiKey("")
-            .baseUrl(baseUrl)
-            .build()
+        this.config =
+            SdkConfig.builder()
+                .apiKey("")
+                .baseUrl(baseUrl)
+                .build()
         this.httpClient = HttpClientConfig.createClient(config, accessToken)
         this.auth = AuthManager(config)
     }
@@ -118,18 +121,19 @@ public class FursuitTvSdk {
      * 使用 appId 和 appSecret 初始化 SDK（推荐方式）
      * 适用于新用户，SDK 会自动调用签名交换接口获取 accessToken（即 apiKey）
      * 并自动管理令牌的刷新（当剩余有效期 <= 300 秒时）
-     * 
+     *
      * 认证头：Authorization: Bearer <accessToken>
-     * 
+     *
      * @param appId 应用 ID（格式 vap_xxxx）
      * @param appSecret 应用密钥
      * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      */
     public constructor(appId: String, appSecret: String, baseUrl: String = "https://open-global.vdsentnet.com") {
-        this.config = SdkConfig.builder()
-            .apiKey("") // 临时空 apiKey，后续通过 exchangeToken 获取
-            .baseUrl(baseUrl)
-            .build()
+        this.config =
+            SdkConfig.builder()
+                .apiKey("") // 临时空 apiKey，后续通过 exchangeToken 获取
+                .baseUrl(baseUrl)
+                .build()
         this.auth = AuthManager(config)
         // 注意：此构造函数不会自动获取令牌
         // 用户需要在协程作用域中手动调用 auth.exchangeToken(appId, appSecret)
@@ -140,18 +144,19 @@ public class FursuitTvSdk {
     /**
      * 使用自定义配置初始化 SDK
      * 允许完全自定义 SDK 的各种参数
-     * 
+     *
      * 认证头：X-Api-Key 或 Authorization: Bearer（取决于配置）
-     * 
+     *
      * @param config SDK 配置对象，允许自定义各种参数
      * @param tokenInfo 可选的令牌信息，用于恢复之前的认证状态
      */
     public constructor(config: SdkConfig, tokenInfo: TokenInfo? = null) {
         this.config = config
         this.httpClient = HttpClientConfig.createClient(config, tokenInfo?.accessToken)
-        this.auth = AuthManager(config).apply {
-            tokenInfo?.let { setTokenInfo(it) }
-        }
+        this.auth =
+            AuthManager(config).apply {
+                tokenInfo?.let { setTokenInfo(it) }
+            }
     }
 
     /**
@@ -224,14 +229,14 @@ public class FursuitTvSdk {
         /**
          * 使用 OAuth 认证初始化 SDK（静态方法）
          * 此方法提供一个便捷的 OAuth 初始化入口，自动完成 OAuth 授权流程
-         * 
+         *
          * 注意：此方法是 suspend 函数，会阻塞直到 OAuth 流程完成
          * 需要在协程作用域中调用
-         * 
+         *
          * @param appId 应用 ID
          * @param config OAuth 配置，包含回调服务器等信息
          * @return 初始化后的 FursuitTvSdk 实例
-         * 
+         *
          * 使用示例：
          * ```kotlin
          * runBlocking {
@@ -245,15 +250,16 @@ public class FursuitTvSdk {
          * ```
          */
         public suspend fun initWithOAuth(appId: String, config: OAuthConfig): FursuitTvSdk {
-            val sdkConfig = SdkConfig.builder()
-                .apiKey("")
-                .baseUrl("https://open-global.vdsentnet.com")
-                .build()
+            val sdkConfig =
+                SdkConfig.builder()
+                    .apiKey("")
+                    .baseUrl("https://open-global.vdsentnet.com")
+                    .build()
             val sdk = FursuitTvSdk(sdkConfig)
-            
+
             // 直接启动 OAuth 流程
             sdk.auth.initWithOAuth(appId, config)
-            
+
             return sdk
         }
     }

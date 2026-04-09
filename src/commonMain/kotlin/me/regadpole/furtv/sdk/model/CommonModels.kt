@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
 public data class ApiResponse<T>(
     public val success: Boolean,
     public val data: T,
-    public val requestId: String
+    public val requestId: String,
 )
 
 /**
@@ -26,7 +26,7 @@ public data class ApiResponse<T>(
 @Serializable
 public data class PaginationParams(
     public val cursor: String? = null,
-    public val limit: Int? = null
+    public val limit: Int? = null,
 )
 
 /**
@@ -41,7 +41,7 @@ public data class PaginationParams(
 public data class PaginatedResponse<T>(
     public val items: List<T>,
     public val nextCursor: String? = null,
-    public val hasMore: Boolean = false
+    public val hasMore: Boolean = false,
 )
 
 /**
@@ -53,7 +53,7 @@ public data class PaginatedResponse<T>(
 @Serializable
 public data class GeoLocation(
     public val lat: Double,
-    public val lng: Double
+    public val lng: Double,
 )
 
 /**
@@ -67,7 +67,7 @@ public data class GeoLocation(
 public data class ImageResource(
     public val url: String,
     public val width: Int? = null,
-    public val height: Int? = null
+    public val height: Int? = null,
 )
 
 /**
@@ -79,5 +79,5 @@ public data class ImageResource(
 @Serializable
 public data class TimeRange(
     public val start: String,
-    public val end: String
+    public val end: String,
 )

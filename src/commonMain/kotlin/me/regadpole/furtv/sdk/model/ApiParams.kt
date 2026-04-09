@@ -14,21 +14,18 @@ public data class SearchParams(
      * 搜索关键词
      */
     public val query: String,
-    
     /**
      * 搜索类型
      */
     public val type: String? = null,
-    
     /**
      * 分页游标
      */
     public val cursor: String? = null,
-    
     /**
      * 返回数量限制
      */
-    public val limit: Int? = null
+    public val limit: Int? = null,
 )
 
 /**
@@ -43,11 +40,10 @@ public data class RandomFursuitParams(
      * 返回数量
      */
     public val count: Int? = null,
-    
     /**
      * 是否个性化推荐
      */
-    public val personalized: Boolean? = null
+    public val personalized: Boolean? = null,
 )
 
 /**
@@ -64,21 +60,18 @@ public data class GatheringMonthlyParams(
      * 年份
      */
     public val year: Int,
-    
     /**
      * 月份
      */
     public val month: Int,
-    
     /**
      * 纬度（用于计算距离）
      */
     public val lat: Double? = null,
-    
     /**
      * 经度（用于计算距离）
      */
-    public val lng: Double? = null
+    public val lng: Double? = null,
 )
 
 /**
@@ -94,16 +87,14 @@ public data class GatheringNearbyParams(
      * 纬度
      */
     public val lat: Double,
-    
     /**
      * 经度
      */
     public val lng: Double,
-    
     /**
      * 半径（米）
      */
-    public val radius: Int? = null
+    public val radius: Int? = null,
 )
 
 /**
@@ -120,21 +111,18 @@ public data class GatheringRegistrationsParams(
      * 聚会 ID
      */
     public val gatheringId: String,
-    
     /**
      * 报名状态筛选
      */
     public val status: String? = null,
-    
     /**
      * 分页游标
      */
     public val cursor: String? = null,
-    
     /**
      * 返回数量限制
      */
-    public val limit: Int? = null
+    public val limit: Int? = null,
 )
 
 /**
@@ -150,14 +138,12 @@ public data class SchoolSearchParams(
      * 搜索关键词
      */
     public val query: String,
-    
     /**
      * 分页游标
      */
     public val cursor: String? = null,
-    
     /**
      * 返回数量限制
      */
-    public val limit: Int? = null
+    public val limit: Int? = null,
 )
