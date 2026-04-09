@@ -1,0 +1,39 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+indent_style = space
+indent_size = 4
+
+[*.kt]
+ij_kotlin_imports_layout = *
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_variable_naming_case = CAMEL_CASE
+ij_kotlin_class_naming_case = PASCAL_CASE
+ij_kotlin_enum_constant_naming_case = UPPER_CASE
+ij_kotlin_package_naming_case = LOWER_CASE
+ij_kotlin_function_naming_case = CAMEL_CASE
+ij_kotlin_property_naming_case = CAMEL_CASE
+ij_kotlin_private_property_naming_case = CAMEL_CASE
+ij_kotlin_private_function_naming_case = CAMEL_CASE
+
+# Ktlint specific settings
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_function-signature = disabled
+ktlint_standard_class-signature = disabled
+
+[*.kts]
+indent_size = 4
+
+[*.{md,yml,yaml,properties}]
+indent_size = 2
+
+[*.{json,js}]
+indent_size = 2
+
+[Makefile]
+indent_style = tab

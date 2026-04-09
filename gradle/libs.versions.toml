@@ -1,4 +1,7 @@
 [versions]
+# Project
+fursuit-tv-sdk = "1.0-SNAPSHOT"
+
 # Kotlin
 kotlin = "2.3.0"
 
@@ -12,6 +15,9 @@ datetime = "0.6.2"
 
 # Detekt
 detekt = "2.0.0-alpha.2"
+
+# Dokka
+dokka = "2.0.0"
 
 [libraries]
 # Ktor Core
@@ -36,3 +42,4 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

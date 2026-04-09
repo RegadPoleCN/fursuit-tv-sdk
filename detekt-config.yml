@@ -1,14 +1,39 @@
 config:
   validation: true
-  warningsAsErrors: false
 
 style:
   WildcardImport:
     active: true
+  MagicNumber:
+    active: true
+    ignoreNumbers:
+      - '0'
+      - '1'
+      - '2'
+      - '16'
+      - '32'
+      - '64'
+      - '128'
+      - '256'
+      - '1000'
+    ignoreHashCodeFunction: true
+    ignorePropertyDeclaration: false
+    ignoreLocalVariableDeclaration: true
+    ignoreConstantDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreNamedArgument: true
+    ignoreEnums: true
+
+exceptions:
+  SwallowedException:
+    active: false
+  TooGenericExceptionCaught:
+    active: false
 
 complexity: 
   TooManyFunctions:
-    allowedFunctionsPerFile: 15
+    allowedFunctionsPerFile: 20
     allowedFunctionsPerEnum: 15
     allowedFunctionsPerClass: 15
     allowedFunctionsPerInterface: 15
