@@ -147,3 +147,54 @@ public data class SchoolSearchParams(
      */
     public val limit: Int? = null,
 )
+
+/**
+ * Discovery 搜索参数
+ * 用于 discovery 搜索接口的请求参数
+ * @param query 搜索关键词
+ * @param page 页码（可选，默认 1）
+ * @param pageSize 每页数量（可选，默认 20）
+ * @param type 搜索类型（可选）
+ */
+@kotlinx.serialization.Serializable
+public data class DiscoverySearchParams(
+    /**
+     * 搜索关键词
+     */
+    public val query: String,
+    /**
+     * 页码
+     */
+    public val page: Int? = null,
+    /**
+     * 每页数量
+     */
+    public val pageSize: Int? = null,
+    /**
+     * 搜索类型
+     */
+    public val type: String? = null,
+)
+
+/**
+ * Discovery 按物种搜索参数
+ * 用于 discovery 按物种搜索接口的请求参数
+ * @param speciesId 物种 ID
+ * @param page 页码（可选，默认 1）
+ * @param pageSize 每页数量（可选，默认 20）
+ */
+@kotlinx.serialization.Serializable
+public data class DiscoverySpeciesSearchParams(
+    /**
+     * 物种 ID
+     */
+    public val speciesId: String,
+    /**
+     * 页码
+     */
+    public val page: Int? = null,
+    /**
+     * 每页数量
+     */
+    public val pageSize: Int? = null,
+)

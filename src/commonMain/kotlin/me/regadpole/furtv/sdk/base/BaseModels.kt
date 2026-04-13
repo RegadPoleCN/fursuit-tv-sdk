@@ -1,5 +1,6 @@
-﻿package me.regadpole.furtv.sdk.base
+package me.regadpole.furtv.sdk.base
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -25,26 +26,21 @@ public data class HelloWorldResponse(
 
 /**
  * 健康检查响应
- * 健康检查接口的响应包装
+ * 健康检查接口的响应，直接包含所有字段（无 data 包装）
+ * 根据官方文档，响应格式为：
+ * {
+ *   "success": true,
+ *   "message": "Fursuit.TV API is running",
+ *   "timestamp": "2026-03-21T10:00:00.000Z",
+ *   "requestId": "uuid"
+ * }
  */
 @Serializable
 public data class HealthResponse(
     public val success: Boolean,
-    public val data: HealthData,
+    public val message: String,
+    public val timestamp: String,
     public val requestId: String,
-)
-
-/**
- * 健康数据
- * 包含服务健康状态信息
- * @param status 服务状态
- * @param version 服务版本
- * @param uptime 运行时间（秒） */
-@Serializable
-public data class HealthData(
-    public val status: String,
-    public val version: String,
-    public val uptime: Long,
 )
 
 /**
@@ -60,8 +56,21 @@ public data class AndroidVersionResponse(
 /**
  * Android 版本数据
  * 包含 Android 应用的版本信息
+ * 根据官方文档，响应格式为：
+ * {
+ *   "version": "2.4.1",
+ *   "versionCode": 241,
+ *   "description": "修复若干已知问题并优化性能",
+ *   "forceUpdate": false,
+ *   "downloadUrl": "https://example.com/furtv/android-latest.apk",
+ *   "updateTime": "2026-03-19T08:30:00.000Z",
+ *   "minSupportedVersion": "2.2.0",
+ *   "changelog": ["优化首页加载", "修复已知崩溃"]
+ * }
  * @param version 版本号
  * @param versionCode 版本代码
+ * @param description 版本描述
+ * @param forceUpdate 是否强制更新
  * @param downloadUrl 下载链接
  * @param updateTime 更新时间
  * @param minSupportedVersion 最低支持版本
@@ -71,6 +80,8 @@ public data class AndroidVersionResponse(
 public data class AndroidVersionData(
     public val version: String,
     public val versionCode: Int,
+    public val description: String,
+    public val forceUpdate: Boolean,
     public val downloadUrl: String,
     public val updateTime: String,
     public val minSupportedVersion: String,
@@ -152,6 +163,13 @@ public data class ThemePacksManifestData(
 /**
  * 主题包
  * 表示一个主题包的信息
+ * 根据官方文档，响应格式为：
+ * {
+ *   "id": "spring-night",
+ *   "name": "Spring Night",
+ *   "zip_url": "https://example.com/theme-packs/spring-night.zip",
+ *   "updated_at": "2026-03-21T01:10:00.000Z"
+ * }
  * @param id 主题包 ID
  * @param name 主题包名称
  * @param zipUrl 下载链接
@@ -161,6 +179,6 @@ public data class ThemePacksManifestData(
 public data class ThemePack(
     public val id: String,
     public val name: String,
-    public val zipUrl: String,
-    public val updatedAt: String,
+    @SerialName("zip_url") public val zipUrl: String,
+    @SerialName("updated_at") public val updatedAt: String,
 )

@@ -33,13 +33,11 @@ public class BaseApi(
      * 健康检查
      * 检查 Fursuit.TV 服务的可用性状态
      * 端点：GET /api/proxy/furtv/health
-     * @return HealthData 包含服务状态、版本和运行时间
+     * @return HealthResponse 包含服务状态消息、时间戳和 requestId
      */
-    public suspend fun health(): HealthData {
-        val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/health")
-                .body<HealthResponse>()
-        return response.data
+    public suspend fun health(): HealthResponse {
+        return httpClient.get("$baseUrl/api/proxy/furtv/health")
+            .body<HealthResponse>()
     }
 
     /**
