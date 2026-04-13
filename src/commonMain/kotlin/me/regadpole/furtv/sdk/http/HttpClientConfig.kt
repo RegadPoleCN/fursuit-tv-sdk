@@ -35,19 +35,32 @@ public object HttpClientConfig {
     private const val BAD_REQUEST = 400
     private const val ERROR_BODY_EMPTY = ""
 
+    // Chrome User-Agent 字符串，用于模拟浏览器请求
+    private const val USER_AGENT_CHROME =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
     /**
      * 创建配置好的 HTTP 客户端
      * 配置包括：JSON 序列化、日志、默认请求头、响应验证、超时、重试等
-     * @param config SDK 配置对象
-     * @param accessToken 可选的访问令牌，用于认证请求
-     * @param useApiKeyOnly 是否仅使用 X-Api-Key 认证（true=仅 X-Api-Key，false=使用 Authorization Bearer）
+     *
+     * 认证头自动选择逻辑：
+     * - 当 [config.apiKey] 存在时，使用 `X-Api-Key` header（Client 认证）
+     * - 当仅有 [accessToken] 时，使用 `Authorization: Bearer` header（OAuth/Client 认证）
+     * - 两者都存在时，优先使用 `X-Api-Key`（服务端行为）
+     *
+     * 认证方式说明：
+     * - **Client 认证**：使用 `X-Api-Key`，适用于签名交换/换新场景（参考 `认证方式与服务器端点.md`）
+     * - **OAuth 认证**：使用 `Authorization: Bearer`，适用于用户授权场景（参考 `基础接口/签名交换.md`）
+     *
+     * @param config SDK 配置对象，包含 apiKey 等配置
+     * @param accessToken 可选的访问令牌，当 config.apiKey 为空时使用
      * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
      * @return 配置好的 HttpClient 实例
      */
     public fun createClient(
         config: SdkConfig,
         accessToken: String? = null,
-        useApiKeyOnly: Boolean = true,
         requestIdGenerator: () -> String = { generateRequestId() },
     ): HttpClient {
         return HttpClient {
@@ -67,21 +80,21 @@ public object HttpClientConfig {
 
             install(DefaultRequest) {
                 headers {
-                    // 认证头选择逻辑：
-                    // 1. useApiKeyOnly=true（默认）：仅使用 X-Api-Key（签名交换/换新场景）
-                    // 2. useApiKeyOnly=false 且有 accessToken：使用 Authorization Bearer（OAuth 场景）
-                    // 3. 两者都有：优先使用 X-Api-Key（服务端行为）
-                    if (useApiKeyOnly || accessToken == null) {
-                        // 使用 X-Api-Key（签名交换/换新）
+                    // 认证头自动选择逻辑：
+                    // 1. 当 config.apiKey 存在时，使用 X-Api-Key（Client 认证）
+                    // 2. 当仅有 accessToken 时，使用 Authorization: Bearer（OAuth/Client 认证）
+                    // 3. 两者都存在时，优先使用 X-Api-Key（服务端行为）
+                    if (config.apiKey.isNotEmpty()) {
                         append("X-Api-Key", config.apiKey)
-                    } else {
-                        // 使用 Authorization Bearer（OAuth/accessToken）
+                    } else if (accessToken != null) {
                         append("Authorization", "Bearer $accessToken")
                     }
 
                     append("X-Request-ID", requestIdGenerator())
                     contentType(ContentType.Application.Json)
                     append("Accept", "application/json")
+                    // 强制使用 Chrome UA，确保服务端兼容性
+                    append("User-Agent", USER_AGENT_CHROME)
                 }
             }
 
