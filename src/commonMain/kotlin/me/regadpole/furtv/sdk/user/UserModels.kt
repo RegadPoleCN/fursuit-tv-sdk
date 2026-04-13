@@ -1,22 +1,29 @@
-﻿package me.regadpole.furtv.sdk.user
+package me.regadpole.furtv.sdk.user
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 // ==================== 用户资料 ====================
 
 /**
- * 用户资料响应
- * 用户资料接口的响应包装 */
+ * 用户资料公开信息响应
+ * 端点：GET /api/proxy/furtv/users/profile
+ * 用户资料接口的响应包装
+ */
 @Serializable
 public data class UserProfileResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: UserProfile,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 用户资料
+ * 用户资料公开信息
  * 包含用户的公开资料信息
+ * @param id 用户 ID
  * @param username 用户名
  * @param displayName 显示名称
  * @param avatarUrl 头像 URL
@@ -28,13 +35,23 @@ public data class UserProfileResponse(
  */
 @Serializable
 public data class UserProfile(
+    @SerialName("id")
+    public val id: String,
+    @SerialName("username")
     public val username: String,
+    @SerialName("displayName")
     public val displayName: String,
+    @SerialName("avatarUrl")
     public val avatarUrl: String? = null,
+    @SerialName("bio")
     public val bio: String? = null,
+    @SerialName("species")
     public val species: String? = null,
+    @SerialName("location")
     public val location: String? = null,
+    @SerialName("destinations")
     public val destinations: List<String>? = null,
+    @SerialName("privacy")
     public val privacy: UserPrivacySettings,
 )
 
@@ -46,86 +63,114 @@ public data class UserProfile(
  */
 @Serializable
 public data class UserPrivacySettings(
+    @SerialName("showVisitorDetails")
     public val showVisitorDetails: Boolean,
+    @SerialName("showRelationships")
     public val showRelationships: Boolean,
 )
 
+// ==================== 用户 ID 查询 ====================
+
 /**
- * 用户 ID 查询响应
- * 通过 ID 查询用户信息的响应包装 */
+ * 用户基础信息 ID 查询响应
+ * 端点：GET /api/proxy/furtv/users/id
+ * 通过标识符查询用户 ID 的响应包装
+ */
 @Serializable
-public data class UserByIdResponse(
+public data class UserIdResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: UserBasicInfo,
+    @SerialName("data")
+    public val data: UserIdData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 用户基本信息
- * 包含用户的最基本信息
+ * 用户 ID 数据
+ * 包含用户的基础信息 ID
  * @param id 用户 ID
  * @param username 用户名
  * @param displayName 显示名称
  * @param avatarUrl 头像 URL
  */
 @Serializable
-public data class UserBasicInfo(
+public data class UserIdData(
+    @SerialName("id")
     public val id: String,
+    @SerialName("username")
     public val username: String,
+    @SerialName("displayName")
     public val displayName: String,
+    @SerialName("avatarUrl")
     public val avatarUrl: String? = null,
 )
 
 // ==================== 点赞状态 ====================
 
 /**
- * 点赞状态响应
+ * 用户点赞状态响应
+ * 端点：GET /api/proxy/furtv/fursuit/likestatus
  * 点赞状态接口的响应包装
  */
 @Serializable
 public data class LikeStatusResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: LikeStatus,
+    @SerialName("data")
+    public val data: LikeStatusData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 点赞状态
+ * 点赞状态数据
  * 包含用户的点赞相关信息
  * @param canLike 是否可以点赞
  * @param isLiked 是否已点赞
  * @param likeCount 点赞总数量
  */
 @Serializable
-public data class LikeStatus(
+public data class LikeStatusData(
+    @SerialName("canLike")
     public val canLike: Boolean,
+    @SerialName("isLiked")
     public val isLiked: Boolean,
+    @SerialName("likeCount")
     public val likeCount: Int,
 )
 
-// ==================== 关系与访客 ====================
+// ==================== 用户关系 ====================
 
 /**
- * 关系列表响应
- * 用户关系接口的响应包装 */
+ * 用户关系公开列表响应
+ * 端点：GET /api/proxy/furtv/relationships/user
+ * 用户关系接口的响应包装
+ */
 @Serializable
-public data class RelationshipsResponse(
+public data class UserRelationshipsResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: RelationshipsData,
+    @SerialName("data")
+    public val data: UserRelationshipsData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 关系数据
+ * 用户关系数据
  * 包含用户的关系列表信息
  * @param userId 用户 ID
  * @param partners 关系伴侣列表
  * @param totalCount 关系总数
  */
 @Serializable
-public data class RelationshipsData(
+public data class UserRelationshipsData(
+    @SerialName("userId")
     public val userId: String,
+    @SerialName("partners")
     public val partners: List<RelationshipPartner>,
+    @SerialName("totalCount")
     public val totalCount: Int,
 )
 
@@ -140,36 +185,52 @@ public data class RelationshipsData(
  */
 @Serializable
 public data class RelationshipPartner(
+    @SerialName("userId")
     public val userId: String,
+    @SerialName("username")
     public val username: String,
+    @SerialName("displayName")
     public val displayName: String,
+    @SerialName("avatarUrl")
     public val avatarUrl: String? = null,
+    @SerialName("relationshipType")
     public val relationshipType: String,
 )
 
+// ==================== 用户访客 ====================
+
 /**
- * 访客记录响应
- * 访客记录接口的响应包装 */
+ * 用户访客记录响应
+ * 端点：GET /api/proxy/furtv/users/visitors
+ * 访客记录接口的响应包装
+ */
 @Serializable
-public data class VisitorsResponse(
+public data class UserVisitorsResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: VisitorsData,
+    @SerialName("data")
+    public val data: UserVisitorsData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 访客数据
+ * 用户访客数据
  * 包含用户的访客记录信息
- * @param username 用户名
+ * @param userId 用户 ID
  * @param visitors 访客列表
  * @param totalCount 访客总数
  * @param showVisitorDetails 是否显示访客详情
  */
 @Serializable
-public data class VisitorsData(
-    public val username: String,
-    public val visitors: List<Visitor>,
+public data class UserVisitorsData(
+    @SerialName("userId")
+    public val userId: String,
+    @SerialName("visitors")
+    public val visitors: List<UserVisitor>,
+    @SerialName("totalCount")
     public val totalCount: Int,
+    @SerialName("showVisitorDetails")
     public val showVisitorDetails: Boolean,
 )
 
@@ -183,37 +244,154 @@ public data class VisitorsData(
  * @param visitedAt 访问时间
  */
 @Serializable
-public data class Visitor(
+public data class UserVisitor(
+    @SerialName("userId")
     public val userId: String,
+    @SerialName("username")
     public val username: String,
+    @SerialName("displayName")
     public val displayName: String,
+    @SerialName("avatarUrl")
     public val avatarUrl: String? = null,
+    @SerialName("visitedAt")
     public val visitedAt: String,
 )
 
-// ==================== 徽章与商店 ====================
+// ==================== 社交徽章 ====================
 
 /**
- * 商店商品响应
- * 商店商品接口的响应包装 */
+ * 用户社交徽章列表响应
+ * 端点：GET /api/proxy/furtv/users/socialbadges
+ * 社交徽章接口的响应包装
+ */
 @Serializable
-public data class StoreProductsResponse(
+public data class SocialBadgesResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: StoreProductsData,
+    @SerialName("data")
+    public val data: SocialBadgesData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 商店商品数据
+ * 用户社交徽章数据
+ * 包含用户的社交徽章列表
+ * @param userId 用户 ID
+ * @param badges 徽章列表
+ */
+@Serializable
+public data class SocialBadgesData(
+    @SerialName("userId")
+    public val userId: String,
+    @SerialName("badges")
+    public val badges: List<SocialBadge>,
+)
+
+/**
+ * 社交徽章
+ * 表示一个社交徽章的信息
+ * @param id 徽章 ID
+ * @param name 徽章名称
+ * @param description 徽章描述
+ * @param iconUrl 徽章图标 URL
+ * @param glbUrl 3D 模型 URL（GLB 格式）
+ * @param awardedAt 授予时间
+ */
+@Serializable
+public data class SocialBadge(
+    @SerialName("id")
+    public val id: String,
+    @SerialName("name")
+    public val name: String,
+    @SerialName("description")
+    public val description: String? = null,
+    @SerialName("iconUrl")
+    public val iconUrl: String? = null,
+    @SerialName("glbUrl")
+    public val glbUrl: String? = null,
+    @SerialName("awardedAt")
+    public val awardedAt: String,
+)
+
+/**
+ * 用户社交徽章详情响应
+ * 端点：GET /api/proxy/furtv/users/socialbadges/detail
+ * 徽章详情接口的响应包装
+ */
+@Serializable
+public data class SocialBadgeDetailResponse(
+    @SerialName("success")
+    public val success: Boolean,
+    @SerialName("data")
+    public val data: SocialBadgeDetailData,
+    @SerialName("requestId")
+    public val requestId: String,
+)
+
+/**
+ * 用户社交徽章详情数据
+ * 包含社交徽章的详细信息
+ * @param id 徽章 ID
+ * @param userBadgeId 用户徽章 ID
+ * @param name 徽章名称
+ * @param description 徽章描述
+ * @param iconUrl 徽章图标 URL
+ * @param glbUrl 3D 模型 URL（GLB 格式）
+ * @param awardedAt 授予时间
+ * @param awardedBy 授予者
+ */
+@Serializable
+public data class SocialBadgeDetailData(
+    @SerialName("id")
+    public val id: String,
+    @SerialName("userBadgeId")
+    public val userBadgeId: String,
+    @SerialName("name")
+    public val name: String,
+    @SerialName("description")
+    public val description: String? = null,
+    @SerialName("iconUrl")
+    public val iconUrl: String? = null,
+    @SerialName("glbUrl")
+    public val glbUrl: String? = null,
+    @SerialName("awardedAt")
+    public val awardedAt: String,
+    @SerialName("awardedBy")
+    public val awardedBy: String? = null,
+)
+
+// ==================== 商店商品 ====================
+
+/**
+ * 用户商店商品响应
+ * 端点：GET /api/proxy/furtv/users/storeproducts
+ * 商店商品接口的响应包装
+ */
+@Serializable
+public data class StoreProductsResponse(
+    @SerialName("success")
+    public val success: Boolean,
+    @SerialName("data")
+    public val data: StoreProductsData,
+    @SerialName("requestId")
+    public val requestId: String,
+)
+
+/**
+ * 用户商店商品数据
  * 包含用户商店的商品信息
- * @param username 用户名
+ * @param userId 用户 ID
  * @param isMerchant 是否是商家
  * @param products 商品列表
  */
 @Serializable
 public data class StoreProductsData(
-    public val username: String,
+    @SerialName("userId")
+    public val userId: String,
+    @SerialName("isMerchant")
     public val isMerchant: Boolean,
+    @SerialName("products")
     public val products: List<StoreProduct>,
 )
 
@@ -230,86 +408,18 @@ public data class StoreProductsData(
  */
 @Serializable
 public data class StoreProduct(
+    @SerialName("id")
     public val id: String,
+    @SerialName("name")
     public val name: String,
+    @SerialName("description")
     public val description: String? = null,
+    @SerialName("price")
     public val price: Double? = null,
+    @SerialName("currency")
     public val currency: String? = null,
+    @SerialName("externalUrl")
     public val externalUrl: String? = null,
+    @SerialName("imageUrl")
     public val imageUrl: String? = null,
-)
-
-/**
- * 社交徽章响应
- * 社交徽章接口的响应包装 */
-@Serializable
-public data class SocialBadgesResponse(
-    public val success: Boolean,
-    public val data: SocialBadgesData,
-    public val requestId: String,
-)
-
-/**
- * 社交徽章数据
- * 包含用户的社交徽章列表
- * @param username 用户名
- * @param badges 徽章列表
- */
-@Serializable
-public data class SocialBadgesData(
-    public val username: String,
-    public val badges: List<SocialBadge>,
-)
-
-/**
- * 社交徽章
- * 表示一个社交徽章的信息
- * @param id 徽章 ID
- * @param name 徽章名称
- * @param description 徽章描述
- * @param iconUrl 徽章图标 URL
- * @param glbUrl 3D 模型 URL（GLB 格式）
- * @param awardedAt 授予时间
- */
-@Serializable
-public data class SocialBadge(
-    public val id: String,
-    public val name: String,
-    public val description: String? = null,
-    public val iconUrl: String? = null,
-    public val glbUrl: String? = null,
-    public val awardedAt: String,
-)
-
-/**
- * 徽章详情响应
- * 徽章详情接口的响应包装 */
-@Serializable
-public data class SocialBadgeDetailResponse(
-    public val success: Boolean,
-    public val data: SocialBadgeDetail,
-    public val requestId: String,
-)
-
-/**
- * 社交徽章详情
- * 包含社交徽章的详细信息
- * @param id 徽章 ID
- * @param userBadgeId 用户徽章 ID
- * @param name 徽章名称
- * @param description 徽章描述
- * @param iconUrl 徽章图标 URL
- * @param awardedAt 授予时间
- * @param awardedBy 授予者
- */
-@Serializable
-public data class SocialBadgeDetail(
-    public val id: String,
-    public val userBadgeId: String,
-    public val name: String,
-    public val description: String? = null,
-    public val iconUrl: String? = null,
-    public val glbUrl: String? = null,
-    public val awardedAt: String,
-    public val awardedBy: String? = null,
 )
