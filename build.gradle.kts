@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.dokka)
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
-    `maven-publish`
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 repositories {
@@ -146,35 +146,36 @@ tasks.register("quickBuild") {
 }
 
 // Maven Publish Configuration
-publishing {
-    publications {
-        withType<MavenPublication> {
-            pom {
-                name.set("fursuit-tv-sdk")
-                description.set("Cross-platform SDK for Fursuit.TV API built with Kotlin Multiplatform")
-                url.set("https://github.com/RegadPoleCN/fursuit-tv-sdk")
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
 
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
+    coordinates("me.regadpole", "fursuit-tv-sdk", project.version.toString())
 
-                developers {
-                    developer {
-                        id.set("regadpole")
-                        name.set("RegadPole")
-                        email.set("1651233735@qq.com")
-                    }
-                }
+    pom {
+        name.set("fursuit-tv-sdk")
+        description.set("Cross-platform SDK for Fursuit.TV API built with Kotlin Multiplatform")
+        url.set("https://github.com/RegadPoleCN/fursuit-tv-sdk")
 
-                scm {
-                    connection.set("scm:git:git://github.com/RegadPoleCN/fursuit-tv-sdk.git")
-                    developerConnection.set("scm:git:ssh://github.com/RegadPoleCN/fursuit-tv-sdk.git")
-                    url.set("https://github.com/RegadPoleCN/fursuit-tv-sdk")
-                }
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
             }
+        }
+
+        developers {
+            developer {
+                id.set("regadpole")
+                name.set("RegadPole")
+                email.set("1651233735@qq.com")
+            }
+        }
+
+        scm {
+            connection.set("scm:git:git://github.com/RegadPoleCN/fursuit-tv-sdk.git")
+            developerConnection.set("scm:git:ssh://github.com/RegadPoleCN/fursuit-tv-sdk.git")
+            url.set("https://github.com/RegadPoleCN/fursuit-tv-sdk")
         }
     }
 }
