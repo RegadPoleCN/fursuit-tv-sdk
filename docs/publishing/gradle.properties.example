@@ -1,0 +1,27 @@
+# ==================== 发布配置模板 ====================
+# 复制此文件为 gradle.properties 并填入真实值
+# 重要：永远不要将真实凭证提交到版本控制！
+# ===============================================
+
+# ==================== Sonatype Central Portal 凭证 ====================
+# 从 Sonatype Central Portal 获取的 API Token
+# 获取方式：登录 central.sonatype.com → Account Settings → API Tokens
+sonatypeUsername=your-username-token  # 格式：username-abc123
+sonatypePassword=your-api-token       # 完整的 API Token
+
+# ==================== GPG 签名配置 ====================
+# GPG 密钥 ID（最后 8 位）
+# 查看方式：gpg --list-secret-keys --keyid-format LONG
+signing.keyId=YOUR_KEY_ID
+
+# GPG 密钥密码
+signing.password=your-gpg-passphrase
+
+# GPG 私钥内容（可选，用于 CI/CD）
+# 导出命令：gpg --armor --export-secret-keys YOUR_KEY_ID
+# 将输出内容复制到这里，换行符替换为 \n
+# signing.inMemoryKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
+
+# ==================== 其他配置 ====================
+# 跳过 Native 平台编译（Windows 上可能需要）
+# skipNative=true
