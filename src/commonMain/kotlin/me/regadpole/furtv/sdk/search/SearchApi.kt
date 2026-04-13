@@ -4,6 +4,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import me.regadpole.furtv.sdk.model.DiscoverySearchParams
+import me.regadpole.furtv.sdk.model.DiscoverySpeciesSearchParams
 import me.regadpole.furtv.sdk.model.RandomFursuitParams
 import me.regadpole.furtv.sdk.model.SearchParams
 
@@ -13,6 +15,7 @@ import me.regadpole.furtv.sdk.model.SearchParams
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
+@Suppress("TooManyFunctions")
 public class SearchApi(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
@@ -143,6 +146,149 @@ public class SearchApi(
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/locations/popular")
                 .body<PopularLocationsResponse>()
+        return response.data
+    }
+
+    // ==================== Discovery 相关接口 ====================
+
+    /**
+     * 获取热门推荐（Discovery）
+     * 获取当前热门用户列表
+     * 端点：GET /api/proxy/furtv/discovery/popular
+     * @return DiscoveryPopularData 包含热门用户列表
+     */
+    public suspend fun getPopularDiscovery(): DiscoveryPopularData {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/popular")
+                .body<DiscoveryPopularResponse>()
+        return response.data
+    }
+
+    /**
+     * 获取随机推荐（Discovery）
+     * 获取随机推荐的用户列表，支持个性化推荐
+     * 端点：GET /api/proxy/furtv/discovery/random
+     * @param count 返回数量（可选）
+     * @param personalized 是否个性化推荐（可选）
+     * @return List<DiscoveryRandomUser> 随机推荐的用户列表
+     */
+    public suspend fun getRandomDiscovery(
+        count: Int? = null,
+        personalized: Boolean? = null,
+    ): List<DiscoveryRandomUser> {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/random") {
+                count?.let { parameter("count", it) }
+                personalized?.let { parameter("personalized", it) }
+            }.body<DiscoveryRandomResponse>()
+        return response.data
+    }
+
+    /**
+     * 搜索（Discovery）
+     * 执行搜索操作，支持多种类型和分页
+     * 端点：GET /api/proxy/furtv/discovery/search
+     * @param params 搜索参数
+     * @return DiscoverySearchData 搜索结果和分页信息
+     */
+    public suspend fun searchDiscovery(params: DiscoverySearchParams): DiscoverySearchData {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/search") {
+                parameter("q", params.query)
+                params.page?.let { parameter("page", it) }
+                params.pageSize?.let { parameter("pageSize", it) }
+                params.type?.let { parameter("type", it) }
+            }.body<DiscoverySearchResponse>()
+        return response.data
+    }
+
+    /**
+     * 搜索（Discovery 重载方法）
+     * @param query 搜索关键词
+     * @param page 页码（可选，默认 1）
+     * @param pageSize 每页数量（可选，默认 20）
+     * @param type 搜索类型（可选）
+     * @return DiscoverySearchData 搜索结果和分页信息
+     */
+    public suspend fun searchDiscovery(
+        query: String,
+        page: Int? = null,
+        pageSize: Int? = null,
+        type: String? = null,
+    ): DiscoverySearchData {
+        return searchDiscovery(DiscoverySearchParams(query, page, pageSize, type))
+    }
+
+    /**
+     * 获取搜索建议（Discovery）
+     * 根据关键词获取搜索建议（自动补全）
+     * 端点：GET /api/proxy/furtv/discovery/search/suggestions
+     * @param query 搜索关键词
+     * @return List<String> 搜索建议列表
+     */
+    public suspend fun getSearchSuggestionsDiscovery(query: String): List<String> {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/search/suggestions") {
+                parameter("q", query)
+            }.body<DiscoverySearchSuggestionsResponse>()
+        return response.data.suggestions
+    }
+
+    /**
+     * 获取物种列表（Discovery）
+     * 获取所有物种及相关统计信息
+     * 端点：GET /api/proxy/furtv/discovery/species
+     * @return DiscoverySpeciesData 物种列表和统计
+     */
+    public suspend fun getSpeciesDiscovery(): DiscoverySpeciesData {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/species")
+                .body<DiscoverySpeciesResponse>()
+        return response.data
+    }
+
+    /**
+     * 按物种搜索（Discovery）
+     * 根据物种 ID 搜索用户，支持分页
+     * 端点：GET /api/proxy/furtv/discovery/species/search
+     * @param params 按物种搜索参数
+     * @return DiscoverySpeciesSearchData 搜索结果和分页信息
+     */
+    public suspend fun searchBySpeciesDiscovery(params: DiscoverySpeciesSearchParams): DiscoverySpeciesSearchData {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/species/search") {
+                parameter("speciesId", params.speciesId)
+                params.page?.let { parameter("page", it) }
+                params.pageSize?.let { parameter("pageSize", it) }
+            }.body<DiscoverySpeciesSearchResponse>()
+        return response.data
+    }
+
+    /**
+     * 按物种搜索（Discovery 重载方法）
+     * @param speciesId 物种 ID
+     * @param page 页码（可选，默认 1）
+     * @param pageSize 每页数量（可选，默认 20）
+     * @return DiscoverySpeciesSearchData 搜索结果和分页信息
+     */
+    public suspend fun searchBySpeciesDiscovery(
+        speciesId: String,
+        page: Int? = null,
+        pageSize: Int? = null,
+    ): DiscoverySpeciesSearchData {
+        return searchBySpeciesDiscovery(DiscoverySpeciesSearchParams(speciesId, page, pageSize))
+    }
+
+    /**
+     * 获取热门地区（Discovery）
+     * 获取用户数量最多的地区列表
+     * 端点：GET /api/proxy/furtv/discovery/locations/popular
+     * @return DiscoveryPopularLocationsData 热门地区列表
+     */
+    public suspend fun getPopularLocationsDiscovery(): DiscoveryPopularLocationsData {
+        val response =
+            httpClient.get("$baseUrl/api/proxy/furtv/discovery/locations/popular")
+                .body<DiscoveryPopularLocationsResponse>()
         return response.data
     }
 }
