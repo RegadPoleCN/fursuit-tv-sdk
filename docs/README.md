@@ -31,33 +31,27 @@ dependencies {
 
 ### 初始化 SDK
 
-SDK 提供四种初始化方式，适用于不同的使用场景：
+SDK 提供多种初始化方式，适用于不同的使用场景：
 
-#### 方式 1: 使用 apiKey（适用于已有 apiKey 的用户）
+#### 方式 1: 使用 apiKey（Client 认证）
 
 ```kotlin
 // 使用默认配置
 val sdk = FursuitTvSdk(apiKey = "your-api-key")
 
 // 使用自定义配置
-val config = SdkConfig(
-    apiKey = "your-api-key",
-    baseUrl = "https://open-global.vdsentnet.com",
-    requestTimeout = 60000,
-    logLevel = LogLevel.DEBUG
-)
+val config = SdkConfig.builder()
+    .apiKey("your-api-key")
+    .baseUrl("https://open-global.vdsentnet.com")
+    .build()
 val sdk = FursuitTvSdk(config)
 ```
 
 **认证头**: `X-Api-Key: your-api-key`
 
-**说明**: 
-- apiKey 通过签名交换接口获取（使用 appId + appSecret）
-- apiKey 和 accessToken 是两个不同的值
-- apiKey 用于 X-Api-Key 认证头
-- 适用于简单的服务端到服务端调用
+**适用场景**：应用级 API，简单的服务端到服务端调用
 
-#### 方式 2: 使用 appId + appSecret（推荐，适用于新用户）
+#### 方式 2: 使用 appId + appSecret（推荐，Client 认证）
 
 ```kotlin
 // 使用 appId 和 appSecret 初始化
@@ -76,64 +70,9 @@ runBlocking {
 
 **认证头**: `X-Api-Key: <apiKey>`（优先）或 `Authorization: Bearer <accessToken>`
 
-**说明**:
-- appId 即 clientId，appSecret 即 clientSecret，统一使用 app 命名
-- SDK 自动调用签名交换接口获取 accessToken 和 apiKey
-- accessToken 和 apiKey 是两个不同的值
-- accessToken 用于 Authorization: Bearer 头
-- apiKey 用于 X-Api-Key 头（SDK 优先使用）
-- 支持令牌自动刷新机制
+**适用场景**：应用级 API，支持令牌自动刷新
 
-#### 方式 3: OAuth 本地回调（适用于需要用户授权的应用）
-
-```kotlin
-// 配置 OAuth 回调服务器
-val config = OAuthConfig(
-    callbackHost = "localhost",
-    callbackPort = 8080,
-    callbackPath = "/callback"
-)
-
-// 使用 OAuth 初始化 SDK（自动完成整个授权流程）
-val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
-
-// 或者使用 AuthManager 手动控制
-val sdk2 = FursuitTvSdk()
-runBlocking {
-    val tokenInfo = sdk2.auth.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
-    // tokenInfo 包含访问令牌和用户信息
-}
-```
-
-**认证头**: `Authorization: Bearer <oauth-token>`
-
-**说明**:
-- 完整的 OAuth 2.0 授权码模式，需要用户登录并授权
-- 仅需要 appId，不需要 appSecret
-- 适用于需要用户授权的应用场景
-
-**OAuth 本地回调自动授权流程**:
-1. SDK 启动本地 HTTP 服务器监听回调端口
-2. 生成随机 state 参数防止 CSRF 攻击
-3. 打开浏览器引导用户访问授权页面
-4. 用户登录并同意授权
-5. 授权成功后重定向到本地回调地址
-6. SDK 接收回调并提取授权码
-7. 自动关闭本地服务器
-8. 使用授权码交换访问令牌
-
-**🌍 跨平台 OAuth 支持说明：**
-
-SDK 的 OAuth 实现在不同平台上有不同的行为：
-
-- **JVM 平台**：自动打开系统浏览器，本地回调服务器监听授权回调
-- **JS 平台（Browser）**：使用 postMessage API 监听回调，无需启动服务器
-- **JS 平台（Node.js）**：需手动打开授权 URL，本地 HTTP 服务器接收回调
-- **Native 平台**：使用平台特定的 URL 打开机制，支持自定义 URL Scheme
-
-详细实现和平台差异请查看 [跨平台 OAuth 实现](oauth.md)。
-
-#### 方式 4: 使用 accessToken（适用于已有访问令牌的用户）
+#### 方式 3: 使用 accessToken（Client 认证）
 
 ```kotlin
 // 直接使用已有的 accessToken 初始化
@@ -145,10 +84,36 @@ val sdk = FursuitTvSdk(
 
 **认证头**: `Authorization: Bearer <accessToken>`
 
-**说明**:
-- accessToken 是签名交换接口返回的访问令牌
-- accessToken 和 apiKey 是两个不同的值
-- 适用于已有通过其他方式获取的访问令牌（例如从持久化存储中恢复）
+**适用场景**：应用级 API，适用于已有访问令牌的用户
+
+#### 方式 4: 使用 OAuth 认证（OAuth 2.0 授权码模式）
+
+```kotlin
+// 配置 OAuth 回调服务器
+val config = OAuthConfig(
+    callbackHost = "localhost",
+    callbackPort = 8080,
+    callbackPath = "/callback"
+)
+
+// 第一步：先通过签名交换获取 Client accessToken
+val clientSdk = FursuitTvSdk(appId = "vap_xxxxxxxxxxxxxxxx", appSecret = "your-app-secret")
+runBlocking {
+    clientSdk.auth.exchangeToken("vap_xxxxxxxxxxxxxxxx", "your-app-secret")
+    
+    // 第二步：使用 OAuth 获取用户授权
+    val oauthSdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
+    
+    // 第三步：调用 UserInfo 接口
+    val userInfo = oauthSdk.user.getUserProfile("username")
+}
+```
+
+**认证头**: `Authorization: Bearer <oauth-token>`
+
+**适用场景**：用户授权场景（仅可用于 UserInfo 接口）
+
+**注意**：OAuth token 和 Client token 不通用，不能混用
 
 ### 认证
 
@@ -169,51 +134,11 @@ val tokenInfo = sdk.auth.exchangeToken(
 val refreshedToken = sdk.auth.refreshToken()
 ```
 
-#### OAuth 授权码交换
-
-```kotlin
-// 使用授权码交换令牌（OAuth 模式）
-val tokenInfo = sdk.auth.exchangeCode(
-    code = "authorization-code",
-    redirectUri = "your-redirect-uri"
-)
-```
-
 #### 检查认证状态
 
 ```kotlin
 val isAuthenticated = sdk.auth.isAuthenticated()
 ```
-
-### 认证头说明
-
-SDK 根据初始化方式自动选择认证头格式：
-
-| 初始化方式 | 认证头格式 | 说明 |
-|-----------|-----------|------|
-| `apiKey` | `X-Api-Key: your-api-key` | 适用于简单的 API 密钥认证 |
-| `appId` + `appSecret` | `X-Api-Key: <apiKey>`（优先） | 适用于签名认证流程，支持令牌自动刷新 |
-| OAuth 本地回调 | `Authorization: Bearer <oauth-token>` | 适用于需要用户授权的 OAuth 2.0 授权码模式 |
-| `accessToken` | `Authorization: Bearer <accessToken>` | 适用于已有访问令牌的场景 |
-
-**重要说明**:
-- apiKey 和 accessToken 是签名交换接口返回的两个不同的值
-- apiKey 用于 X-Api-Key 认证头
-- accessToken 用于 Authorization: Bearer 认证头
-- 使用 appId + appSecret 初始化时，SDK 优先使用 X-Api-Key 头
-- 同时传入两种认证头时，服务端优先使用 X-Api-Key
-
-**X-Api-Key 头**：
-- 使用 `X-Api-Key: your-api-key` 请求头
-- 适用于简单的服务端到服务端调用
-- 通过 `apiKey` 参数或 `SdkConfig.apiKey` 配置
-- 不支持令牌自动刷新
-
-**Authorization: Bearer 头**：
-- 使用 `Authorization: Bearer access_token` 请求头
-- OAuth 2.0 标准认证头格式，符合 RFC 6750 规范
-- 通过 OAuth 流程、appId+appSecret 或直接传入 accessToken 后自动使用
-- 支持令牌自动刷新机制
 
 ### 调用 API
 
@@ -222,10 +147,10 @@ SDK 根据初始化方式自动选择认证头格式：
 val userProfile = sdk.user.getUserProfile("username")
 
 // 获取热门推荐
-val popularUsers = sdk.search.getPopular()
+val popularUsers = sdk.search.getPopularDiscovery()
 
 // 获取聚会列表
-val gatherings = sdk.gathering.getGatheringMonthly(2024, 12)
+val gatherings = sdk.gathering.getMonthly(2024, 12)
 
 // 搜索学校
 val schools = sdk.school.searchSchools("北京大学")
@@ -237,20 +162,22 @@ val schools = sdk.school.searchSchools("北京大学")
 sdk.close()
 ```
 
-## API 文档
+## API 模块
 
-- [基础 API](api/base.md)
-- [用户 API](api/user.md)
-- [搜索 API](api/search.md)
-- [聚会 API](api/gathering.md)
-- [学校 API](api/school.md)
+SDK 提供以下 API 模块：
+
+- **base**: 基础接口 API，提供健康检查、版本检查、主题包等基础功能
+- **user**: 用户相关 API，提供用户资料、关系、访客、徽章、商店等功能
+- **search**: 搜索和发现 API，提供热门推荐、随机推荐、搜索、物种查询等功能
+- **gathering**: 聚会相关 API，提供聚会列表、统计、详情、报名等功能
+- **school**: 学校和角色 API，提供学校信息、角色管理等功能
 
 ## 配置
 
 SDK 提供了丰富的配置选项，通过 `SdkConfig` 类进行设置：
 
 - `baseUrl`: API 基础 URL，默认为 "https://open-global.vdsentnet.com"
-- `apiKey`: API 密钥，必须设置
+- `apiKey`: API 密钥
 - `requestTimeout`: 请求超时时间，默认为 30000 毫秒
 - `connectTimeout`: 连接超时时间，默认为 10000 毫秒
 - `socketTimeout`: 套接字超时时间，默认为 30000 毫秒
@@ -277,7 +204,7 @@ SDK 提供了以下错误类型：
 
 ```kotlin
 fun main() = runBlocking {
-    val sdk = FursuitTvSdk(apiKey = "your-api-key")
+    val sdk = FursuitTvSdk(appId = "vap_xxxxxxxxxxxxxxxx", appSecret = "your-app-secret")
     
     try {
         // 认证（签名交换）
@@ -287,7 +214,7 @@ fun main() = runBlocking {
         val userProfile = sdk.user.getUserProfile("username")
         
         // 获取热门推荐
-        val popular = sdk.search.getPopular()
+        val popular = sdk.search.getPopularDiscovery()
         
     } catch (e: FursuitTvSdkException) {
         println("错误：${e.message}")
