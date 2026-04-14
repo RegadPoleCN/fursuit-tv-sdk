@@ -21,13 +21,13 @@ public class GatheringApi(
     /**
      * 获取聚会年度统计
      * 获取当前年度的聚会统计数据
-     * 端点：GET /api/proxy/furtv/gatherings/stats/thisyear
+     * 端点：GET /api/proxy/furtv/gatherings/stats/this-year
      * 官方文档：https://vdsentnet.com/docs/api/gatherings#year-stats
      * @return GatheringYearStatsData 聚会年度统计数据
      */
     public suspend fun getYearStats(): GatheringYearStatsData {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/stats/thisyear")
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/stats/this-year")
                 .body<GatheringYearStatsResponse>()
         return response.data
     }
@@ -154,39 +154,37 @@ public class GatheringApi(
     /**
      * 获取聚会详情
      * 获取聚会的详细信息，包括议程、标签、报名统计等
-     * 端点：GET /api/proxy/furtv/gatherings/detail
+     * 端点：GET /api/proxy/furtv/gatherings/:id
      * 官方文档：https://vdsentnet.com/docs/api/gatherings#detail
-     * @param gatheringId 聚会 ID
+     * @param id 聚会 ID
      * @return GatheringDetailData 聚会详情数据
      */
-    public suspend fun getGatheringDetail(gatheringId: String): GatheringDetailData {
+    public suspend fun getGatheringDetail(id: String): GatheringDetailData {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/detail") {
-                parameter("id", gatheringId)
-            }.body<GatheringDetailResponse>()
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$id")
+                .body<GatheringDetailResponse>()
         return response.data
     }
 
     /**
      * 获取聚会报名列表
      * 获取聚会的报名人员列表
-     * 端点：GET /api/proxy/furtv/gatherings/registrations
+     * 端点：GET /api/proxy/furtv/gatherings/:id/registrations
      * 官方文档：https://vdsentnet.com/docs/api/gatherings#registrations
-     * @param gatheringId 聚会 ID
+     * @param id 聚会 ID
      * @param status 报名状态筛选（可选）
      * @param cursor 分页游标（可选）
      * @param limit 返回数量限制（可选）
      * @return GatheringRegistrationsData 报名列表数据
      */
     public suspend fun getRegistrations(
-        gatheringId: String,
+        id: String,
         status: String? = null,
         cursor: String? = null,
         limit: Int? = null,
     ): GatheringRegistrationsData {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/registrations") {
-                parameter("id", gatheringId)
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$id/registrations") {
                 status?.let { parameter("status", it) }
                 cursor?.let { parameter("cursor", it) }
                 limit?.let { parameter("limit", it) }
@@ -197,7 +195,7 @@ public class GatheringApi(
     /**
      * 获取聚会报名列表（参数对象版本）
      * 获取聚会的报名人员列表
-     * 端点：GET /api/proxy/furtv/gatherings/registrations
+     * 端点：GET /api/proxy/furtv/gatherings/:id/registrations
      * 官方文档：https://vdsentnet.com/docs/api/gatherings#registrations
      * @param params 报名列表参数
      * @return GatheringRegistrationsData 报名列表数据

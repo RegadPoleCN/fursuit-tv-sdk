@@ -74,7 +74,7 @@ public class SchoolApi(
      * 获取学校详情
      * 根据学校 ID 获取学校的详细信息
      *
-     * 端点：`GET /api/proxy/furtv/schools/detail`
+     * 端点：`GET /api/proxy/furtv/schools/:schoolId`
      *
      * 官方文档：[学校详情](../../../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 学校/学校详情（furtv.schools.detail）.md)
      *
@@ -86,9 +86,8 @@ public class SchoolApi(
      */
     public suspend fun getSchoolDetail(schoolId: String): SchoolDetail {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/schools/detail") {
-                parameter("schoolId", schoolId)
-            }.body<SchoolDetailResponse>()
+            httpClient.get("$baseUrl/api/proxy/furtv/schools/$schoolId")
+                .body<SchoolDetailResponse>()
         return response.data
     }
 
@@ -96,7 +95,7 @@ public class SchoolApi(
      * 获取用户学校信息
      * 获取指定用户的学校信息列表，包括用户关联的所有学校及其相关信息
      *
-     * 端点：`GET /api/proxy/furtv/schools/user`
+     * 端点：`GET /api/proxy/furtv/schools/user/:userId`
      *
      * 官方文档：[用户学校信息](../../../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 学校/用户学校信息（furtv.schools.user）.md)
      *
@@ -108,9 +107,8 @@ public class SchoolApi(
      */
     public suspend fun getUserSchools(userId: String): UserSchoolsData {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/schools/user") {
-                parameter("userId", userId)
-            }.body<UserSchoolsResponse>()
+            httpClient.get("$baseUrl/api/proxy/furtv/schools/user/$userId")
+                .body<UserSchoolsResponse>()
         return response.data
     }
 
@@ -118,22 +116,21 @@ public class SchoolApi(
      * 获取用户角色列表
      * 获取指定用户的角色列表，包括所有角色的详细信息
      *
-     * 端点：`GET /api/proxy/furtv/characters/user`
+     * 端点：`GET /api/proxy/furtv/characters/user/:username`
      *
      * 官方文档：[用户角色列表](../../../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 角色/用户角色列表（furtv.characters.user）.md)
      *
-     * @param userId 用户 ID
+     * @param username 用户名
      * @return UserCharactersData 用户角色数据，包含用户 ID、用户名和角色列表
      * @throws Exception 当请求失败时抛出异常
      *
      * @see UserCharactersData
      * @see CharacterInfo
      */
-    public suspend fun getUserCharacters(userId: String): UserCharactersData {
+    public suspend fun getUserCharacters(username: String): UserCharactersData {
         val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/characters/user") {
-                parameter("userId", userId)
-            }.body<UserCharactersResponse>()
+            httpClient.get("$baseUrl/api/proxy/furtv/characters/user/$username")
+                .body<UserCharactersResponse>()
         return response.data
     }
 }
