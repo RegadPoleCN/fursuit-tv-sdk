@@ -7,12 +7,32 @@ import kotlinx.serialization.Serializable
 /**
  * 签名交换请求（用于获取 apiKey/accessToken）
  * 用于签名交换接口的请求体
- * @param clientId 应用 ID（格式 vap_xxxx）
- * @param clientSecret 应用密钥（与 appSecret 等价）
+ *
+ * 官方文档：vds-docs/基础接口/签名交换.md
+ *
+ * 请求参数说明：
+ * - appId: 应用 ID（格式 vap_xxxx），与 clientId 二选一
+ * - clientId: 应用客户端 ID（格式 vap_xxxx），与 appId 二选一
+ * - clientSecret: 应用密钥
+ *
+ * 注意：appId 和 clientId 是等价的，可以使用任一字段
+ *
+ * 请求示例：
+ * ```json
+ * {
+ *   "appId": "vap_xxxxxxxxxxxxxxxx",
+ *   "clientSecret": "your_app_secret"
+ * }
+ * ```
+ *
+ * @property clientId 应用 ID（格式 vap_xxxx），与 appId 等价
+ * @property clientSecret 应用密钥
  */
 @Serializable
 public data class TokenExchangeRequest(
+    @SerialName("clientId")
     public val clientId: String,
+    @SerialName("clientSecret")
     public val clientSecret: String,
 )
 
@@ -82,16 +102,42 @@ public data class TokenRefreshInfo(
  * 令牌数据
  * 包含访问令牌信息（签名交换接口返回）
  * 注意：accessToken 和 apiKey 是两个不同的值
- * @param accessToken 访问令牌，用于 Authorization: Bearer 认证头
- * @param apiKey API 密钥，用于 X-Api-Key 认证头
- * @param expiresIn 令牌有效期（秒）
- * @param tokenType 令牌类型，通常为 "Bearer"
- * @param refresh 可选的令牌刷新信息
+ *
+ * 官方文档：vds-docs/基础接口/签名交换.md
+ *
+ * 字段说明（对应官方 API 响应字段）：
+ * - accessToken: 访问令牌，用于 Authorization: Bearer 认证头
+ * - apiKey: API 密钥，用于 X-Api-Key 认证头
+ * - expiresInSeconds: 令牌有效期（秒），默认 3600（1 小时）
+ * - tokenType: 令牌类型，通常为 "Bearer"
+ * - appId: 应用 ID（格式 vap_xxxx）
+ * - grants: 授权范围列表
+ * - refresh: 可选的令牌刷新信息（签名换新时返回）
+ *
+ * 响应示例：
+ * ```json
+ * {
+ *   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+ *   "apiKey": "eyJhbGciOiJIUzI1NiIs...",
+ *   "tokenType": "Bearer",
+ *   "expiresInSeconds": 3600,
+ *   "appId": "vap_xxxxxxxxxxxxxxxx",
+ *   "grants": ["furtv", "furtv.gathering.timeline"],
+ *   "requestId": "6ff8d966-b3f6-46a6-9fe3-24fd6553ef52"
+ * }
+ * ```
+ *
+ * @property accessToken 访问令牌，用于 Authorization: Bearer 认证头
+ * @property apiKey API 密钥，用于 X-Api-Key 认证头
+ * @property expiresIn 令牌有效期（秒）
+ * @property tokenType 令牌类型，通常为 "Bearer"
+ * @property refresh 可选的令牌刷新信息
  */
 @Serializable
 public data class TokenData(
     public val accessToken: String,
     public val apiKey: String,
+    @SerialName("expiresInSeconds")
     public val expiresIn: Int,
     public val tokenType: String,
     @SerialName("refresh")
@@ -112,10 +158,30 @@ public data class TokenRefreshRequest(
 /**
  * 令牌刷新响应
  * 令牌刷新接口的响应包装
- * @param success 请求是否成功
- * @param data 新的令牌数据
- * @param requestId 请求 ID
- * @param refresh 可选的令牌刷新信息
+ *
+ * 官方文档：vds-docs/基础接口/签名换新.md
+ *
+ * 响应示例：
+ * ```json
+ * {
+ *   "accessToken": "eyJhbGciOiJIUzI1NiIs...new",
+ *   "apiKey": "eyJhbGciOiJIUzI1NiIs...new",
+ *   "tokenType": "Bearer",
+ *   "expiresInSeconds": 3600,
+ *   "appId": "vap_xxxxxxxxxxxxxxxx",
+ *   "refresh": {
+ *     "mode": "exchange_current_access_token",
+ *     "refreshWindowSeconds": 300,
+ *     "previousTokenSecondsRemaining": 221
+ *   },
+ *   "requestId": "27f83f9b-7eca-4b75-a92b-254ea9f622f8"
+ * }
+ * ```
+ *
+ * @property success 请求是否成功
+ * @property data 新的令牌数据
+ * @property requestId 请求 ID
+ * @property refresh 可选的令牌刷新信息
  */
 @Serializable
 public data class TokenRefreshResponse(
@@ -281,16 +347,16 @@ public data class OAuthTokenResponse(
  *
  * 官方文档：vds-docs/VDS 账户/VDS 账户快速接入（OAuth）.md
  *
- * 字段说明：
- * - accessToken: 访问令牌（OAuth 流程专用）
+ * 字段说明（对应官方 API 响应字段）：
+ * - access_token: 访问令牌（OAuth 流程专用）
  *   - 用于访问受保护的用户资源
  *   - 通过 Authorization: Bearer <token> 或 X-OAuth-Access-Token: <token> 传递
- * - expiresIn: 有效期（秒），通常为 3600（1 小时）
- * - tokenType: 令牌类型，固定为 "Bearer"
+ * - expires_in: 有效期（秒），通常为 3600（1 小时）
+ * - token_type: 令牌类型，固定为 "Bearer"
  * - scope: 授权的权限范围（可选）
  *   - 多个权限用空格分隔
  *   - 如 "user.profile user.email"
- * - refreshToken: 刷新令牌（可选）
+ * - refresh_token: 刷新令牌（可选）
  *   - 用于在 access_token 过期后获取新的访问令牌
  *   - 仅在初次授权时返回，刷新令牌时可能轮换
  *   - 仅在 grant_type=authorization_code 时返回
@@ -314,8 +380,11 @@ public data class OAuthTokenResponse(
  */
 @Serializable
 public data class OAuthTokenData(
+    @SerialName("access_token")
     public val accessToken: String,
+    @SerialName("expires_in")
     public val expiresIn: Int,
+    @SerialName("token_type")
     public val tokenType: String,
     public val scope: String? = null,
     @SerialName("refresh_token")
@@ -348,7 +417,7 @@ public data class UserInfoResponse(
  *   - 格式如 "oauth|xxxxx"
  * - nickname: 用户昵称（可选）
  *   - 用户在平台上显示的昵称
- * - avatarUrl: 用户头像 URL（可选）
+ * - avatar_url: 用户头像 URL（可选）
  *   - 用户头像图片的完整 URL
  * - email: 用户邮箱（可选）
  *   - 需要 user.email 权限才能获取
@@ -356,9 +425,9 @@ public data class UserInfoResponse(
  *   - 用户的真实姓名
  * - username: 用户名（可选）
  *   - 用户的登录名或唯一用户名
- * - updatedAt: 用户信息更新时间戳（可选，毫秒）
+ * - updated_at: 用户信息更新时间戳（可选，毫秒）
  *   - 用户信息最后一次更新的时间
- * - phoneNumber: 用户电话号码（可选）
+ * - phone_number: 用户电话号码（可选）
  *   - 需要 user.phone 权限才能获取
  *
  * 响应示例：
@@ -366,12 +435,12 @@ public data class UserInfoResponse(
  * {
  *   "sub": "oauth|123456789",
  *   "nickname": "FurryUser",
- *   "avatarUrl": "https://example.com/avatar.jpg",
+ *   "avatar_url": "https://example.com/avatar.jpg",
  *   "email": "user@example.com",
  *   "name": "张三",
  *   "username": "furryuser",
- *   "updatedAt": 1234567890000,
- *   "phoneNumber": "+86 13800138000"
+ *   "updated_at": 1234567890000,
+ *   "phone_number": "+86 13800138000"
  * }
  * ```
  *
@@ -396,11 +465,14 @@ public data class UserInfoResponse(
 public data class UserInfoData(
     public val sub: String,
     public val nickname: String? = null,
+    @SerialName("avatar_url")
     public val avatarUrl: String? = null,
     public val email: String? = null,
     public val name: String? = null,
     public val username: String? = null,
+    @SerialName("updated_at")
     public val updatedAt: Long? = null,
+    @SerialName("phone_number")
     public val phoneNumber: String? = null,
 )
 
