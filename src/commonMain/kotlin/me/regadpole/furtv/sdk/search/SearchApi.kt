@@ -12,6 +12,16 @@ import me.regadpole.furtv.sdk.model.SearchParams
 /**
  * 搜索和发现 API
  * 提供热门推荐、随机推荐、搜索、物种查询等发现功能的访问接口
+ *
+ * 参考官方文档：
+ * - [热门推荐](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/热门推荐（furtv.discovery.popular）.md)
+ * - [随机推荐](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/随机推荐（furtv.discovery.random）.md)
+ * - [搜索](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/搜索（furtv.discovery.search）.md)
+ * - [搜索建议](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/搜索建议（furtv.discovery.search.suggestions）.md)
+ * - [物种列表](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/物种列表（furtv.discovery.species）.md)
+ * - [按物种搜索](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/按物种搜索（furtv.discovery.species.search）.md)
+ * - [热门地区](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/热门地区（furtv.discovery.locations.popular）.md)
+ *
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
@@ -23,7 +33,11 @@ public class SearchApi(
     /**
      * 获取热门推荐
      * 获取当前热门用户列表
-     * 端点：GET /api/proxy/furtv/popular
+     *
+     * 端点：`GET /api/proxy/furtv/popular`
+     *
+     * 官方文档：[热门推荐](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/热门推荐（furtv.discovery.popular）.md)
+     *
      * @return PopularData 包含热门用户列表
      */
     public suspend fun getPopular(): PopularData {
