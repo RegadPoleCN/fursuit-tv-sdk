@@ -8,7 +8,7 @@
 
 **获取聚会年度统计** - 获取当前年度的聚会统计数据
 
-- **端点**: `GET /api/proxy/furtv/gatherings/stats/thisyear`
+- **端点**: `GET /api/proxy/furtv/gatherings/stats/this-year`
 - **方法**: `suspend fun`
 - **参数**: 无
 - **返回**: `GatheringYearStatsData` - 聚会年度统计数据
@@ -96,13 +96,13 @@ nearbyGatherings.forEach { gathering ->
 }
 ```
 
-### getGatheringDetail(gatheringId)
+### getGatheringDetail(id)
 
 **获取聚会详情** - 获取聚会的详细信息
 
-- **端点**: `GET /api/proxy/furtv/gatherings/detail`
+- **端点**: `GET /api/proxy/furtv/gatherings/:id`
 - **方法**: `suspend fun`
-- **参数**: `gatheringId` (String) - 聚会 ID
+- **参数**: `id` (String) - 聚会 ID
 - **返回**: `GatheringDetailData` - 聚会详情数据
 - **响应字段**:
   - `gatheringId`: 聚会 ID
@@ -124,14 +124,14 @@ println("地点：${detail.location.name}")
 println("报名人数：${detail.registrationCount}")
 ```
 
-### getRegistrations(gatheringId, status, cursor, limit)
+### getRegistrations(id, status, cursor, limit)
 
 **获取聚会报名列表** - 获取聚会的报名人员列表
 
-- **端点**: `GET /api/proxy/furtv/gatherings/registrations`
+- **端点**: `GET /api/proxy/furtv/gatherings/:id/registrations`
 - **方法**: `suspend fun`
 - **参数**:
-  - `gatheringId` (String): 聚会 ID
+  - `id` (String): 聚会 ID
   - `status` (String?): 报名状态筛选（可选）
   - `cursor` (String?): 分页游标（可选）
   - `limit` (Int?): 返回数量限制（可选）

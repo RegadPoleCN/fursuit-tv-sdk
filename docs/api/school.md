@@ -37,7 +37,7 @@ results.schools.forEach { school ->
 
 **获取学校详情** - 根据学校 ID 获取学校的详细信息
 
-- **端点**: `GET /api/proxy/furtv/schools/detail`
+- **端点**: `GET /api/proxy/furtv/schools/:schoolId`
 - **方法**: `suspend fun`
 - **参数**: `schoolId` (String) - 学校 ID
 - **返回**: `SchoolDetail` - 学校详情
@@ -53,7 +53,7 @@ results.schools.forEach { school ->
 **示例**:
 
 ```kotlin
-val detail = sdk.school.getSchoolDetail("school-id")
+val detail = sdk.school.getSchoolDetail("school-123")
 println("学校：${detail.name}")
 println("描述：${detail.description}")
 println("位置：${detail.location}")
@@ -63,7 +63,7 @@ println("位置：${detail.location}")
 
 **获取用户学校信息** - 获取指定用户的学校信息列表
 
-- **端点**: `GET /api/proxy/furtv/schools/user`
+- **端点**: `GET /api/proxy/furtv/schools/user/:userId`
 - **方法**: `suspend fun`
 - **参数**: `userId` (String) - 用户 ID
 - **返回**: `UserSchoolsData` - 用户学校信息
@@ -79,20 +79,20 @@ println("位置：${detail.location}")
 **示例**:
 
 ```kotlin
-val userSchools = sdk.school.getUserSchools("user-id")
+val userSchools = sdk.school.getUserSchools("user-123")
 println("用户 ${userSchools.username} 的学校：")
 userSchools.schools.forEach { school ->
     println("- ${school.schoolName} (${school.enrolledYear}-${school.graduatedYear})")
 }
 ```
 
-### getUserCharacters(userId)
+### getUserCharacters(username)
 
 **获取用户角色列表** - 获取指定用户的角色列表
 
-- **端点**: `GET /api/proxy/furtv/characters/user`
+- **端点**: `GET /api/proxy/furtv/characters/user/:username`
 - **方法**: `suspend fun`
-- **参数**: `userId` (String) - 用户 ID
+- **参数**: `username` (String) - 用户名
 - **返回**: `UserCharactersData` - 用户角色数据
 - **响应字段**:
   - `userId`: 用户 ID
@@ -107,7 +107,7 @@ userSchools.schools.forEach { school ->
 **示例**:
 
 ```kotlin
-val characters = sdk.school.getUserCharacters("user-id")
+val characters = sdk.school.getUserCharacters("username")
 println("用户 ${characters.username} 的角色：")
 characters.characters.forEach { character ->
     println("- ${character.name} (${character.species})")
@@ -193,8 +193,8 @@ userSchools.schools.forEach { school ->
 ### 4. 查看用户角色列表
 
 ```kotlin
-val userId = "user-123"
-val characters = sdk.school.getUserCharacters(userId)
+val username = "username"
+val characters = sdk.school.getUserCharacters(username)
 
 println("=== ${characters.username} 的角色 ===")
 characters.characters.forEach { character ->
