@@ -28,16 +28,16 @@ import me.regadpole.furtv.sdk.user.UserApi
  * // 说明：apiKey 通过签名交换接口获取（使用 appId + appSecret）
  * val sdk1 = FursuitTvSdk(apiKey = "your-api-key")
  *
- * // ========== 方式 2: 使用 appId + appSecret（推荐，Client 认证）==========
+ * // ========== 方式 2: 使用 clientId + clientSecret（推荐，Client 认证）==========
  * // 认证头：Authorization: Bearer <accessToken>
  * // 适用场景：应用级 API
  * // 说明：通过签名交换获取 accessToken
  * val sdk2 = FursuitTvSdk(
- *     appId = "vap_xxxxxxxxxxxxxxxx",
- *     appSecret = "your-app-secret"
+ *     clientId = "vap_xxxxxxxxxxxxxxxx",
+ *     clientSecret = "your-client-secret"
  * )
  * runBlocking {
- *     sdk2.auth.exchangeToken(appId, appSecret)
+ *     sdk2.auth.exchangeToken(clientId, clientSecret)
  * }
  *
  * // ========== 方式 3: 使用 accessToken（Client 认证）==========
@@ -52,7 +52,7 @@ import me.regadpole.furtv.sdk.user.UserApi
  * // 警告：OAuth token 和 Client token 不通用，不能混用
  * runBlocking {
  *     // 第一步：先通过签名交换获取 Client accessToken
- *     val clientSdk = FursuitTvSdk(appId = "vap_xxxxx", appSecret = "secret")
+ *     val clientSdk = FursuitTvSdk(clientId = "vap_xxxxx", clientSecret = "secret")
  *     clientSdk.auth.exchangeToken("vap_xxxxx", "secret")
  *
  *     // 第二步：使用 OAuth 获取用户授权
@@ -146,27 +146,29 @@ public class FursuitTvSdk {
     }
 
     /**
-     * 使用 appId 和 appSecret 初始化 SDK（推荐方式）
+     * 使用 clientId 和 clientSecret 初始化 SDK（推荐方式）
      * 适用于新用户，通过签名交换获取 accessToken
      *
      * **认证方式**：Authorization Bearer（Client 认证）
      * **适用场景**：应用级 API
      *
-     * @param appId 应用 ID（格式 vap_xxxx）
-     * @param appSecret 应用密钥
+     * @param clientId 客户端 ID（格式 vap_xxxx）
+     * @param clientSecret 客户端密钥
      * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      *
      * @see [签名交换](基础接口/签名交换.md)
      */
-    public constructor(appId: String, appSecret: String, baseUrl: String = "https://open-global.vdsentnet.com") {
+    public constructor(clientId: String, clientSecret: String, baseUrl: String = "https://open-global.vdsentnet.com") {
         this.config =
             SdkConfig.builder()
                 .apiKey("") // 临时空 apiKey，后续通过 exchangeToken 获取
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .baseUrl(baseUrl)
                 .build()
         this.auth = AuthManager(config)
         // 注意：此构造函数不会自动获取令牌
-        // 用户需要在协程作用域中手动调用 auth.exchangeToken(appId, appSecret)
+        // 用户需要在协程作用域中手动调用 auth.exchangeToken(clientId, clientSecret)
         // 或者使用 AuthManager 提供的其他异步方法
         this.httpClient = HttpClientConfig.createClient(config, null)
     }
@@ -297,56 +299,29 @@ public class FursuitTvSdk {
      */
     public companion object {
         /**
-         * 使用 OAuth 认证初始化 SDK（静态方法）
-         * 此方法提供一个便捷的 OAuth 初始化入口，自动完成 OAuth 授权流程
-         *
-         * **认证方式**：OAuth 2.0 授权码模式
-         *
-         * **前置条件**：必须先调用 [exchangeToken][AuthManager.exchangeToken] 获取 Client accessToken
-         *
-         * **警告**：
-         * - OAuth token 仅可用于 UserInfo 接口
-         * - OAuth token 和 Client token 不通用，不能混用
-         *
-         * 注意：此方法是 suspend 函数，会阻塞直到 OAuth 流程完成
-         * 需要在协程作用域中调用
-         *
-         * @param appId 应用 ID
-         * @param config OAuth 配置，包含回调服务器等信息
-         * @return 初始化后的 FursuitTvSdk 实例
-         *
-         * @see [VDS 账户快速接入（OAuth）](VDS 账户/VDS 账户快速接入（OAuth）.md)
-         *
-         * 使用示例：
-         * ```kotlin
-         * runBlocking {
-         *     // 第一步：先通过签名交换获取 Client accessToken
-         *     val sdk = FursuitTvSdk(appId = "vap_xxxxx", appSecret = "secret")
-         *     sdk.auth.exchangeToken("vap_xxxxx", "secret")
-         *
-         *     // 第二步：使用 OAuth 获取用户授权
-         *     val config = OAuthConfig(
-         *         callbackHost = "localhost",
-         *         callbackPort = 8080,
-         *         callbackPath = "/callback"
-         *     )
-         *     val oauthSdk = FursuitTvSdk.initWithOAuth("vap_xxxxx", config)
-         *
-         *     // 第三步：调用 UserInfo 接口
-         *     val userInfo = oauthSdk.user.getUserProfile("username")
-         * }
-         * ```
+         * 使用 OAuth 2.0 初始化 SDK（静态方法）
+         * @param clientId 客户端 ID（格式 vap_xxxx）
+         * @param clientSecret 客户端密钥
+         * @param config OAuth 配置
+         * @return FursuitTvSdk 实例
+         * @deprecated 请使用新的初始化方式：先创建 SDK 实例，然后调用 auth.initOAuth()
          */
-        public suspend fun initWithOAuth(appId: String, config: OAuthConfig): FursuitTvSdk {
+        @Deprecated(
+            "Use the new initialization pattern: create SDK instance first, then call auth.initOAuth()",
+            ReplaceWith("FursuitTvSdk(clientId, clientSecret).apply { runBlocking { auth.initOAuth(config) } }")
+        )
+        public suspend fun initWithOAuth(clientId: String, clientSecret: String, config: OAuthConfig): FursuitTvSdk {
             val sdkConfig =
                 SdkConfig.builder()
                     .apiKey("")
+                    .clientId(clientId)
+                    .clientSecret(clientSecret)
                     .baseUrl("https://open-global.vdsentnet.com")
                     .build()
             val sdk = FursuitTvSdk(sdkConfig)
 
             // 直接启动 OAuth 流程
-            sdk.auth.initWithOAuth(appId, config)
+            sdk.auth.initOAuth(config)
 
             return sdk
         }
