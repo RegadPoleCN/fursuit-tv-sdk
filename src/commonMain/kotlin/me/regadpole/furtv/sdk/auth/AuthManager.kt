@@ -86,7 +86,7 @@ public class AuthManager(
     }
 
     /**
-     * 签名交换 - 使用 appId 和 appSecret 获取令牌
+     * 签名交换 - 使用 clientId 和 clientSecret 获取令牌
      * 端点：POST /api/auth/token
      *
      * 此方法用于获取签名认证所需的 accessToken 和 apiKey
@@ -94,15 +94,15 @@ public class AuthManager(
      * apiKey 用于 X-Api-Key 认证头
      * 两者是不同的值
      *
-     * @param appId 应用 ID（格式 vap_xxxx）
-     * @param appSecret 应用密钥
+     * @param clientId 应用 ID（格式 vap_xxxx）
+     * @param clientSecret 应用密钥
      * @return TokenInfo 包含 accessToken 和 apiKey
      */
-    public suspend fun exchangeToken(appId: String, appSecret: String): TokenInfo {
+    public suspend fun exchangeToken(clientId: String, clientSecret: String): TokenInfo {
         val response =
             httpClient.post("${config.baseUrl}/api/auth/token") {
                 contentType(ContentType.Application.Json)
-                setBody(TokenExchangeRequest(appId, appSecret))
+                setBody(TokenExchangeRequest(clientId, clientSecret))
             }.body<TokenExchangeResponse>()
 
         val newTokenInfo =
@@ -170,14 +170,14 @@ public class AuthManager(
      *
      * 自动刷新逻辑（遵循官方文档伪代码）：
      * 1. 如果没有令牌或已过期：
-     *    - 调用 exchangeToken(appId, appSecret) 获取新令牌（签名交换）
+     *    - 调用 exchangeToken(clientId, clientSecret) 获取新令牌（签名交换）
      *    - 如果是 OAuth 流程，需要重新进行 OAuth 授权
      * 2. 如果剩余有效期 <= 300 秒（5 分钟）：
      *    - 如果是 OAuth 令牌且有 refresh_token：调用 refreshOAuthToken()
      *    - 如果是签名交换令牌：调用 refreshToken()
-     * 3. 如果刷新失败：
+     * 3. 刷新失败：
      *    - 捕获异常并记录日志
-     *    - 回退到 exchangeToken(appId, appSecret) 重新获取
+     *    - 回退到 exchangeToken(clientId, clientSecret) 重新获取
      *
      * 令牌有效期说明：
      * - 默认有效期：3600 秒（1 小时）
@@ -187,7 +187,7 @@ public class AuthManager(
      * 示例：
      * ```
      * // 在发起 API 请求前调用
-     * val accessToken = authManager.getValidAccessToken(appId, appSecret)
+     * val accessToken = authManager.getValidAccessToken(clientId, clientSecret)
      *
      * // 使用 accessToken 发起请求
      * httpClient.get("https://api.example.com/data") {
@@ -195,18 +195,18 @@ public class AuthManager(
      * }
      * ```
      *
-     * @param appId 应用 ID（用于签名交换回退，格式 vap_xxxx）
-     * @param appSecret 应用密钥（用于签名交换回退）
+     * @param clientId 应用 ID（用于签名交换回退，格式 vap_xxxx）
+     * @param clientSecret 应用密钥（用于签名交换回退）
      * @return 当前或刷新后的访问令牌（accessToken），可直接用于 API 认证
      * @throws Exception 当网络错误或认证失败时抛出（已在内部捕获并回退）
      */
-    public suspend fun getValidAccessToken(appId: String, appSecret: String): String {
+    public suspend fun getValidAccessToken(clientId: String, clientSecret: String): String {
         return tokenMutex.withLock {
             val now = Clock.System.now().toEpochMilliseconds()
 
             // 1. 如果没有令牌或已过期，获取新令牌
             if (tokenInfo == null || tokenInfo?.isExpired() == true) {
-                exchangeToken(appId, appSecret)
+                exchangeToken(clientId, clientSecret)
                 return@withLock tokenInfo!!.accessToken
             }
 
@@ -225,7 +225,7 @@ public class AuthManager(
                     // 3. 刷新失败，回退到 exchangeToken
                     // 记录异常但不抛出，继续执行 exchangeToken
                     // 注意：这里捕获通用 Exception 是因为网络错误可能是多种类型
-                    exchangeToken(appId, appSecret)
+                    exchangeToken(clientId, clientSecret)
                 }
             }
 
@@ -237,11 +237,11 @@ public class AuthManager(
      * 如果需要，刷新令牌
      * 检查令牌是否过期（剩余时间 <= 300 秒），如果是则自动刷新
      * @return TokenInfo 当前或刷新后的令牌信息，如果未认证则返回 null
-     * @deprecated 使用 [getValidAccessToken] 代替，该方法需要 appId 和 appSecret
+     * @deprecated 使用 [getValidAccessToken] 代替，该方法需要 clientId 和 clientSecret
      */
     @Deprecated(
-        "Use getValidAccessToken(appId, appSecret) instead",
-        ReplaceWith("getValidAccessToken(appId, appSecret)"),
+        "Use getValidAccessToken(clientId, clientSecret) instead",
+        ReplaceWith("getValidAccessToken(clientId, clientSecret)"),
     )
     public suspend fun refreshTokenIfNeeded(): TokenInfo? {
         return tokenMutex.withLock {
@@ -305,7 +305,7 @@ public class AuthManager(
      * 示例：
      * ```
      * val params = OAuthAuthorizeParams(
-     *     appId = "vap_xxxxx",
+     *     clientId = "vap_xxxxx",
      *     redirectUri = "http://localhost:8080/callback",
      *     state = "random_state_string",
      *     scope = "user.profile",
@@ -316,7 +316,7 @@ public class AuthManager(
      * // 打开浏览器访问 authorizeUrl
      * ```
      *
-     * @param params OAuth 授权参数，包含应用 ID、重定向 URI 等
+     * @param params OAuth 授权参数，包含客户端 ID、重定向 URI 等
      * @return 完整的授权 URL，用户访问此 URL 进行授权
      * @see OAuthAuthorizeParams 参数数据类
      * @see initWithOAuth 完整的 OAuth 初始化流程
@@ -324,7 +324,7 @@ public class AuthManager(
     public fun getOAuthAuthorizeUrl(params: OAuthAuthorizeParams): String {
         val queryParams =
             buildString {
-                append("?client_id=${params.appId}")
+                append("?client_id=${params.clientId}")
                 append("&redirect_uri=${params.redirectUri}")
                 append("&response_type=${params.responseType}")
                 params.scope?.let { append("&scope=$it") }
@@ -358,9 +358,8 @@ public class AuthManager(
      * - 在令牌交换时发送 code_verifier 进行验证
      *
      * 认证说明：
-     * - OAuth 流程仅需 appId，不需要 appSecret
-     * - appSecret（clientSecret）仅在令牌交换时使用（使用 SDK 配置的 apiKey）
-     * - 刷新令牌时需要 client_id 和 client_secret
+     * - OAuth 流程从 SDK 配置自动获取 clientId 和 clientSecret
+     * - 无需在方法参数中传入
      * - OAuth token（access_token）仅用于 getUserInfo() 接口
      * - Client token（签名交换的 token）和 OAuth token 不通用
      *
@@ -373,28 +372,34 @@ public class AuthManager(
      *     enablePkce = true  // 启用 PKCE 增强安全性
      * )
      *
-     * val tokenInfo = authManager.initWithOAuth("vap_xxxxx", oauthConfig, "user.profile")
+     * val tokenInfo = authManager.initOAuth(oauthConfig, "user.profile")
      * println("访问令牌：${tokenInfo.accessToken}")
      * println("刷新令牌：${tokenInfo.refreshToken}")
      * ```
      *
-     * @param appId 应用 ID（OAuth 流程仅需 appId，格式 vap_xxxx）
      * @param config OAuth 配置（包含回调主机、端口、超时等）
      * @param scope 可选的权限范围（如 "user.profile"），多个权限用空格分隔
      * @return TokenInfo 包含访问令牌、刷新令牌和有效期信息
      * @throws OAuthCallbackException 当回调失败、state 验证失败或令牌交换失败时抛出
+     * @throws IllegalStateException 当 SDK 配置中缺少 clientId 时抛出
      * @see OAuthConfig OAuth 配置数据类
      * @see OAuthCallbackHandler 回调处理器
      * @see exchangeOAuthToken 令牌交换方法
      */
-    public suspend fun initWithOAuth(appId: String, config: OAuthConfig, scope: String? = null): TokenInfo {
-        val serverConfig =
-            OAuthCallbackServerConfig(
-                callbackHost = config.callbackHost,
-                callbackPort = config.callbackPort,
-                callbackPath = config.callbackPath,
-                timeoutSeconds = config.stateTimeoutMinutes * 60L,
-            )
+    @Suppress("LongMethod", "ThrowsCount", "MaxLineLength")
+    public suspend fun initOAuth(config: OAuthConfig, scope: String? = null): TokenInfo {
+        // From SDK config, get clientId and clientSecret
+        val clientId = this.config.clientId
+            ?: throw IllegalStateException("clientId is required for OAuth")
+        val clientSecret = this.config.clientSecret
+            ?: throw IllegalStateException("clientSecret is required for OAuth")
+
+        val serverConfig = OAuthCallbackServerConfig(
+            callbackHost = config.callbackHost,
+            callbackPort = config.callbackPort,
+            callbackPath = config.callbackPath,
+            timeoutSeconds = config.stateTimeoutMinutes * 60L,
+        )
         val handler = OAuthCallbackHandler(serverConfig)
 
         val state =
@@ -418,7 +423,7 @@ public class AuthManager(
 
         val authorizeParams =
             OAuthAuthorizeParams(
-                appId = appId,
+                clientId = clientId,
                 redirectUri = redirectUri,
                 state = state,
                 scope = scope,
@@ -441,14 +446,14 @@ public class AuthManager(
                 }
 
                 // 保存 OAuth 参数以供后续刷新使用
-                oauthClientId = appId
+                oauthClientId = clientId
                 oauthRedirectUri = redirectUri
 
                 // 交换令牌
                 val tokenRequest =
                     OAuthTokenRequest(
-                        appId = appId,
-                        clientSecret = this.config.apiKey,
+                        clientId = clientId,
+                        clientSecret = clientSecret,
                         code = result.code,
                         redirectUri = redirectUri,
                         codeVerifier = codeVerifier,
@@ -505,7 +510,7 @@ public class AuthManager(
         val requestBody =
             mutableMapOf(
                 "grant_type" to request.grantType,
-                "client_id" to request.appId,
+                "client_id" to request.clientId,
                 "client_secret" to request.clientSecret,
                 "code" to request.code,
                 "redirect_uri" to request.redirectUri,

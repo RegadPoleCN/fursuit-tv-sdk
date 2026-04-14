@@ -7,12 +7,12 @@ import kotlinx.serialization.Serializable
 /**
  * 签名交换请求（用于获取 apiKey/accessToken）
  * 用于签名交换接口的请求体
- * @param appId 应用 ID（格式 vap_xxxx），与 clientId 等价
+ * @param clientId 应用 ID（格式 vap_xxxx）
  * @param clientSecret 应用密钥（与 appSecret 等价）
  */
 @Serializable
 public data class TokenExchangeRequest(
-    public val appId: String,
+    public val clientId: String,
     public val clientSecret: String,
 )
 
@@ -133,7 +133,7 @@ public data class TokenRefreshResponse(
  * 官方文档：vds-docs/VDS 账户/授权端点（Authorize，account.sso.authorize）.md
  *
  * 参数说明：
- * - appId: 应用 ID（格式 vap_xxxx），对应 OAuth 协议的 client_id
+ * - clientId: 应用 ID（格式 vap_xxxx），对应 OAuth 协议的 client_id
  * - redirectUri: 授权后重定向 URI
  *   - 必须是已在开放平台配置的回调地址
  *   - 必须与令牌交换时使用的 redirect_uri 一致
@@ -152,7 +152,7 @@ public data class TokenRefreshResponse(
  * 使用示例：
  * ```
  * val params = OAuthAuthorizeParams(
- *     appId = "vap_xxxxx",
+ *     clientId = "vap_xxxxx",
  *     redirectUri = "http://localhost:8080/callback",
  *     state = "random_" + Random.nextLong(),
  *     scope = "user.profile",
@@ -162,7 +162,7 @@ public data class TokenRefreshResponse(
  * val authorizeUrl = authManager.getOAuthAuthorizeUrl(params)
  * ```
  *
- * @property appId 应用 ID（格式 vap_xxxx）
+ * @property clientId 应用 ID（格式 vap_xxxx）
  * @property redirectUri 授权后重定向 URI
  * @property state 可选的状态参数，用于防止 CSRF 攻击
  * @property scope 可选的权限范围
@@ -172,7 +172,7 @@ public data class TokenRefreshResponse(
  */
 @Serializable
 public data class OAuthAuthorizeParams(
-    public val appId: String,
+    public val clientId: String,
     public val redirectUri: String,
     public val state: String? = null,
     public val scope: String? = null,
@@ -221,7 +221,7 @@ public data class OAuthConfig(
  * ```
  * // 初次授权码交换
  * val tokenRequest = OAuthTokenRequest(
- *     appId = "vap_xxxxx",
+ *     clientId = "vap_xxxxx",
  *     clientSecret = sdkConfig.apiKey,
  *     code = "auth_code_from_callback",
  *     redirectUri = "http://localhost:8080/callback",
@@ -231,7 +231,7 @@ public data class OAuthConfig(
  * // 刷新令牌（通过 exchangeOAuthToken 方法）
  * val refreshRequest = OAuthTokenRequest(
  *     grantType = "refresh_token",
- *     appId = "vap_xxxxx",
+ *     clientId = "vap_xxxxx",
  *     clientSecret = sdkConfig.apiKey,
  *     code = "", // 不需要
  *     redirectUri = "http://localhost:8080/callback"
@@ -242,7 +242,7 @@ public data class OAuthConfig(
  * @property clientSecret 应用密钥（开放平台签名）
  * @property code 授权码（从 OAuth 授权回调中获取）
  * @property redirectUri 重定向 URI（必须与授权时一致）
- * @property appId 应用 ID（格式 vap_xxxx）
+ * @property clientId 应用 ID（格式 vap_xxxx）
  * @property codeVerifier 可选的 PKCE code_verifier
  */
 @Serializable
@@ -256,7 +256,7 @@ public data class OAuthTokenRequest(
     @SerialName("redirect_uri")
     public val redirectUri: String,
     @SerialName("client_id")
-    public val appId: String,
+    public val clientId: String,
     @SerialName("code_verifier")
     public val codeVerifier: String? = null,
 )

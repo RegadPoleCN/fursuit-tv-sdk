@@ -15,6 +15,8 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  *
  * @property baseUrl API 基础 URL
  * @property apiKey API 密钥，用于认证
+ * @property clientId 客户端 ID（格式 vap_xxxx），用于 OAuth 流程
+ * @property clientSecret 客户端密钥，用于 OAuth 流程
  * @property requestTimeout 请求超时时间（毫秒）
  * @property connectTimeout 连接超时时间（毫秒）
  * @property socketTimeout 套接字超时时间（毫秒）
@@ -35,6 +37,16 @@ public class SdkConfig private constructor(
      * 用于认证和授权所有 API 请求
      */
     public val apiKey: String,
+    /**
+     * 客户端 ID（格式 vap_xxxx）
+     * 用于 OAuth 流程
+     */
+    public val clientId: String? = null,
+    /**
+     * 客户端密钥
+     * 用于 OAuth 流程
+     */
+    public val clientSecret: String? = null,
     /**
      * 请求超时时间（毫秒）
      * 默认值：30000
@@ -80,6 +92,8 @@ public class SdkConfig private constructor(
     public class Builder {
         private var baseUrl: String = "https://open-global.vdsentnet.com"
         private var apiKey: String? = null
+        private var clientId: String? = null
+        private var clientSecret: String? = null
         private var requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT
         private var connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT
         private var socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT
@@ -101,6 +115,20 @@ public class SdkConfig private constructor(
          * @return 当前 Builder 实例
          */
         public fun apiKey(apiKey: String): Builder = apply { this.apiKey = apiKey }
+
+        /**
+         * 设置客户端 ID
+         * @param clientId 客户端 ID（格式 vap_xxxx），用于 OAuth 流程
+         * @return 当前 Builder 实例
+         */
+        public fun clientId(clientId: String): Builder = apply { this.clientId = clientId }
+
+        /**
+         * 设置客户端密钥
+         * @param clientSecret 客户端密钥，用于 OAuth 流程
+         * @return 当前 Builder 实例
+         */
+        public fun clientSecret(clientSecret: String): Builder = apply { this.clientSecret = clientSecret }
 
         /**
          * 设置请求超时时间
@@ -161,6 +189,8 @@ public class SdkConfig private constructor(
             return SdkConfig(
                 baseUrl = baseUrl,
                 apiKey = apiKey,
+                clientId = clientId,
+                clientSecret = clientSecret,
                 requestTimeout = requestTimeout,
                 connectTimeout = connectTimeout,
                 socketTimeout = socketTimeout,
