@@ -1,293 +1,243 @@
-# 搜索 API
+# 搜索 API (Search)
 
-搜索 API 包含与搜索和发现相关的接口，如热门推荐、随机推荐、搜索等。
+搜索模块提供热门推荐、随机推荐、搜索、物种查询等发现功能的访问接口。
 
-## 方法列表
+## API 方法
 
-### `getPopular()`
+### getPopular()
 
-获取热门推荐。
+**获取热门推荐** - 获取当前热门用户列表
 
-**返回类型**: `PopularData`
+- **端点**: `GET /api/proxy/furtv/popular`
+- **方法**: `suspend fun`
+- **参数**: 无
+- **返回**: `PopularData` - 包含热门用户列表
+- **响应字段**:
+  - `users`: 热门用户列表
 
 **示例**:
 
 ```kotlin
 val popular = sdk.search.getPopular()
-println("热门用户数量: ${popular.users.size}")
-
+println("热门用户数：${popular.users.size}")
 popular.users.forEach { user ->
-    println("用户名: ${user.username}")
-    println("显示名称: ${user.displayName}")
-    println("热度: ${user.popularity}")
+    println("- ${user.displayName}")
 }
 ```
 
-### `getRandomFursuit(params: RandomFursuitParams)`
+### getRandomFursuit(count, personalized)
 
-获取随机推荐。
+**获取随机推荐** - 获取随机推荐的用户列表
 
-**参数**:
-- `params`: 随机推荐参数
-  - `count`: 返回数量（可选）
-  - `personalized`: 是否个性化推荐（可选）
-
-**返回类型**: `List<RandomFursuit>`
+- **端点**: `GET /api/proxy/furtv/fursuit/random`
+- **方法**: `suspend fun`
+- **参数**:
+  - `count` (Int?): 返回数量（可选）
+  - `personalized` (Boolean?): 是否个性化推荐（可选）
+- **返回**: `List<RandomFursuit>` - 随机推荐的用户列表
 
 **示例**:
 
 ```kotlin
-val params = RandomFursuitParams(
-    count = 5,
-    personalized = true
-)
-val randomFursuits = sdk.search.getRandomFursuit(params)
-
-randomFursuits.forEach { fursuit ->
-    println("用户名: ${fursuit.username}")
-    println("显示名称: ${fursuit.displayName}")
-    println("物种: ${fursuit.species}")
+val randomUsers = sdk.search.getRandomFursuit(count = 10, personalized = true)
+randomUsers.forEach { user ->
+    println("- ${user.displayName}")
 }
 ```
 
-### `getRandomFursuit(count: Int? = null, personalized: Boolean? = null)`
+### search(query, type, cursor, limit)
 
-获取随机推荐（重载方法）。
+**搜索** - 执行搜索操作，支持多种类型和分页
 
-**参数**:
-- `count`: 返回数量（可选）
-- `personalized`: 是否个性化推荐（可选）
-
-**返回类型**: `List<RandomFursuit>`
+- **端点**: `GET /api/proxy/furtv/search`
+- **方法**: `suspend fun`
+- **参数**:
+  - `query` (String): 搜索关键词
+  - `type` (String?): 搜索类型（可选）
+  - `cursor` (String?): 分页游标（可选）
+  - `limit` (Int?): 返回数量限制（可选）
+- **返回**: `SearchData` - 搜索结果和分页信息
 
 **示例**:
 
 ```kotlin
-val randomFursuits = sdk.search.getRandomFursuit(5, true)
-
-randomFursuits.forEach { fursuit ->
-    println("用户名: ${fursuit.username}")
-    println("显示名称: ${fursuit.displayName}")
-}
+val results = sdk.search.search("fox", type = "user", limit = 20)
+println("搜索结果：${results.results.size}")
 ```
 
-### `search(params: SearchParams)`
+### getSearchSuggestions(query)
 
-搜索。
+**获取搜索建议** - 根据关键词获取搜索建议（自动补全）
 
-**参数**:
-- `params`: 搜索参数
-  - `query`: 搜索关键词
-  - `type`: 搜索类型（可选）
-  - `cursor`: 分页游标（可选）
-  - `limit`: 返回数量限制（可选）
-
-**返回类型**: `SearchData`
+- **端点**: `GET /api/proxy/furtv/search/suggestions`
+- **方法**: `suspend fun`
+- **参数**: `query` (String) - 搜索关键词
+- **返回**: `List<String>` - 搜索建议列表
 
 **示例**:
 
 ```kotlin
-val params = SearchParams(
-    query = "fox",
-    type = "user",
-    limit = 10
-)
-val searchResult = sdk.search.search(params)
-
-println("搜索结果数量: ${searchResult.results.size}")
-println("是否有更多: ${searchResult.hasMore}")
-
-searchResult.results.forEach { result ->
-    println("类型: ${result.type}")
-    println("用户名: ${result.username}")
-    println("显示名称: ${result.displayName}")
-}
-```
-
-### `search(query: String, type: String? = null, cursor: String? = null, limit: Int? = null)`
-
-搜索（重载方法）。
-
-**参数**:
-- `query`: 搜索关键词
-- `type`: 搜索类型（可选）
-- `cursor`: 分页游标（可选）
-- `limit`: 返回数量限制（可选）
-
-**返回类型**: `SearchData`
-
-**示例**:
-
-```kotlin
-val searchResult = sdk.search.search("fox", "user", limit = 10)
-
-println("搜索结果数量: ${searchResult.results.size}")
-```
-
-### `getSearchSuggestions(query: String)`
-
-获取搜索建议。
-
-**参数**:
-- `query`: 搜索关键词
-
-**返回类型**: `List<String>`
-
-**示例**:
-
-```kotlin
-val suggestions = sdk.search.getSearchSuggestions("fo")
-println("搜索建议数量: ${suggestions.size}")
+val suggestions = sdk.search.getSearchSuggestions("fox")
 suggestions.forEach { suggestion ->
-    println("建议: $suggestion")
+    println("- $suggestion")
 }
 ```
 
-### `searchBySpecies(species: String)`
+### searchBySpecies(species)
 
-按物种搜索。
+**按物种搜索** - 根据物种名称搜索用户
 
-**参数**:
-- `species`: 物种名称
-
-**返回类型**: `SpeciesSearchData`
+- **端点**: `GET /api/proxy/furtv/search/species/:species`
+- **方法**: `suspend fun`
+- **参数**: `species` (String) - 物种名称
+- **返回**: `SpeciesSearchData` - 搜索结果
 
 **示例**:
 
 ```kotlin
-val speciesResult = sdk.search.searchBySpecies("fox")
-println("物种: ${speciesResult.species}")
-println("用户数量: ${speciesResult.totalCount}")
-
-speciesResult.users.forEach { user ->
-    println("用户名: ${user.username}")
-    println("显示名称: ${user.displayName}")
-}
+val speciesResults = sdk.search.searchBySpecies("Red Fox")
+println("搜索结果：${speciesResults.users.size}")
 ```
 
-### `getSpeciesList()`
+### getSpeciesList()
 
-获取物种列表。
+**获取物种列表** - 获取所有物种及相关统计信息
 
-**返回类型**: `SpeciesListData`
+- **端点**: `GET /api/proxy/furtv/species`
+- **方法**: `suspend fun`
+- **参数**: 无
+- **返回**: `SpeciesListData` - 物种列表和统计
 
 **示例**:
 
 ```kotlin
 val speciesList = sdk.search.getSpeciesList()
-println("物种数量: ${speciesList.totalCount}")
-
-speciesList.species.forEach { species ->
-    println("物种: ${species.name}")
-    println("数量: ${species.count}")
-}
+println("物种总数：${speciesList.species.size}")
 ```
 
-### `getPopularLocations()`
+### getPopularLocations()
 
-获取热门地区。
+**获取热门地区** - 获取用户数量最多的地区列表
 
-**返回类型**: `PopularLocationsData`
+- **端点**: `GET /api/proxy/furtv/locations/popular`
+- **方法**: `suspend fun`
+- **参数**: 无
+- **返回**: `PopularLocationsData` - 热门地区列表
 
 **示例**:
 
 ```kotlin
 val locations = sdk.search.getPopularLocations()
-println("热门地区数量: ${locations.locations.size}")
-
 locations.locations.forEach { location ->
-    println("省份: ${location.province}")
-    println("城市: ${location.city ?: "全国"}")
-    println("数量: ${location.count}")
+    println("- ${location.name}: ${location.count} 用户")
 }
 ```
 
-## 数据结构
+## Discovery 系列 API
 
-### PopularData
+### getPopularDiscovery()
 
-```kotlin
-data class PopularData(
-    val users: List<PopularUser> // 热门用户列表
-)
+**获取热门推荐（Discovery）**
 
-data class PopularUser(
-    val username: String,        // 用户名
-    val displayName: String,     // 显示名称
-    val avatarUrl: String? = null, // 头像 URL
-    val popularity: Int          // 热度
-)
-```
+- **端点**: `GET /api/proxy/furtv/discovery/popular`
+- **返回**: `DiscoveryPopularData` - 包含热门用户列表
 
-### RandomFursuit
+### getRandomDiscovery(count, personalized)
 
-```kotlin
-data class RandomFursuit(
-    val username: String,        // 用户名
-    val displayName: String,     // 显示名称
-    val avatarUrl: String? = null, // 头像 URL
-    val species: String? = null  // 物种
-)
-```
+**获取随机推荐（Discovery）**
 
-### SearchData
+- **端点**: `GET /api/proxy/furtv/discovery/random`
+- **参数**:
+  - `count` (Int?): 返回数量
+  - `personalized` (Boolean?): 是否个性化推荐
+- **返回**: `List<DiscoveryRandomUser>` - 随机推荐的用户列表
 
-```kotlin
-data class SearchData(
-    val results: List<SearchResult>, // 搜索结果列表
-    val nextCursor: String? = null,  // 下一页游标
-    val hasMore: Boolean             // 是否有更多
-)
+### searchDiscovery(query, page, pageSize, type)
 
-data class SearchResult(
-    val type: String,              // 类型
-    val username: String? = null,  // 用户名
-    val displayName: String? = null, // 显示名称
-    val avatarUrl: String? = null, // 头像 URL
-    val description: String? = null // 描述
-)
-```
+**搜索（Discovery）**
 
-### SpeciesSearchData
+- **端点**: `GET /api/proxy/furtv/discovery/search`
+- **参数**:
+  - `query` (String): 搜索关键词
+  - `page` (Int?): 页码
+  - `pageSize` (Int?): 每页数量
+  - `type` (String?): 搜索类型
+- **返回**: `DiscoverySearchData` - 搜索结果和分页信息
+
+### searchBySpeciesDiscovery(speciesId, page, pageSize)
+
+**按物种搜索（Discovery）**
+
+- **端点**: `GET /api/proxy/furtv/discovery/species/search`
+- **参数**:
+  - `speciesId` (String): 物种 ID
+  - `page` (Int?): 页码
+  - `pageSize` (Int?): 每页数量
+- **返回**: `DiscoverySpeciesSearchData` - 搜索结果和分页信息
+
+## 使用场景
+
+### 1. 获取热门推荐
 
 ```kotlin
-data class SpeciesSearchData(
-    val species: String,         // 物种名称
-    val users: List<SpeciesUser>, // 用户列表
-    val totalCount: Int          // 总数量
-)
-
-data class SpeciesUser(
-    val username: String,        // 用户名
-    val displayName: String,     // 显示名称
-    val avatarUrl: String? = null // 头像 URL
-)
+val popular = sdk.search.getPopular()
+println("=== 热门用户 ===")
+popular.users.take(5).forEach { user ->
+    println("- ${user.displayName} (@${user.username})")
+}
 ```
 
-### SpeciesListData
+### 2. 随机发现用户
 
 ```kotlin
-data class SpeciesListData(
-    val species: List<SpeciesInfo>, // 物种列表
-    val totalCount: Int            // 总数量
-)
-
-data class SpeciesInfo(
-    val name: String,             // 物种名称
-    val count: Int                // 数量
-)
+// 获取 10 个个性化推荐用户
+val randomUsers = sdk.search.getRandomFursuit(count = 10, personalized = true)
+println("为你推荐的用戶：")
+randomUsers.forEach { user ->
+    println("- ${user.displayName}")
+}
 ```
 
-### PopularLocationsData
+### 3. 搜索用户
 
 ```kotlin
-data class PopularLocationsData(
-    val locations: List<LocationInfo> // 地区列表
-)
-
-data class LocationInfo(
-    val province: String,        // 省份
-    val city: String? = null,    // 城市
-    val count: Int               // 数量
-)
+// 搜索包含 "fox" 的用户
+val results = sdk.search.search("fox", type = "user", limit = 20)
+println("找到 ${results.results.size} 个用户")
+results.results.forEach { user ->
+    println("- ${user.displayName}")
+}
 ```
+
+### 4. 获取搜索建议
+
+```kotlin
+// 获取自动补全建议
+val suggestions = sdk.search.getSearchSuggestions("fox")
+println("搜索建议：")
+suggestions.forEach { suggestion ->
+    println("- $suggestion")
+}
+```
+
+### 5. 按物种查找用户
+
+```kotlin
+// 获取物种列表
+val speciesList = sdk.search.getSpeciesList()
+println("物种列表：")
+speciesList.species.forEach { species ->
+    println("- ${species.name}: ${species.count} 用户")
+}
+
+// 按物种搜索
+val speciesResults = sdk.search.searchBySpecies("Red Fox")
+println("Red Fox 用户：${speciesResults.users.size}")
+```
+
+## 相关文档
+
+- [热门推荐](../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/热门推荐（furtv.discovery.popular）.md)
+- [随机推荐](../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/随机推荐（furtv.discovery.random）.md)
+- [搜索](../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/搜索（furtv.discovery.search）.md)
+- [物种列表](../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 检索能力/物种列表（furtv.discovery.species）.md)

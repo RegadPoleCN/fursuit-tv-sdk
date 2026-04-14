@@ -74,7 +74,8 @@ runBlocking {
 
 ```kotlin
 val config = OAuthConfig(callbackHost = "localhost", callbackPort = 8080)
-val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
+val sdk = FursuitTvSdk()
+val oauthResult = sdk.auth.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 ```
 
 #### 方式 4: 使用 accessToken
@@ -84,6 +85,8 @@ val sdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
 ```kotlin
 val sdk = FursuitTvSdk(accessToken = "your-access-token")
 ```
+
+**详细说明**：查看 [认证与配置](authentication.md) 了解所有认证方式和配置选项。
 
 ### 2. 调用 API
 
@@ -140,50 +143,6 @@ fun main() = runBlocking {
 }
 ```
 
-## 🔐 认证方式说明
-
-SDK 支持两种认证头，根据初始化方式自动选择：
-
-| 初始化方式 | 认证头 | 适用场景 |
-|-----------|--------|---------|
-| `apiKey` | `X-Api-Key` | 已有 apiKey 的简单调用 |
-| `appId` + `appSecret` | `X-Api-Key`（优先） | 签名认证，支持自动刷新 |
-| OAuth | `Authorization: Bearer` | 需要用户授权 |
-| `accessToken` | `Authorization: Bearer` | 已有访问令牌 |
-
-**重要说明**：
-- apiKey 和 accessToken 是签名交换接口返回的两个不同的值
-- apiKey 用于 `X-Api-Key` 头
-- accessToken 用于 `Authorization: Bearer` 头
-- SDK 自动选择合适的认证头
-
-## ⚙️ 配置选项
-
-使用 `SdkConfig` 自定义 SDK 行为：
-
-```kotlin
-val config = SdkConfig.builder()
-    .apiKey("your-api-key")
-    .baseUrl("https://open-global.vdsentnet.com")
-    .requestTimeout(60000)
-    .logLevel(LogLevel.DEBUG)
-    .enableRetry(true)
-    .maxRetries(3)
-    .build()
-
-val sdk = FursuitTvSdk(config)
-```
-
-### 常用配置项
-
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| `baseUrl` | `https://open-global.vdsentnet.com` | API 基础 URL |
-| `requestTimeout` | 30000 | 请求超时（毫秒） |
-| `logLevel` | `LogLevel.INFO` | 日志级别 |
-| `enableRetry` | `true` | 启用重试 |
-| `maxRetries` | 3 | 最大重试次数 |
-
 ## ❌ 错误处理
 
 ```kotlin
@@ -210,28 +169,14 @@ try {
 }
 ```
 
-## 🔄 自动令牌刷新
-
-使用 `appId + appSecret` 初始化时，SDK 会自动管理令牌刷新：
-
-```kotlin
-val sdk = FursuitTvSdk(appId = appId, appSecret = appSecret)
-
-// SDK 会在以下情况自动刷新令牌：
-// 1. 令牌剩余有效期 <= 300 秒（5 分钟）
-// 2. 每次 API 调用前自动检查
-// 3. 刷新失败会自动回退到重新获取
-
-// 也可以手动获取有效令牌
-val token = sdk.auth.getValidAccessToken(appId, appSecret)
-```
-
 ## 📚 下一步
 
-- 查看 [API 最佳实践](BEST_PRACTICES.md) 了解更多使用技巧
-- 查看 [故障排除](TROUBLESHOOTING.md) 解决常见问题
-- 查看 [平台指南](PLATFORM_GUIDE.md) 了解特定平台配置
-- 参考 [完整 API 文档](api/) 查看所有接口
+- **[API 参考](api/)** - 查看所有 API 模块的详细文档
+- **[认证与配置](authentication.md)** - 认证方式和配置详解
+- **[最佳实践](BEST_PRACTICES.md) - API 使用技巧
+- **[故障排除](TROUBLESHOOTING.md)** - 常见问题
+- **[平台指南](PLATFORM_GUIDE.md)** - 特定平台配置
+- **[OAuth 指南](oauth.md)** - OAuth 2.0 流程详解
 
 ## 💡 提示
 

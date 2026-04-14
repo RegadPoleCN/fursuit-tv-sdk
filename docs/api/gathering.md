@@ -1,392 +1,211 @@
-# 聚会 API
+# 聚会 API (Gathering)
 
-聚会 API 包含与聚会相关的接口，如聚会列表、聚会详情、聚会报名等。
+聚会模块提供聚会列表、统计、详情、报名等聚会相关功能的访问接口。
 
-## 方法列表
+## API 方法
 
-### `getGatheringStatsThisYear()`
+### getYearStats()
 
-获取聚会年度统计。
+**获取聚会年度统计** - 获取当前年度的聚会统计数据
 
-**返回类型**: `GatheringStatsData`
+- **端点**: `GET /api/proxy/furtv/gatherings/stats/thisyear`
+- **方法**: `suspend fun`
+- **参数**: 无
+- **返回**: `GatheringYearStatsData` - 聚会年度统计数据
+- **响应字段**:
+  - `year`: 年份
+  - `totalGatherings`: 聚会总数
+  - `totalParticipants`: 参与人数统计
 
 **示例**:
 
 ```kotlin
-val stats = sdk.gathering.getGatheringStatsThisYear()
-println("年份: ${stats.year}")
-println("总聚会数: ${stats.total}")
-println("即将开始: ${stats.upcoming}")
-println("进行中: ${stats.ongoing}")
-println("已完成: ${stats.completed}")
+val stats = sdk.gathering.getYearStats()
+println("${stats.year}年聚会统计")
+println("总聚会数：${stats.totalGatherings}")
 ```
 
-### `getGatheringMonthly(params: GatheringMonthlyParams)`
+### getMonthly(year, month)
 
-获取聚会月历。
+**获取聚会月历** - 获取指定年月的聚会列表
 
-**参数**:
-- `params`: 聚会月历参数
-  - `year`: 年份
-  - `month`: 月份
-  - `lat`: 纬度（用于计算距离，可选）
-  - `lng`: 经度（用于计算距离，可选）
-
-**返回类型**: `List<GatheringMonthlyItem>`
+- **端点**: `GET /api/proxy/furtv/gatherings/monthly`
+- **方法**: `suspend fun`
+- **参数**:
+  - `year` (Int): 年份
+  - `month` (Int): 月份
+- **返回**: `List<GatheringMonthlyItem>` - 聚会列表
+- **响应字段**:
+  - `gatheringId`: 聚会 ID
+  - `name`: 聚会名称
+  - `startDate`: 开始日期
+  - `endDate`: 结束日期
+  - `location`: 地点
 
 **示例**:
 
 ```kotlin
-val params = GatheringMonthlyParams(
-    year = 2024,
-    month = 12
-)
-val gatherings = sdk.gathering.getGatheringMonthly(params)
-
-println("聚会数量: ${gatherings.size}")
+val gatherings = sdk.gathering.getMonthly(2024, 12)
+println("12 月聚会：")
 gatherings.forEach { gathering ->
-    println("聚会名称: ${gathering.name}")
-    println("开始时间: ${gathering.startDate}")
-    println("状态: ${gathering.status}")
+    println("- ${gathering.name} (${gathering.startDate})")
 }
 ```
 
-### `getGatheringMonthly(year: Int, month: Int)`
+### getMonthlyDistance(year, month, lat, lng)
 
-获取聚会月历（重载方法）。
+**获取聚会月历距离** - 获取指定年月的聚会列表，并计算与指定位置的距离
 
-**参数**:
-- `year`: 年份
-- `month`: 月份
-
-**返回类型**: `List<GatheringMonthlyItem>`
-
-**示例**:
-
-```kotlin
-val gatherings = sdk.gathering.getGatheringMonthly(2024, 12)
-println("聚会数量: ${gatherings.size}")
-```
-
-### `getGatheringMonthlyDistance(params: GatheringMonthlyParams)`
-
-获取聚会月历（带距离）。
-
-**参数**:
-- `params`: 聚会月历参数
-  - `year`: 年份
-  - `month`: 月份
-  - `lat`: 纬度（用于计算距离）
-  - `lng`: 经度（用于计算距离）
-
-**返回类型**: `List<GatheringWithDistance>`
+- **端点**: `GET /api/proxy/furtv/gatherings/monthlydistance`
+- **方法**: `suspend fun`
+- **参数**:
+  - `year` (Int): 年份
+  - `month` (Int): 月份
+  - `lat` (Double?): 纬度（可选）
+  - `lng` (Double?): 经度（可选）
+- **返回**: `List<GatheringMonthlyDistanceItem>` - 带距离的聚会列表
 
 **示例**:
 
 ```kotlin
-val params = GatheringMonthlyParams(
-    year = 2024,
-    month = 12,
-    lat = 39.9042,
-    lng = 116.4074
-)
-val gatherings = sdk.gathering.getGatheringMonthlyDistance(params)
-
-println("聚会数量: ${gatherings.size}")
+val gatherings = sdk.gathering.getMonthlyDistance(2024, 12, 37.7749, -122.4194)
 gatherings.forEach { gathering ->
-    println("聚会名称: ${gathering.name}")
-    println("开始时间: ${gathering.startDate}")
-    println("距离: ${gathering.distance} 米")
-    println("状态: ${gathering.status}")
+    println("- ${gathering.name}: ${gathering.distance} 米")
 }
 ```
 
-### `getGatheringMonthlyDistance(year: Int, month: Int, lat: Double? = null, lng: Double? = null)`
+### getNearby(lat, lng, radius)
 
-获取聚会月历（带距离，重载方法）。
+**获取附近聚会** - 根据地理位置获取附近的聚会
 
-**参数**:
-- `year`: 年份
-- `month`: 月份
-- `lat`: 纬度（用于计算距离，可选）
-- `lng`: 经度（用于计算距离，可选）
-
-**返回类型**: `List<GatheringWithDistance>`
-
-**示例**:
-
-```kotlin
-val gatherings = sdk.gathering.getGatheringMonthlyDistance(2024, 12, 39.9042, 116.4074)
-println("聚会数量: ${gatherings.size}")
-```
-
-### `getGatheringNearby(params: GatheringNearbyParams)`
-
-获取附近聚会。
-
-**参数**:
-- `params`: 附近聚会参数
-  - `lat`: 纬度
-  - `lng`: 经度
-  - `radius`: 半径（米，可选）
-
-**返回类型**: `List<GatheringNearby>`
+- **端点**: `GET /api/proxy/furtv/gatherings/nearby`
+- **方法**: `suspend fun`
+- **参数**:
+  - `lat` (Double): 纬度
+  - `lng` (Double): 经度
+  - `radius` (Int?): 搜索半径（米，可选）
+- **返回**: `List<GatheringNearbyItem>` - 附近聚会列表
 
 **示例**:
 
 ```kotlin
-val params = GatheringNearbyParams(
-    lat = 39.9042,
-    lng = 116.4074,
-    radius = 50000 // 50公里
-)
-val nearbyGatherings = sdk.gathering.getGatheringNearby(params)
-
-println("附近聚会数量: ${nearbyGatherings.size}")
+val nearbyGatherings = sdk.gathering.getNearby(37.7749, -122.4194, radius = 10000)
+println("附近聚会：")
 nearbyGatherings.forEach { gathering ->
-    println("聚会名称: ${gathering.name}")
-    println("位置: ${gathering.location}")
-    println("距离: ${gathering.distance} 米")
-    println("开始时间: ${gathering.startDate}")
+    println("- ${gathering.name} (${gathering.distance} 米)")
 }
 ```
 
-### `getGatheringNearby(lat: Double, lng: Double, radius: Int? = null)`
+### getGatheringDetail(gatheringId)
 
-获取附近聚会（重载方法）。
+**获取聚会详情** - 获取聚会的详细信息
 
-**参数**:
-- `lat`: 纬度
-- `lng`: 经度
-- `radius`: 半径（米，可选）
-
-**返回类型**: `List<GatheringNearby>`
-
-**示例**:
-
-```kotlin
-val nearbyGatherings = sdk.gathering.getGatheringNearby(39.9042, 116.4074, 50000)
-println("附近聚会数量: ${nearbyGatherings.size}")
-```
-
-### `getGatheringNearbyMode()`
-
-获取聚会附近模式。
-
-**返回类型**: `GatheringNearbyModeData`
-
-**示例**:
-
-```kotlin
-val mode = sdk.gathering.getGatheringNearbyMode()
-println("模式: ${mode.mode}")
-println("意向聚会 ID 列表: ${mode.intentGatheringIds}")
-```
-
-### `getGatheringDetail(id: String)`
-
-获取聚会详情。
-
-**参数**:
-- `id`: 聚会 ID
-
-**返回类型**: `GatheringDetail`
+- **端点**: `GET /api/proxy/furtv/gatherings/detail`
+- **方法**: `suspend fun`
+- **参数**: `gatheringId` (String) - 聚会 ID
+- **返回**: `GatheringDetailData` - 聚会详情数据
+- **响应字段**:
+  - `gatheringId`: 聚会 ID
+  - `name`: 聚会名称
+  - `description`: 聚会描述
+  - `startDate`: 开始日期
+  - `endDate`: 结束日期
+  - `location`: 地点详情
+  - `registrationCount`: 报名人数
+  - `agenda`: 议程列表
 
 **示例**:
 
 ```kotlin
 val detail = sdk.gathering.getGatheringDetail("gathering-id")
-println("聚会名称: ${detail.name}")
-println("描述: ${detail.description}")
-println("开始时间: ${detail.startDate}")
-println("结束时间: ${detail.endDate}")
-println("位置: ${detail.location}")
-println("状态: ${detail.status}")
-println("组织者: ${detail.organizer.displayName}")
-
-println("报名统计:")
-println("总报名数: ${detail.registrationStats.total}")
-println("已批准: ${detail.registrationStats.approved}")
-println("待审批: ${detail.registrationStats.pending}")
-println("已签到: ${detail.registrationStats.checkedIn}")
+println("聚会：${detail.name}")
+println("时间：${detail.startDate} - ${detail.endDate}")
+println("地点：${detail.location.name}")
+println("报名人数：${detail.registrationCount}")
 ```
 
-### `getGatheringRegistrations(params: GatheringRegistrationsParams)`
+### getRegistrations(gatheringId, status, cursor, limit)
 
-获取聚会报名列表。
+**获取聚会报名列表** - 获取聚会的报名人员列表
 
-**参数**:
-- `params`: 聚会报名列表参数
-  - `gatheringId`: 聚会 ID
-  - `status`: 报名状态筛选（可选）
-  - `cursor`: 分页游标（可选）
-  - `limit`: 返回数量限制（可选）
-
-**返回类型**: `GatheringRegistrationsData`
+- **端点**: `GET /api/proxy/furtv/gatherings/registrations`
+- **方法**: `suspend fun`
+- **参数**:
+  - `gatheringId` (String): 聚会 ID
+  - `status` (String?): 报名状态筛选（可选）
+  - `cursor` (String?): 分页游标（可选）
+  - `limit` (Int?): 返回数量限制（可选）
+- **返回**: `GatheringRegistrationsData` - 报名列表数据
 
 **示例**:
 
 ```kotlin
-val params = GatheringRegistrationsParams(
-    gatheringId = "gathering-id",
-    status = "approved",
-    limit = 20
-)
-val registrations = sdk.gathering.getGatheringRegistrations(params)
-
-println("聚会 ID: ${registrations.gatheringId}")
-println("报名总数: ${registrations.totalCount}")
-println("报名列表数量: ${registrations.registrations.size}")
-
+val registrations = sdk.gathering.getRegistrations("gathering-id")
+println("报名人数：${registrations.total}")
 registrations.registrations.forEach { registration ->
-    println("用户名: ${registration.username}")
-    println("显示名称: ${registration.displayName}")
-    println("状态: ${registration.status}")
-    println("是否签到: ${registration.checkedIn}")
-    println("报名时间: ${registration.registeredAt}")
+    println("- ${registration.username}")
 }
 ```
 
-### `getGatheringRegistrations(id: String, status: String? = null, cursor: String? = null, limit: Int? = null)`
+## 使用场景
 
-获取聚会报名列表（重载方法）。
-
-**参数**:
-- `id`: 聚会 ID
-- `status`: 报名状态筛选（可选）
-- `cursor`: 分页游标（可选）
-- `limit`: 返回数量限制（可选）
-
-**返回类型**: `GatheringRegistrationsData`
-
-**示例**:
+### 1. 查看年度聚会统计
 
 ```kotlin
-val registrations = sdk.gathering.getGatheringRegistrations("gathering-id", "approved", limit = 20)
-println("报名总数: ${registrations.totalCount}")
+val stats = sdk.gathering.getYearStats()
+println("${stats.year}年共有 ${stats.totalGatherings} 场聚会")
 ```
 
-## 数据结构
-
-### GatheringStatsData
+### 2. 查看本月聚会
 
 ```kotlin
-data class GatheringStatsData(
-    val year: Int,         // 年份
-    val total: Int,        // 总聚会数
-    val upcoming: Int,     // 即将开始
-    val ongoing: Int,      // 进行中
-    val completed: Int     // 已完成
-)
+val now = Clock.System.now()
+val year = now.year
+val month = now.monthNumber
+
+val gatherings = sdk.gathering.getMonthly(year, month)
+println("本月聚会：")
+gatherings.forEach { gathering ->
+    println("- ${gathering.name} (${gathering.startDate})")
+}
 ```
 
-### GatheringMonthlyItem
+### 3. 查找附近聚会
 
 ```kotlin
-data class GatheringMonthlyItem(
-    val id: String,             // 聚会 ID
-    val name: String,           // 聚会名称
-    val startDate: String,      // 开始时间
-    val endDate: String? = null, // 结束时间
-    val location: String? = null, // 位置
-    val status: String          // 状态
+// 查找距离当前位置 10 公里内的聚会
+val nearby = sdk.gathering.getNearby(
+    lat = 37.7749,
+    lng = -122.4194,
+    radius = 10000
 )
+
+nearby.forEach { gathering ->
+    println("${gathering.name} - ${gathering.distance} 米")
+}
 ```
 
-### GatheringWithDistance
+### 4. 查看聚会详情和报名
 
 ```kotlin
-data class GatheringWithDistance(
-    val id: String,             // 聚会 ID
-    val name: String,           // 聚会名称
-    val startDate: String,      // 开始时间
-    val location: String? = null, // 位置
-    val distance: Double? = null, // 距离
-    val status: String          // 状态
-)
+val detail = sdk.gathering.getGatheringDetail("gathering-id")
+println("=== ${detail.name} ===")
+println("时间：${detail.startDate} - ${detail.endDate}")
+println("地点：${detail.location.address}")
+println("报名人数：${detail.registrationCount}")
+
+// 获取报名列表
+val registrations = sdk.gathering.getRegistrations("gathering-id")
+println("报名人员：")
+registrations.registrations.forEach { reg ->
+    println("- ${reg.username}")
+}
 ```
 
-### GatheringNearby
+## 相关文档
 
-```kotlin
-data class GatheringNearby(
-    val id: String,        // 聚会 ID
-    val name: String,      // 聚会名称
-    val location: String,  // 位置
-    val lat: Double,       // 纬度
-    val lng: Double,       // 经度
-    val distance: Double,  // 距离
-    val startDate: String  // 开始时间
-)
-```
-
-### GatheringNearbyModeData
-
-```kotlin
-data class GatheringNearbyModeData(
-    val mode: String,                  // 模式
-    val intentGatheringIds: List<String> // 意向聚会 ID 列表
-)
-```
-
-### GatheringDetail
-
-```kotlin
-data class GatheringDetail(
-    val id: String,                  // 聚会 ID
-    val name: String,                // 聚会名称
-    val description: String? = null,  // 描述
-    val startDate: String,           // 开始时间
-    val endDate: String? = null,      // 结束时间
-    val location: String,            // 位置
-    val lat: Double? = null,          // 纬度
-    val lng: Double? = null,          // 经度
-    val agenda: List<AgendaItem>? = null, // 议程
-    val tags: List<String>? = null,   // 标签
-    val registrationStats: RegistrationStats, // 报名统计
-    val status: String,               // 状态
-    val organizer: OrganizerInfo      // 组织者信息
-)
-
-data class AgendaItem(
-    val time: String,                // 时间
-    val title: String,               // 标题
-    val description: String? = null  // 描述
-)
-
-data class RegistrationStats(
-    val total: Int,                  // 总报名数
-    val approved: Int,               // 已批准
-    val pending: Int,                // 待审批
-    val checkedIn: Int,              // 已签到
-    val capacity: Int? = null        // 容量
-)
-
-data class OrganizerInfo(
-    val userId: String,              // 组织者用户 ID
-    val username: String,            // 组织者用户名
-    val displayName: String,         // 组织者显示名称
-    val avatarUrl: String? = null    // 组织者头像 URL
-)
-```
-
-### GatheringRegistrationsData
-
-```kotlin
-data class GatheringRegistrationsData(
-    val gatheringId: String,              // 聚会 ID
-    val registrations: List<Registration>, // 报名列表
-    val totalCount: Int                   // 总数量
-)
-
-data class Registration(
-    val id: String,                  // 报名 ID
-    val userId: String,              // 用户 ID
-    val username: String,            // 用户名
-    val displayName: String,         // 显示名称
-    val avatarUrl: String? = null,   // 头像 URL
-    val status: String,              // 状态
-    val checkedIn: Boolean,          // 是否已签到
-    val registeredAt: String         // 报名时间
-)
-```
+- [聚会年度统计](../../vds-docs/Fursuit.TV 兽频道/聚会 - 列表与统计/聚会年度统计（furtv.gatherings.stats.thisyear）.md)
+- [聚会月历](../../vds-docs/Fursuit.TV 兽频道/聚会 - 列表与统计/聚会月历（furtv.gatherings.monthly）.md)
+- [聚会附近](../../vds-docs/Fursuit.TV 兽频道/聚会 - 列表与统计/聚会附近（furtv.gatherings.nearby）.md)
+- [聚会详情](../../vds-docs/Fursuit.TV 兽频道/聚会 - 详情与报名/聚会详情（furtv.gatherings.detail）.md)
+- [聚会报名列表](../../vds-docs/Fursuit.TV 兽频道/聚会 - 详情与报名/聚会报名列表（furtv.gatherings.registrations）.md)

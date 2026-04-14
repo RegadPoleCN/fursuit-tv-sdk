@@ -1,187 +1,212 @@
-# 学校 API
+# 学校 API (School)
 
-学校 API 包含与学校和角色相关的接口，如学校详情、学校搜索、用户学校信息等。
+学校模块提供学校信息、角色管理等学校和角色相关功能的访问接口。
 
-## 方法列表
+## API 方法
 
-### `getSchoolDetail(schoolId: String)`
+### searchSchools(query, cursor, limit)
 
-获取学校详情。
+**搜索学校** - 根据关键词搜索学校，支持分页
 
-**参数**:
-- `schoolId`: 学校 ID
-
-**返回类型**: `SchoolDetail`
-
-**示例**:
-
-```kotlin
-val schoolDetail = sdk.school.getSchoolDetail("school-id")
-println("学校名称: ${schoolDetail.name}")
-println("学校 ID: ${schoolDetail.id}")
-println("学校 Logo: ${schoolDetail.logoUrl}")
-println("学校描述: ${schoolDetail.description}")
-println("学校位置: ${schoolDetail.location}")
-println("学生数量: ${schoolDetail.studentCount}")
-println("创建时间: ${schoolDetail.createdAt}")
-```
-
-### `searchSchools(params: SchoolSearchParams)`
-
-搜索学校。
-
-**参数**:
-- `params`: 学校搜索参数
-  - `query`: 搜索关键词
-  - `cursor`: 分页游标（可选）
-  - `limit`: 返回数量限制（可选）
-
-**返回类型**: `SchoolSearchData`
+- **端点**: `GET /api/proxy/furtv/schools/search`
+- **方法**: `suspend fun`
+- **参数**:
+  - `query` (String): 搜索关键词
+  - `cursor` (String?): 分页游标（可选）
+  - `limit` (Int?): 返回数量限制（可选）
+- **返回**: `SchoolSearchData` - 学校搜索结果
+- **响应字段**:
+  - `schools`: 学校列表
+    - `schoolId`: 学校 ID
+    - `name`: 学校名称
+    - `location`: 学校位置
+    - `established`: 成立时间
+  - `total`: 总数
 
 **示例**:
 
 ```kotlin
-val params = SchoolSearchParams(
-    query = "北京大学",
-    limit = 10
-)
-val searchResult = sdk.school.searchSchools(params)
-
-println("搜索结果数量: ${searchResult.schools.size}")
-println("总数量: ${searchResult.totalCount}")
-
-searchResult.schools.forEach { school ->
-    println("学校名称: ${school.name}")
-    println("学校 ID: ${school.id}")
-    println("学校位置: ${school.location}")
+val results = sdk.school.searchSchools("北京大学", limit = 20)
+println("找到 ${results.total} 所学校")
+results.schools.forEach { school ->
+    println("- ${school.name} (${school.location})")
 }
 ```
 
-### `searchSchools(query: String, cursor: String? = null, limit: Int? = null)`
+### getSchoolDetail(schoolId)
 
-搜索学校（重载方法）。
+**获取学校详情** - 根据学校 ID 获取学校的详细信息
 
-**参数**:
-- `query`: 搜索关键词
-- `cursor`: 分页游标（可选）
-- `limit`: 返回数量限制（可选）
-
-**返回类型**: `SchoolSearchData`
+- **端点**: `GET /api/proxy/furtv/schools/detail`
+- **方法**: `suspend fun`
+- **参数**: `schoolId` (String) - 学校 ID
+- **返回**: `SchoolDetail` - 学校详情
+- **响应字段**:
+  - `schoolId`: 学校 ID
+  - `name`: 学校名称
+  - `description`: 学校描述
+  - `location`: 学校位置
+  - `established`: 成立时间
+  - `website`: 学校网站
+  - `logoUrl`: 学校 Logo URL
 
 **示例**:
 
 ```kotlin
-val searchResult = sdk.school.searchSchools("北京大学", limit = 10)
-println("搜索结果数量: ${searchResult.schools.size}")
+val detail = sdk.school.getSchoolDetail("school-id")
+println("学校：${detail.name}")
+println("描述：${detail.description}")
+println("位置：${detail.location}")
 ```
 
-### `getUserSchool(userId: String)`
+### getUserSchools(userId)
 
-获取用户学校信息。
+**获取用户学校信息** - 获取指定用户的学校信息列表
 
-**参数**:
-- `userId`: 用户 ID
-
-**返回类型**: `UserSchoolData`
+- **端点**: `GET /api/proxy/furtv/schools/user`
+- **方法**: `suspend fun`
+- **参数**: `userId` (String) - 用户 ID
+- **返回**: `UserSchoolsData` - 用户学校信息
+- **响应字段**:
+  - `userId`: 用户 ID
+  - `username`: 用户名
+  - `schools`: 学校列表
+    - `schoolId`: 学校 ID
+    - `schoolName`: 学校名称
+    - `enrolledYear`: 入学年份
+    - `graduatedYear`: 毕业年份
 
 **示例**:
 
 ```kotlin
-val userSchool = sdk.school.getUserSchool("user-id")
-println("用户 ID: ${userSchool.userId}")
-
-if (userSchool.school != null) {
-    println("学校名称: ${userSchool.school.name}")
-    println("班级: ${userSchool.className}")
-    println("毕业年份: ${userSchool.graduationYear}")
-    println("入学年份: ${userSchool.enrollmentYear}")
-} else {
-    println("用户未关联学校")
+val userSchools = sdk.school.getUserSchools("user-id")
+println("用户 ${userSchools.username} 的学校：")
+userSchools.schools.forEach { school ->
+    println("- ${school.schoolName} (${school.enrolledYear}-${school.graduatedYear})")
 }
 ```
 
-### `getUserCharacters(username: String)`
+### getUserCharacters(userId)
 
-获取用户角色列表。
+**获取用户角色列表** - 获取指定用户的角色列表
 
-**参数**:
-- `username`: 用户名
-
-**返回类型**: `UserCharactersData`
+- **端点**: `GET /api/proxy/furtv/characters/user`
+- **方法**: `suspend fun`
+- **参数**: `userId` (String) - 用户 ID
+- **返回**: `UserCharactersData` - 用户角色数据
+- **响应字段**:
+  - `userId`: 用户 ID
+  - `username`: 用户名
+  - `characters`: 角色列表
+    - `characterId`: 角色 ID
+    - `name`: 角色名称
+    - `species`: 物种
+    - `description`: 角色描述
+    - `imageUrl`: 角色图片 URL
 
 **示例**:
 
 ```kotlin
-val characters = sdk.school.getUserCharacters("username")
-println("用户名: ${characters.username}")
-println("角色数量: ${characters.characters.size}")
-
+val characters = sdk.school.getUserCharacters("user-id")
+println("用户 ${characters.username} 的角色：")
 characters.characters.forEach { character ->
-    println("角色名称: ${character.name}")
-    println("角色 ID: ${character.id}")
-    println("物种: ${character.species}")
-    println("是否主要角色: ${character.isPrimary}")
+    println("- ${character.name} (${character.species})")
 }
 ```
 
-## 数据结构
+## 数据模型
 
 ### SchoolDetail
 
 ```kotlin
-data class SchoolDetail(
-    val id: String,                // 学校 ID
-    val name: String,              // 学校名称
-    val logoUrl: String? = null,    // 学校 Logo URL
-    val description: String? = null, // 学校描述
-    val location: String? = null,    // 学校位置
-    val studentCount: Int,          // 学生数量
-    val createdAt: String           // 创建时间
-)
-```
-
-### SchoolSearchData
-
-```kotlin
-data class SchoolSearchData(
-    val schools: List<SchoolInfo>, // 学校列表
-    val totalCount: Int           // 总数量
-)
-
-data class SchoolInfo(
-    val id: String,                // 学校 ID
-    val name: String,              // 学校名称
-    val logoUrl: String? = null,    // 学校 Logo URL
-    val location: String? = null    // 学校位置
-)
-```
-
-### UserSchoolData
-
-```kotlin
-data class UserSchoolData(
-    val userId: String,            // 用户 ID
-    val school: SchoolDetail? = null, // 学校信息
-    val className: String? = null,  // 班级
-    val graduationYear: Int? = null, // 毕业年份
-    val enrollmentYear: Int? = null // 入学年份
+public data class SchoolDetail(
+    public val schoolId: String,
+    public val name: String,
+    public val description: String?,
+    public val location: String?,
+    public val established: Int?,
+    public val website: String?,
+    public val logoUrl: String?
 )
 ```
 
 ### UserCharactersData
 
 ```kotlin
-data class UserCharactersData(
-    val username: String,              // 用户名
-    val characters: List<CharacterInfo> // 角色列表
+public data class UserCharactersData(
+    public val userId: String,
+    public val username: String,
+    public val characters: List<CharacterInfo>
 )
 
-data class CharacterInfo(
-    val id: String,                    // 角色 ID
-    val name: String,                  // 角色名称
-    val species: String? = null,       // 物种
-    val avatarUrl: String? = null,     // 头像 URL
-    val description: String? = null,   // 描述
-    val isPrimary: Boolean = false     // 是否主要角色
+public data class CharacterInfo(
+    public val characterId: String,
+    public val name: String,
+    public val species: String?,
+    public val description: String?,
+    public val imageUrl: String?
 )
 ```
+
+## 使用场景
+
+### 1. 搜索学校
+
+```kotlin
+// 搜索包含 "大学" 的学校
+val results = sdk.school.searchSchools("大学", limit = 20)
+println("找到 ${results.total} 所学校")
+
+results.schools.forEach { school ->
+    println("- ${school.name}")
+    println("  位置：${school.location}")
+}
+```
+
+### 2. 查看学校详情
+
+```kotlin
+val schoolId = "school-123"
+val detail = sdk.school.getSchoolDetail(schoolId)
+
+println("=== ${detail.name} ===")
+println("描述：${detail.description}")
+println("位置：${detail.location}")
+println("成立时间：${detail.established}")
+println("网站：${detail.website}")
+```
+
+### 3. 查看用户的学校信息
+
+```kotlin
+val userId = "user-123"
+val userSchools = sdk.school.getUserSchools(userId)
+
+println("=== ${userSchools.username} 的学校 ===")
+userSchools.schools.forEach { school ->
+    println("- ${school.schoolName}")
+    println("  入学：${school.enrolledYear}")
+    println("  毕业：${school.graduatedYear}")
+}
+```
+
+### 4. 查看用户角色列表
+
+```kotlin
+val userId = "user-123"
+val characters = sdk.school.getUserCharacters(userId)
+
+println("=== ${characters.username} 的角色 ===")
+characters.characters.forEach { character ->
+    println("- ${character.name}")
+    println("  物种：${character.species}")
+    println("  描述：${character.description}")
+}
+```
+
+## 相关文档
+
+- [学校搜索](../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 学校/学校搜索（furtv.schools.search）.md)
+- [学校详情](../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 学校/学校详情（furtv.schools.detail）.md)
+- [用户学校信息](../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 学校/用户学校信息（furtv.schools.user）.md)
+- [用户角色列表](../../vds-docs/Fursuit.TV 兽频道/学校与角色 - 角色/用户角色列表（furtv.characters.user）.md)
