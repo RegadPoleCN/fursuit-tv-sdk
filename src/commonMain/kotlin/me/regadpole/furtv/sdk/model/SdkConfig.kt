@@ -13,17 +13,26 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * SDK 配置类
  * 用于统一管理 SDK 的各种配置项，包括 API 端点、超时、重试等设置
  *
- * @property baseUrl API 基础 URL
- * @property apiKey API 密钥，用于认证
- * @property clientId 客户端 ID（格式 vap_xxxx），用于 OAuth 流程
- * @property clientSecret 客户端密钥，用于 OAuth 流程
- * @property requestTimeout 请求超时时间（毫秒）
- * @property connectTimeout 连接超时时间（毫秒）
- * @property socketTimeout 套接字超时时间（毫秒）
- * @property logLevel 日志级别
- * @property enableRetry 是否启用重试机制
- * @property maxRetries 最大重试次数
- * @property retryInterval 重试间隔（毫秒）
+ * 官方文档：vds-docs/认证方式与服务器端点.md
+ *
+ * 配置项说明：
+ * - baseUrl: API 基础 URL
+ *   - 默认推荐：https://open-global.vdsentnet.com（节点优选自动匹配）
+ *   - 高级用户可根据地区选择：https://open-cn1.vdsentnet.com（中国上海）
+ * - apiKey: API 密钥，用于认证
+ *   - 通过签名交换接口（POST /api/auth/token）获取
+ *   - 用于 X-Api-Key 或 Authorization: Bearer 认证头
+ * - clientId: 客户端 ID（格式 vap_xxxx），用于 OAuth 流程
+ *   - 与 appId 等价，可使用任一字段
+ * - clientSecret: 客户端密钥，用于 OAuth 流程
+ *   - 与 appSecret 等价
+ * - requestTimeout: 请求超时时间（毫秒）
+ * - connectTimeout: 连接超时时间（毫秒）
+ * - socketTimeout: 套接字超时时间（毫秒）
+ * - logLevel: 日志级别
+ * - enableRetry: 是否启用重试机制
+ * - maxRetries: 最大重试次数
+ * - retryInterval: 重试间隔（毫秒）
  *
  * @see Builder
  */

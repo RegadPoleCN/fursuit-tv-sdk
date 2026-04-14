@@ -19,7 +19,16 @@ import me.regadpole.furtv.sdk.user.UserApi
  *
  * **认证方式说明**：
  * - Client 认证：适用于应用级 API，使用 X-Api-Key 或 Authorization Bearer
+ *   - 通过签名交换接口（POST /api/auth/token）获取 accessToken 和 apiKey
+ *   - 认证头：X-Api-Key: <apiKey> 或 Authorization: Bearer <accessToken>
  * - OAuth 认证：适用于用户授权场景，仅可用于 UserInfo 接口
+ *   - 通过 OAuth 授权流程获取 access_token
+ *   - 认证头：X-OAuth-Access-Token: <access_token> + Authorization: Bearer <apiKey>（双 header）
+ *
+ * 官方文档参考：
+ * - vds-docs/基础接口/签名交换.md - 签名交换流程
+ * - vds-docs/认证方式与服务器端点.md - 认证方式说明
+ * - vds-docs/VDS 账户/VDS 账户快速接入（OAuth）.md - OAuth 流程
  *
  * ```kotlin
  * // ========== 方式 1: 使用 apiKey（Client 认证）==========
@@ -32,6 +41,7 @@ import me.regadpole.furtv.sdk.user.UserApi
  * // 认证头：Authorization: Bearer <accessToken>
  * // 适用场景：应用级 API
  * // 说明：通过签名交换获取 accessToken
+ * // 官方文档：vds-docs/基础接口/签名交换.md
  * val sdk2 = FursuitTvSdk(
  *     clientId = "vap_xxxxxxxxxxxxxxxx",
  *     clientSecret = "your-client-secret"
@@ -46,10 +56,11 @@ import me.regadpole.furtv.sdk.user.UserApi
  * val sdk3 = FursuitTvSdk(accessToken = "your-access-token")
  *
  * // ========== 方式 4: 使用 OAuth 认证（OAuth 2.0 授权码模式）==========
- * // 认证头：Authorization: Bearer <oauth-token>
+ * // 认证头：X-OAuth-Access-Token: <oauth-token> + Authorization: Bearer <apiKey>
  * // 适用场景：用户授权场景（仅可用于 UserInfo 接口）
  * // 前置条件：必须先调用 exchangeToken() 获取 Client accessToken
  * // 警告：OAuth token 和 Client token 不通用，不能混用
+ * // 官方文档：vds-docs/VDS 账户/VDS 账户快速接入（OAuth）.md
  * runBlocking {
  *     // 第一步：先通过签名交换获取 Client accessToken
  *     val clientSdk = FursuitTvSdk(clientId = "vap_xxxxx", clientSecret = "secret")
@@ -85,6 +96,8 @@ public class FursuitTvSdk {
      *
      * **认证方式**：X-Api-Key（Client 认证）
      * **适用场景**：应用级 API
+     *
+     * 官方文档：vds-docs/认证方式与服务器端点.md
      *
      * @param apiKey VDS 颁发的 API 密钥，用于认证和授权
      *
@@ -130,12 +143,14 @@ public class FursuitTvSdk {
      * **认证方式**：Authorization Bearer（Client 认证）
      * **适用场景**：应用级 API
      *
+     * 官方文档：vds-docs/认证方式与服务器端点.md
+     *
      * @param accessToken 访问令牌
-     * @param baseUrl API 基础 URL，默认为 https://api.fursuit.tv
+     * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      *
      * @see [认证方式与服务器端点](认证方式与服务器端点.md)
      */
-    public constructor(accessToken: String, baseUrl: String = "https://api.fursuit.tv") {
+    public constructor(accessToken: String, baseUrl: String = "https://open-global.vdsentnet.com") {
         this.config =
             SdkConfig.builder()
                 .apiKey("")
@@ -152,8 +167,10 @@ public class FursuitTvSdk {
      * **认证方式**：Authorization Bearer（Client 认证）
      * **适用场景**：应用级 API
      *
-     * @param clientId 客户端 ID（格式 vap_xxxx）
-     * @param clientSecret 客户端密钥
+     * 官方文档：vds-docs/基础接口/签名交换.md
+     *
+     * @param clientId 客户端 ID（格式 vap_xxxx），与 appId 等价
+     * @param clientSecret 客户端密钥，与 appSecret 等价
      * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
      *
      * @see [签名交换](基础接口/签名交换.md)
