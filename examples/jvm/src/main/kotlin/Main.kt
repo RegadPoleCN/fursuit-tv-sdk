@@ -1,6 +1,6 @@
-import me.regadpole.furtv.sdk.FursuitTvSdk
-import me.regadpole.furtv.sdk.auth.OAuthConfig
-import me.regadpole.furtv.sdk.exception.*
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.auth.OAuthConfig
+import com.furrist.rp.furtv.sdk.exception.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

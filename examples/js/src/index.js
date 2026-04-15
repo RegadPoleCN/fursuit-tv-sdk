@@ -1,5 +1,5 @@
-import me.regadpole.furtv.sdk.FursuitTvSdk
-import me.regadpole.furtv.sdk.exception.*
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.exception.*
 import kotlinx.coroutines.*
 
 /**
