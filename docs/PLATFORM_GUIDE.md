@@ -37,7 +37,7 @@ dependencies {
 
 ```kotlin
 // src/jvmMain/kotlin/Main.kt
-import me.regadpole.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import kotlinx.coroutines.runBlocking
 import java.awt.Desktop
 import java.net.URI
@@ -112,7 +112,7 @@ dependencies {
 
 ```kotlin
 // src/jsMain/kotlin/main.kt
-import me.regadpole.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import kotlinx.coroutines.*
 
 fun main() = runBlocking {
@@ -212,7 +212,7 @@ kotlin {
 
 ```kotlin
 // src/macosMain/kotlin/main.kt
-import me.regadpole.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import kotlinx.coroutines.*
 import platform.Foundation.*
 
@@ -272,7 +272,7 @@ func openSafari(url: String) {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
 }
 ```

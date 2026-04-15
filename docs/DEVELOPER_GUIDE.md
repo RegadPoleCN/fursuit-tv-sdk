@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
 }
 ```
 
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT'
+    implementation 'com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT'
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
 
 ```xml
 <dependency>
-    <groupId>me.regadpole</groupId>
+    <groupId>com.furrist.rp</groupId>
     <artifactId>fursuit-tv-sdk</artifactId>
     <version>1.0-SNAPSHOT</version>
 </dependency>
@@ -113,7 +113,7 @@ sdk.close()
 ## 📖 完整示例
 
 ```kotlin
-import me.regadpole.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import kotlinx.coroutines.runBlocking
 
 fun main() = runBlocking {

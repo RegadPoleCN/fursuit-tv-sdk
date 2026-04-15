@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    implementation("me.regadpole:furtv-sdk:1.0.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:1.0.0")
 }
 ```
 
@@ -100,10 +100,10 @@ val config = OAuthConfig(
 val clientSdk = FursuitTvSdk(appId = "vap_xxxxxxxxxxxxxxxx", appSecret = "your-app-secret")
 runBlocking {
     clientSdk.auth.exchangeToken("vap_xxxxxxxxxxxxxxxx", "your-app-secret")
-    
+
     // 第二步：使用 OAuth 获取用户授权
     val oauthSdk = FursuitTvSdk.initWithOAuth("vap_xxxxxxxxxxxxxxxx", config)
-    
+
     // 第三步：调用 UserInfo 接口
     val userInfo = oauthSdk.user.getUserProfile("username")
 }
@@ -205,17 +205,17 @@ SDK 提供了以下错误类型：
 ```kotlin
 fun main() = runBlocking {
     val sdk = FursuitTvSdk(appId = "vap_xxxxxxxxxxxxxxxx", appSecret = "your-app-secret")
-    
+
     try {
         // 认证（签名交换）
         val tokenInfo = sdk.auth.exchangeToken("vap_xxxxxxxxxxxxxxxx", "your-app-secret")
-        
+
         // 获取用户资料
         val userProfile = sdk.user.getUserProfile("username")
-        
+
         // 获取热门推荐
         val popular = sdk.search.getPopularDiscovery()
-        
+
     } catch (e: FursuitTvSdkException) {
         println("错误：${e.message}")
     } finally {
