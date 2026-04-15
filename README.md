@@ -14,7 +14,7 @@
 ```kotlin
 // Gradle (Kotlin DSL)
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
 }
 ```
 

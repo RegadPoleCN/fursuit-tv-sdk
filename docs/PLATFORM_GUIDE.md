@@ -272,7 +272,7 @@ func openSafari(url: String) {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
 }
 ```

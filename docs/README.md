@@ -23,7 +23,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:1.0.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
 }
 ```
 

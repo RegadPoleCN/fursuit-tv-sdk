@@ -12,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
 }
 ```
 
@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT'
+    implementation 'com.furrist.rp:fursuit-tv-sdk:0.1.0'
 }
 ```
 
@@ -34,7 +34,7 @@ dependencies {
 <dependency>
     <groupId>com.furrist.rp</groupId>
     <artifactId>fursuit-tv-sdk</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
