@@ -31,12 +31,12 @@
 
 ### 1.2 创建 Namespace
 
-Namespace 是您在 Maven Central 上的唯一标识，格式通常为 `me.regadpole` 或 `com.github.username`。
+Namespace 是您在 Maven Central 上的唯一标识，格式通常为 `com.furrist.rp` 或 `com.github.username`。
 
 1. 登录 [https://central.sonatype.com/](https://central.sonatype.com/)
 2. 点击左侧导航栏的 **"Namespaces"**
 3. 点击 **"Add Namespace"** 按钮
-4. 输入 Namespace：`me.regadpole`
+4. 输入 Namespace：`com.furrist.rp`
 5. 验证所有权（二选一）：
    
    **方式一：GitHub 验证（推荐）**
@@ -293,7 +293,7 @@ $env:ORG_GRADLE_PROJECT_signingPassword="your-gpg-passphrase"
 
 验证发布结果：
 ```bash
-ls ~/.m2/repository/me/regadpole/fursuit-tv-sdk/
+ls ~/.m2/repository/com/furrist/rp/fursuit-tv-sdk/
 ```
 
 应该包含以下文件：
@@ -314,7 +314,7 @@ ls ~/.m2/repository/me/regadpole/fursuit-tv-sdk/
 
 1. 登录 [https://central.sonatype.com/](https://central.sonatype.com/)
 2. 点击 **"Components"**
-3. 搜索 `me.regadpole:fursuit-tv-sdk`
+3. 搜索 `com.furrist.rp:fursuit-tv-sdk`
 4. 检查：
    - 构件信息是否正确
    - 签名文件是否存在
@@ -394,7 +394,7 @@ git push origin v0.1.0
 
 1. 等待 10-30 分钟（同步到 Maven Central）
 2. 访问 [https://search.maven.org/](https://search.maven.org/)
-3. 搜索 `me.regadpole:fursuit-tv-sdk`
+3. 搜索 `com.furrist.rp:fursuit-tv-sdk`
 4. 确认：
    - 版本号正确
    - 所有平台的构件都存在
@@ -408,21 +408,21 @@ git push origin v0.1.0
 **Kotlin (Gradle Kotlin DSL):**
 ```kotlin
 dependencies {
-    implementation("me.regadpole:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
 }
 ```
 
 **Kotlin (Gradle Groovy):**
 ```groovy
 dependencies {
-    implementation 'me.regadpole:fursuit-tv-sdk:0.1.0'
+    implementation 'com.furrist.rp:fursuit-tv-sdk:0.1.0'
 }
 ```
 
 **Java (Maven):**
 ```xml
 <dependency>
-    <groupId>me.regadpole</groupId>
+    <groupId>com.furrist.rp</groupId>
     <artifactId>fursuit-tv-sdk</artifactId>
     <version>0.1.0</version>
 </dependency>
@@ -578,8 +578,8 @@ Namespace verification failed
    - 登录 Central Portal → Namespaces
 
 2. 检查 GroupId 与 Namespace 匹配
-   - GroupId: `me.regadpole`
-   - Namespace: `me.regadpole`
+   - GroupId: `com.furrist.rp`
+   - Namespace: `com.furrist.rp`
 
 3. 等待 DNS 验证生效（可能需要几小时）
 
