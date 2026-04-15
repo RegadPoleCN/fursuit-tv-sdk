@@ -49,8 +49,8 @@ jobs:
     - name: Generate Dokka documentation (HTML)
       run: ./gradlew dokkaGenerate
 
-    - name: Upload Dokka HTML documentation
-      uses: actions/upload-artifact@v4
+    - name: Upload pages artifact
+      uses: actions/upload-pages-artifact@v3
       if: success()
       with:
         path: build/dokka/html/
