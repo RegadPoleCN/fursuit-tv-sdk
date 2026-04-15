@@ -22,7 +22,7 @@ jobs:
     # 跳过包含 [ci skip] 或 [skip ci] 的提交
     if: github.event_name != 'push' || (!contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]'))
     environment:
-      name: github-pages
+      name: dokka-html-docs
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
 
