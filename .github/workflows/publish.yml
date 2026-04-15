@@ -2,7 +2,6 @@ name: Publish to Maven Central
 
 on:
   push:
-    branches: [ main ]
     tags:
       - 'v*'
   workflow_dispatch:
@@ -12,41 +11,41 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true"
+  GRADLE_OPTS: "-Dorg.gradle.parallel=true"
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    
-    # 只在 Tag 推送时执行发布
-    if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-      
+
+    - name: Validate Gradle Wrapper
+      uses: gradle/wrapper-validation-action@v3
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         cache: gradle
-        
+
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
-      
+
     - name: Make gradlew executable
       run: chmod +x gradlew
-      
+
     - name: Publish to Maven Central
-      run: ./gradlew publishAllPublicationsToSonatypeRepository --no-daemon --stacktrace
+      run: ./gradlew publishAllPublicationsToMavenCentralRepository --stacktrace
       env:
-        ORG_GRADLE_PROJECT_sonatypeUsername: ${{ secrets.ORG_GRADLE_PROJECT_sonatypeUsername }}
-        ORG_GRADLE_PROJECT_sonatypePassword: ${{ secrets.ORG_GRADLE_PROJECT_sonatypePassword }}
+        ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralUsername }}
+        ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.ORG_GRADLE_PROJECT_mavenCentralPassword }}
         ORG_GRADLE_PROJECT_signingKeyId: ${{ secrets.ORG_GRADLE_PROJECT_signingKeyId }}
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
         ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_signingInMemoryKey }}
-      
+
     - name: Verify Publication
       run: |
         echo "Publication completed. Check Sonatype Central Portal for status."
