@@ -47,14 +47,14 @@ jobs:
       run: chmod +x gradlew
 
     - name: Generate Dokka documentation (HTML)
-      run: ./gradlew dokkaHtml
+      run: ./gradlew dokkaGenerate
 
     - name: Upload Dokka HTML documentation
       uses: actions/upload-artifact@v4
       if: success()
       with:
         name: dokka-html-docs
-        path: build/dokka/
+        path: build/dokka/html/
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
