@@ -1,0 +1,211 @@
+package com.furrist.rp.furtv.sdk.http
+
+import com.furrist.rp.furtv.sdk.exception.ApiException
+import com.furrist.rp.furtv.sdk.exception.AuthenticationException
+import com.furrist.rp.furtv.sdk.exception.NetworkException
+import com.furrist.rp.furtv.sdk.exception.NotFoundException
+import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
+import com.furrist.rp.furtv.sdk.exception.ValidationException
+import com.furrist.rp.furtv.sdk.model.SdkConfig
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.HttpResponseValidator
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.json.Json
+
+/**
+ * HTTP 客户端配置
+ * 负责创建和配置 Ktor HTTP 客户端，包括序列化、日志、认证、重试等功能
+ */
+public object HttpClientConfig {
+    private const val REQUEST_ID_LENGTH = 16
+    private const val SUCCESS_STATUS_START = 200
+    private const val SUCCESS_STATUS_END = 299
+    private const val SERVER_ERROR_START = 500
+    private const val SERVER_ERROR_END = 599
+    private const val UNAUTHORIZED = 401
+    private const val FORBIDDEN = 403
+    private const val NOT_FOUND = 404
+    private const val BAD_REQUEST = 400
+    private const val ERROR_BODY_EMPTY = ""
+
+    // Chrome User-Agent 字符串，用于模拟浏览器请求
+    private const val USER_AGENT_CHROME =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+            "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+
+    /**
+     * 创建配置好的 HTTP 客户端
+     * 配置包括：JSON 序列化、日志、默认请求头、响应验证、超时、重试等
+     *
+     * 认证头自动选择逻辑：
+     * - 当 [config.apiKey] 存在时，使用 `X-Api-Key` header（Client 认证）
+     * - 当仅有 [accessToken] 时，使用 `Authorization: Bearer` header（OAuth/Client 认证）
+     * - 两者都存在时，优先使用 `X-Api-Key`（服务端行为）
+     *
+     * 认证方式说明：
+     * - **Client 认证**：使用 `X-Api-Key`，适用于签名交换/换新场景（参考 `认证方式与服务器端点.md`）
+     * - **OAuth 认证**：使用 `Authorization: Bearer`，适用于用户授权场景（参考 `基础接口/签名交换.md`）
+     *
+     * @param config SDK 配置对象，包含 apiKey 等配置
+     * @param accessToken 可选的访问令牌，当 config.apiKey 为空时使用
+     * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
+     * @return 配置好的 HttpClient 实例
+     */
+    public fun createClient(
+        config: SdkConfig,
+        accessToken: String? = null,
+        requestIdGenerator: () -> String = { generateRequestId() },
+    ): HttpClient {
+        return HttpClient {
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        ignoreUnknownKeys = true
+                        prettyPrint = true
+                        isLenient = true
+                    },
+                )
+            }
+
+            install(Logging) {
+                level = config.logLevel
+            }
+
+            install(DefaultRequest) {
+                headers {
+                    // 认证头自动选择逻辑：
+                    // 1. 当 config.apiKey 存在时，使用 X-Api-Key（Client 认证）
+                    // 2. 当仅有 accessToken 时，使用 Authorization: Bearer（OAuth/Client 认证）
+                    // 3. 两者都存在时，优先使用 X-Api-Key（服务端行为）
+                    if (config.apiKey.isNotEmpty()) {
+                        append("X-Api-Key", config.apiKey)
+                    } else if (accessToken != null) {
+                        append("Authorization", "Bearer $accessToken")
+                    }
+
+                    append("X-Request-ID", requestIdGenerator())
+                    contentType(ContentType.Application.Json)
+                    append("Accept", "application/json")
+                    // 强制使用 Chrome UA，确保服务端兼容性
+                    append("User-Agent", USER_AGENT_CHROME)
+                }
+            }
+
+            HttpResponseValidator {
+                validateResponse { response ->
+                    validateStatusCode(response.status.value)
+                }
+
+                handleResponseExceptionWithRequest { cause, _ ->
+                    handleResponseException(cause)
+                }
+            }
+
+            install(HttpTimeout) {
+                requestTimeoutMillis = config.requestTimeout
+                connectTimeoutMillis = config.connectTimeout
+                socketTimeoutMillis = config.socketTimeout
+            }
+
+            if (config.enableRetry) {
+                install(HttpRequestRetry) {
+                    maxRetries = config.maxRetries
+                    retryOnExceptionOrServerErrors()
+                    delayMillis { attempt ->
+                        config.retryInterval * attempt
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 验证 HTTP 状态码
+     * 检查响应状态码是否在成功范围内（200-299），如果不是则抛出相应异常
+     * @param statusCode HTTP 响应状态码
+     * @throws ApiException 当状态码表示错误时
+     */
+    private fun validateStatusCode(statusCode: Int) {
+        if (statusCode !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
+            val errorBody = getErrorBody()
+            throwExceptionForStatusCode(statusCode, errorBody)
+        }
+    }
+
+    /**
+     * 获取错误响应体（简化处理）
+     * 当前实现返回空字符串，实际项目中可从响应中解析错误信息
+     * @return 错误响应体内容，当前为空字符串
+     */
+    private fun getErrorBody(): String? = ERROR_BODY_EMPTY
+
+    /**
+     * 根据状态码抛出相应异常
+     * 将 HTTP 状态码映射为具体的异常类型，便于上层处理
+     * @param statusCode HTTP 响应状态码
+     * @param errorBody 错误响应体内容
+     * @throws TokenExpiredException 当状态码为 401 时
+     * @throws AuthenticationException 当状态码为 403 时
+     * @throws NotFoundException 当状态码为 404 时
+     * @throws ValidationException 当状态码为 400 时
+     * @throws ApiException 当状态码为 5xx 或其他错误码时
+     */
+    private fun throwExceptionForStatusCode(statusCode: Int, errorBody: String?) {
+        val errorMessage = errorBody ?: "Unknown error"
+        val exception =
+            when (statusCode) {
+                UNAUTHORIZED -> TokenExpiredException("Authentication failed: $errorMessage")
+                FORBIDDEN -> AuthenticationException("Access forbidden: $errorMessage")
+                NOT_FOUND -> NotFoundException("Resource not found: $errorMessage")
+                BAD_REQUEST -> ValidationException("Invalid request: $errorMessage")
+                in SERVER_ERROR_START..SERVER_ERROR_END ->
+                    ApiException(
+                        statusCode,
+                        "Server error: $errorMessage",
+                    )
+                else ->
+                    ApiException(
+                        statusCode,
+                        "HTTP error $statusCode: $errorMessage",
+                    )
+            }
+        throw exception
+    }
+
+    /**
+     * 处理响应异常
+     * 将 Ktor 的底层网络异常转换为 SDK 定义的异常类型
+     * @param cause 原始异常
+     * @throws NetworkException 当遇到未知异常时
+     */
+    private fun handleResponseException(cause: Throwable): Nothing {
+        when (cause) {
+            is TokenExpiredException,
+            is AuthenticationException,
+            is NotFoundException,
+            is ValidationException,
+            is ApiException,
+            -> throw cause
+            else -> throw NetworkException("Network error: ${cause.message}", cause)
+        }
+    }
+
+    /**
+     * 生成请求 ID
+     * 生成 16 位随机字符串作为请求 ID，用于日志排查和请求追踪
+     * @return 随机生成的请求 ID，由大小写字母和数字组成
+     */
+    private fun generateRequestId(): String {
+        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return (1..REQUEST_ID_LENGTH)
+            .map { chars.random() }
+            .joinToString("")
+    }
+}
