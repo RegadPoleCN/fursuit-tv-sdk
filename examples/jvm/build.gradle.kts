@@ -10,7 +10,7 @@ repositories {
 
 dependencies {
     // Fursuit.TV SDK
-    implementation("me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
     
     // Kotlinx Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")

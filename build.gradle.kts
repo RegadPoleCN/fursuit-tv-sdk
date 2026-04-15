@@ -13,7 +13,7 @@ repositories {
     mavenCentral()
 }
 
-group = "me.regadpole"
+group = "com.furrist.rp"
 version = libs.versions.fursuit.tv.sdk.get()
 
 kotlin {
@@ -125,7 +125,7 @@ ktlint {
 
 // Configure API compatibility validator
 apiValidation {
-    ignoredPackages.add("me.regadpole.furtv.sdk.internal")
+    ignoredPackages.add("com.furrist.rp.furtv.sdk.internal")
 
     nonPublicMarkers.add("kotlin.internal.InlineOnly")
 }
@@ -148,10 +148,11 @@ tasks.register("quickBuild") {
 
 // Maven Publish Configuration
 mavenPublishing {
+    signing { useGpgCmd() }
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates("me.regadpole", "fursuit-tv-sdk", project.version.toString())
+    coordinates("com.furrist.rp", "fursuit-tv-sdk", project.version.toString())
 
     pom {
         name.set("fursuit-tv-sdk")
