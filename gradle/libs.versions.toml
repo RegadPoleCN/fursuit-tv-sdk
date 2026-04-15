@@ -1,6 +1,6 @@
 [versions]
 # Project
-fursuit-tv-sdk = "1.0-SNAPSHOT"
+fursuit-tv-sdk = "0.1.0"
 
 # Kotlin
 kotlin = "2.3.0"
