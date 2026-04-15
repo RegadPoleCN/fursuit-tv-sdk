@@ -85,7 +85,7 @@ examples/jvm/
 
 ## 依赖
 
-- Fursuit.TV SDK: `me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT`
+- Fursuit.TV SDK: `com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT`
 - Kotlinx Coroutines: `1.10.1`
 - Ktor Client (Java): `3.4.2`
 

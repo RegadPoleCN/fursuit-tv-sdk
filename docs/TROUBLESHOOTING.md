@@ -32,7 +32,7 @@ Gradle requires JVM 17 or later to run.
 
 **错误信息**:
 ```
-Could not resolve me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT
+Could not resolve com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT
 ```
 
 **解决方案**:

@@ -1,6 +1,6 @@
-import me.regadpole.furtv.sdk.FursuitTvSdk;
-import me.regadpole.furtv.sdk.model.SdkConfig;
-import me.regadpole.furtv.sdk.exception.FursuitTvSdkException;
+import com.furrist.rp.furtv.sdk.FursuitTvSdk;
+import com.furrist.rp.furtv.sdk.model.SdkConfig;
+import com.furrist.rp.furtv.sdk.exception.FursuitTvSdkException;
 
 import java.util.concurrent.CompletableFuture;
 

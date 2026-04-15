@@ -161,7 +161,7 @@ class user_service(var repo: UserRepository) {
 - 类名：PascalCase（如 `UserService`）
 - 函数和变量：camelCase（如 `getUserProfile`）
 - 常量：UPPER_SNAKE_CASE（如 `MAX_RETRIES`）
-- 包名：小写（如 `me.regadpole.furtv.sdk`）
+- 包名：小写（如 `com.furrist.rp.furtv.sdk`）
 
 ### 文档注释
 

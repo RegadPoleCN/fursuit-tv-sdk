@@ -34,7 +34,7 @@ android {
 
 dependencies {
     // Fursuit.TV SDK
-    implementation("me.regadpole:fursuit-tv-sdk:1.0-SNAPSHOT")
+    implementation("com.furrist.rp:fursuit-tv-sdk:1.0-SNAPSHOT")
     
     // Kotlinx Coroutines (Android)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
@@ -68,8 +68,8 @@ dependencies {
 // UserRepository.kt
 package com.example.app.data
 
-import me.regadpole.furtv.sdk.FursuitTvSdk
-import me.regadpole.furtv.sdk.model.UserProfile
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.model.UserProfile
 
 class UserRepository(
     private val appId: String,
@@ -225,7 +225,7 @@ package com.example.app
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import me.regadpole.furtv.sdk.auth.OAuthConfig
+import com.furrist.rp.furtv.sdk.auth.OAuthConfig
 
 class OAuthCallbackActivity : ComponentActivity() {
     
@@ -354,8 +354,8 @@ try {
 
 ```proguard
 # Fursuit.TV SDK
--keep class me.regadpole.furtv.sdk.** { *; }
--keepclassmembers class me.regadpole.furtv.sdk.** { *; }
+-keep class com.furrist.rp.furtv.sdk.** { *; }
+-keepclassmembers class com.furrist.rp.furtv.sdk.** { *; }
 ```
 
 ## 测试

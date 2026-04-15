@@ -93,7 +93,7 @@ fursuit-tv-sdk = "1.0-SNAPSHOT"
 kotlinx-coroutines = "1.10.1"
 
 [libraries]
-fursuit-tv-sdk = { module = "me.regadpole:fursuit-tv-sdk", version.ref = "fursuit-tv-sdk" }
+fursuit-tv-sdk = { module = "com.furrist.rp:fursuit-tv-sdk", version.ref = "fursuit-tv-sdk" }
 kotlinx-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 ```
 
