@@ -28,6 +28,7 @@ local.properties
 secrets.properties
 *.key
 *.keystore
+*.asc
 
 # Test and coverage
 test-results/
@@ -39,8 +40,8 @@ dokka/
 dokkaHtml/
 
 # Code quality tools
-api/
-*.api
+#api/
+#*.api
 
 # Node.js (for JS target and examples)
 node_modules/
