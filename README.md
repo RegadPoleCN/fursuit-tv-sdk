@@ -18,42 +18,53 @@ dependencies {
 }
 ```
 
-### 2. 初始化 SDK（四种方式）
+### 2. 初始化 SDK
 
-**方式 1: 使用 apiKey（最简单）**
-```kotlin
-val sdk = FursuitTvSdk(apiKey = "your-api-key")
-```
+#### 方式 1: 签名交换（推荐，用于业务 API）
 
-**方式 2: 使用 clientId + clientSecret（推荐）**
 ```kotlin
-val sdk = FursuitTvSdk(
-    clientId = "vap_xxxxxxxxxxxxxxxx",
-    clientSecret = "your-client-secret"
-)
-runBlocking {
-    sdk.auth.exchangeToken(clientId, clientSecret)
+// DSL 方式（自动获取 apiKey）
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
 }
-// SDK 会自动管理令牌刷新
+
+// 可以直接调用业务 API
+val profile = sdk.user.getUserProfile("username")
 ```
 
-**方式 3: OAuth 2.0（需要用户授权）**
-```kotlin
-// 第一步：初始化 SDK（传入 clientId 和 clientSecret）
-val sdk = FursuitTvSdk(
-    clientId = "vap_xxxxxxxxxxxxxxxx",
-    clientSecret = "your-client-secret"
-)
+#### 方式 2: 已有 apiKey
 
-// 第二步：调用 OAuth 授权（自动使用 SDK 配置中的 clientId 和 clientSecret）
-val oauthResult = sdk.auth.initOAuth(
-    config = OAuthConfig(callbackHost = "localhost", callbackPort = 8080)
-)
+```kotlin
+val sdk = fursuitTvSdk {
+    apiKey = "your-api-key"
+}
 ```
 
-**方式 4: 使用 accessToken**
+#### 方式 3: OAuth（仅用于获取用户信息）
+
 ```kotlin
-val sdk = FursuitTvSdk(accessToken = "your-access-token")
+// 初始化 SDK
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
+}
+
+// 生成授权 URL
+val authUrl = sdk.auth.getOAuthAuthorizeUrl(
+    redirectUri = "my-app://callback",
+    scope = "user.profile",
+    state = "random-state"
+)
+
+// 用户授权后，使用回调中的 code 交换 token
+val tokenInfo = sdk.auth.exchangeOAuthToken(
+    code = "code-from-callback",
+    redirectUri = "my-app://callback"
+)
+
+// 获取用户信息
+val userInfo = sdk.auth.getUserInfo()
 ```
 
 ### 3. 调用 API
@@ -105,27 +116,15 @@ try {
 
 ## 📚 文档导航
 
+- **[快速开始](docs/getting-started.md)** - 5 分钟快速上手
+- **[认证详解](docs/authentication.md)** - 签名交换 vs OAuth
+- **[配置选项](docs/configuration.md)** - 所有配置参数说明
+- **[错误处理](docs/error-handling.md)** - 异常类型和处理
+- **[OAuth 指南](docs/oauth-guide.md)** - OAuth 2.0 完整流程
+- **[最佳实践](docs/best-practices.md)** - API 使用技巧
+- **[故障排除](docs/troubleshooting.md)** - 常见问题
+- **[平台指南](docs/platform-guide.md)** - 特定平台配置
 - **[API 参考](docs/api/)** - 完整的 API 文档
-- **[开发者指南](docs/DEVELOPER_GUIDE.md)** - 5 分钟快速上手
-- **[认证与配置](docs/authentication.md)** - 认证方式和配置详解
-- **[最佳实践](docs/BEST_PRACTICES.md)** - API 使用技巧
-- **[故障排除](docs/TROUBLESHOOTING.md)** - 常见问题
-- **[平台指南](docs/PLATFORM_GUIDE.md)** - 特定平台配置
-- **[OAuth 指南](docs/oauth.md)** - OAuth 2.0 流程详解
-
-## ⚙️ 配置示例
-
-```kotlin
-val config = SdkConfig(
-    apiKey = "your-api-key",
-    baseUrl = "https://open-global.vdsentnet.com",
-    requestTimeout = 60000,
-    logLevel = LogLevel.DEBUG,
-    enableRetry = true,
-    maxRetries = 3
-)
-val sdk = FursuitTvSdk(config)
-```
 
 ## 🤝 贡献
 
