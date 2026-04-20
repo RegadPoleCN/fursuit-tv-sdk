@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 
 /**
  * HTTP 客户端配置
- * 负责创建和配置 Ktor HTTP 客户端，包括序列化、日志、认证、重试等功能
+ * 创建和配置 Ktor HTTP 客户端，包括序列化、日志、认证、重试等
  */
 public object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
@@ -42,21 +42,11 @@ public object HttpClientConfig {
 
     /**
      * 创建配置好的 HTTP 客户端
-     * 配置包括：JSON 序列化、日志、默认请求头、响应验证、超时、重试等
      *
-     * 认证头自动选择逻辑：
-     * - 当 [config.apiKey] 存在时，使用 `X-Api-Key` header（Client 认证）
-     * - 当仅有 [accessToken] 时，使用 `Authorization: Bearer` header（OAuth/Client 认证）
-     * - 两者都存在时，优先使用 `X-Api-Key`（服务端行为）
-     *
-     * 认证方式说明：
-     * - **Client 认证**：使用 `X-Api-Key`，适用于签名交换/换新场景（参考 `认证方式与服务器端点.md`）
-     * - **OAuth 认证**：使用 `Authorization: Bearer`，适用于用户授权场景（参考 `基础接口/签名交换.md`）
-     *
-     * @param config SDK 配置对象，包含 apiKey 等配置
-     * @param accessToken 可选的访问令牌，当 config.apiKey 为空时使用
-     * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
-     * @return 配置好的 HttpClient 实例
+     * @param config SDK 配置
+     * @param accessToken 可选的访问令牌
+     * @param requestIdGenerator 请求 ID 生成器
+     * @return HttpClient 实例
      */
     public fun createClient(
         config: SdkConfig,
@@ -80,14 +70,20 @@ public object HttpClientConfig {
 
             install(DefaultRequest) {
                 headers {
-                    // 认证头自动选择逻辑：
+                    // 认证头自动选择逻辑（Kotlin when 表达式）：
                     // 1. 当 config.apiKey 存在时，使用 X-Api-Key（Client 认证）
                     // 2. 当仅有 accessToken 时，使用 Authorization: Bearer（OAuth/Client 认证）
-                    // 3. 两者都存在时，优先使用 X-Api-Key（服务端行为）
-                    if (config.apiKey.isNotEmpty()) {
-                        append("X-Api-Key", config.apiKey)
-                    } else if (accessToken != null) {
-                        append("Authorization", "Bearer $accessToken")
+                    // 3. 两者都为 null 时，不设置认证头（用于未认证状态）
+                    when {
+                        config.apiKey != null && config.apiKey.isNotEmpty() -> {
+                            append("X-Api-Key", config.apiKey)
+                        }
+                        accessToken != null -> {
+                            append("Authorization", "Bearer $accessToken")
+                        }
+                        else -> {
+                            // 无认证头，用于未认证状态（如签名交换接口）
+                        }
                     }
 
                     append("X-Request-ID", requestIdGenerator())
