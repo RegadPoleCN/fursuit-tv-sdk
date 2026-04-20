@@ -32,13 +32,7 @@ public class SearchApi(
 ) {
     /**
      * 获取热门推荐
-     * 获取当前热门用户列表
-     *
-     * 端点：`GET /api/proxy/furtv/popular`
-     *
-     * 官方文档：[热门推荐](../../../../vds-docs/Fursuit.TV 兽频道/发现与搜索 - 推荐能力/热门推荐（furtv.discovery.popular）.md)
-     *
-     * @return PopularData 包含热门用户列表
+     * @return 热门用户列表
      */
     public suspend fun getPopular(): PopularData {
         val response =
@@ -49,10 +43,8 @@ public class SearchApi(
 
     /**
      * 获取随机推荐
-     * 获取随机推荐的用户列表，支持个性化推荐
-     * 端点：GET /api/proxy/furtv/fursuit/random
      * @param params 随机推荐参数
-     * @return List<RandomFursuit> 随机推荐的用户列表
+     * @return 随机推荐的用户列表
      */
     public suspend fun getRandomFursuit(params: RandomFursuitParams): List<RandomFursuit> {
         val response =
@@ -67,7 +59,7 @@ public class SearchApi(
      * 获取随机推荐（重载方法，保持向后兼容）
      * @param count 返回数量
      * @param personalized 是否个性化推荐
-     * @return List<RandomFursuit> 随机推荐的用户列表
+     * @return 随机推荐的用户列表
      */
     public suspend fun getRandomFursuit(count: Int? = null, personalized: Boolean? = null): List<RandomFursuit> {
         return getRandomFursuit(RandomFursuitParams(count, personalized))
@@ -75,10 +67,8 @@ public class SearchApi(
 
     /**
      * 搜索
-     * 执行搜索操作，支持多种类型和分页
-     * 端点：GET /api/proxy/furtv/search
      * @param params 搜索参数
-     * @return SearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun search(params: SearchParams): SearchData {
         val response =
@@ -97,7 +87,7 @@ public class SearchApi(
      * @param type 搜索类型
      * @param cursor 分页游标
      * @param limit 返回数量限制
-     * @return SearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun search(
         query: String,
@@ -110,10 +100,8 @@ public class SearchApi(
 
     /**
      * 获取搜索建议
-     * 根据关键词获取搜索建议（自动补全）
-     * 端点：GET /api/proxy/furtv/search/suggestions
      * @param query 搜索关键词
-     * @return List<String> 搜索建议列表
+     * @return 搜索建议列表
      */
     public suspend fun getSearchSuggestions(query: String): List<String> {
         val response =
@@ -125,10 +113,8 @@ public class SearchApi(
 
     /**
      * 按物种搜索
-     * 根据物种名称搜索用户
-     * 端点：GET /api/proxy/furtv/search/species/:species
      * @param species 物种名称
-     * @return SpeciesSearchData 搜索结果
+     * @return 搜索结果
      */
     public suspend fun searchBySpecies(species: String): SpeciesSearchData {
         val response =
@@ -139,9 +125,7 @@ public class SearchApi(
 
     /**
      * 获取物种列表
-     * 获取所有物种及相关统计信息
-     * 端点：GET /api/proxy/furtv/species
-     * @return SpeciesListData 物种列表和统计
+     * @return 物种列表和统计
      */
     public suspend fun getSpeciesList(): SpeciesListData {
         val response =
@@ -152,9 +136,7 @@ public class SearchApi(
 
     /**
      * 获取热门地区
-     * 获取用户数量最多的地区列表
-     * 端点：GET /api/proxy/furtv/locations/popular
-     * @return PopularLocationsData 热门地区列表
+     * @return 热门地区列表
      */
     public suspend fun getPopularLocations(): PopularLocationsData {
         val response =
@@ -167,9 +149,7 @@ public class SearchApi(
 
     /**
      * 获取热门推荐（Discovery）
-     * 获取当前热门用户列表
-     * 端点：GET /api/proxy/furtv/discovery/popular
-     * @return DiscoveryPopularData 包含热门用户列表
+     * @return 热门用户列表
      */
     public suspend fun getPopularDiscovery(): DiscoveryPopularData {
         val response =
@@ -180,11 +160,9 @@ public class SearchApi(
 
     /**
      * 获取随机推荐（Discovery）
-     * 获取随机推荐的用户列表，支持个性化推荐
-     * 端点：GET /api/proxy/furtv/discovery/random
      * @param count 返回数量（可选）
      * @param personalized 是否个性化推荐（可选）
-     * @return List<DiscoveryRandomUser> 随机推荐的用户列表
+     * @return 随机推荐的用户列表
      */
     public suspend fun getRandomDiscovery(
         count: Int? = null,
@@ -200,10 +178,8 @@ public class SearchApi(
 
     /**
      * 搜索（Discovery）
-     * 执行搜索操作，支持多种类型和分页
-     * 端点：GET /api/proxy/furtv/discovery/search
      * @param params 搜索参数
-     * @return DiscoverySearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun searchDiscovery(params: DiscoverySearchParams): DiscoverySearchData {
         val response =
@@ -222,7 +198,7 @@ public class SearchApi(
      * @param page 页码（可选，默认 1）
      * @param pageSize 每页数量（可选，默认 20）
      * @param type 搜索类型（可选）
-     * @return DiscoverySearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun searchDiscovery(
         query: String,
@@ -235,10 +211,8 @@ public class SearchApi(
 
     /**
      * 获取搜索建议（Discovery）
-     * 根据关键词获取搜索建议（自动补全）
-     * 端点：GET /api/proxy/furtv/discovery/search/suggestions
      * @param query 搜索关键词
-     * @return List<String> 搜索建议列表
+     * @return 搜索建议列表
      */
     public suspend fun getSearchSuggestionsDiscovery(query: String): List<String> {
         val response =
@@ -250,9 +224,7 @@ public class SearchApi(
 
     /**
      * 获取物种列表（Discovery）
-     * 获取所有物种及相关统计信息
-     * 端点：GET /api/proxy/furtv/discovery/species
-     * @return DiscoverySpeciesData 物种列表和统计
+     * @return 物种列表和统计
      */
     public suspend fun getSpeciesDiscovery(): DiscoverySpeciesData {
         val response =
@@ -263,10 +235,8 @@ public class SearchApi(
 
     /**
      * 按物种搜索（Discovery）
-     * 根据物种 ID 搜索用户，支持分页
-     * 端点：GET /api/proxy/furtv/discovery/species/search
      * @param params 按物种搜索参数
-     * @return DiscoverySpeciesSearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun searchBySpeciesDiscovery(params: DiscoverySpeciesSearchParams): DiscoverySpeciesSearchData {
         val response =
@@ -283,7 +253,7 @@ public class SearchApi(
      * @param speciesId 物种 ID
      * @param page 页码（可选，默认 1）
      * @param pageSize 每页数量（可选，默认 20）
-     * @return DiscoverySpeciesSearchData 搜索结果和分页信息
+     * @return 搜索结果和分页信息
      */
     public suspend fun searchBySpeciesDiscovery(
         speciesId: String,
@@ -295,9 +265,7 @@ public class SearchApi(
 
     /**
      * 获取热门地区（Discovery）
-     * 获取用户数量最多的地区列表
-     * 端点：GET /api/proxy/furtv/discovery/locations/popular
-     * @return DiscoveryPopularLocationsData 热门地区列表
+     * @return 热门地区列表
      */
     public suspend fun getPopularLocationsDiscovery(): DiscoveryPopularLocationsData {
         val response =

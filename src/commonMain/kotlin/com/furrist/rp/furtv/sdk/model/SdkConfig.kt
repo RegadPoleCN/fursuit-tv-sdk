@@ -12,7 +12,7 @@ private const val DEFAULT_MAX_RETRIES = 3
 private const val DEFAULT_RETRY_INTERVAL = 1000L
 
 /**
- * Fursuit.TV SDK 配置
+ * Fursuit.TV SDK 配置。
  *
  * @property baseUrl API 基础 URL
  * @property apiKey API 密钥（可选，签名交换后可为空）
@@ -25,8 +25,6 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * @property enableRetry 是否启用重试
  * @property maxRetries 最大重试次数
  * @property retryInterval 重试间隔（毫秒）
- *
- * @see FursuitTvSdk
  */
 public class SdkConfig internal constructor(
     public val baseUrl: String = DEFAULT_BASE_URL,
@@ -43,7 +41,7 @@ public class SdkConfig internal constructor(
 ) {
     public companion object {
         /**
-         * 为签名交换创建配置
+         * 为签名交换创建配置。
          *
          * @param clientId 应用 ID（格式 vap_xxxx）
          * @param clientSecret 应用密钥
@@ -54,7 +52,7 @@ public class SdkConfig internal constructor(
             SdkConfig(clientId = clientId, clientSecret = clientSecret)
 
         /**
-         * 为已有 apiKey 创建配置
+         * 为已有 apiKey 创建配置。
          *
          * @param apiKey API 密钥
          * @return SdkConfig 实例
@@ -64,10 +62,10 @@ public class SdkConfig internal constructor(
             SdkConfig(apiKey = apiKey)
 
         /**
-         * 使用 DSL 方式创建配置
+         * 使用 DSL 方式创建配置。
          *
          * @param block 配置块
-         * @return 配置好的 SdkConfig 实例
+         * @return SdkConfig 实例
          */
         @JvmStatic
         public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
@@ -76,10 +74,10 @@ public class SdkConfig internal constructor(
 }
 
 /**
- * 使用 DSL 方式创建 SdkConfig
+ * 使用 DSL 方式创建 SdkConfig。
  *
  * @param block 配置块
- * @return 配置好的 SdkConfig 实例
+ * @return SdkConfig 实例
  */
 public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
     SdkConfig.sdkConfig(block)

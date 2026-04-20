@@ -82,14 +82,10 @@ public class AuthManager(
     }
 
     /**
-     * 签名交换 - 使用 clientId + clientSecret 获取令牌
-     *
-     * 端点：POST /api/auth/token
-     *
+     * 使用签名交换获取访问令牌。
      * @param clientId 应用 ID（格式 vap_xxxx）
      * @param clientSecret 应用密钥
      * @return TokenInfo 包含 accessToken 和 apiKey
-     * @throws ClientRequestException 请求失败时抛出
      */
     public suspend fun exchangeToken(clientId: String, clientSecret: String): TokenInfo {
         val response =
@@ -110,9 +106,7 @@ public class AuthManager(
     }
 
     /**
-     * 刷新令牌
-     * 端点：POST /api/auth/token/refresh
-     *
+     * 刷新访问令牌。
      * @return TokenInfo 新的令牌信息
      * @throws TokenExpiredException 如果没有可用的令牌
      */
@@ -220,12 +214,10 @@ public class AuthManager(
     }
 
     /**
-     * 生成 OAuth 授权 URL
-     * 端点：GET /api/proxy/account/sso/authorize
-     *
+     * 生成 OAuth 授权 URL。
      * @param redirectUri 重定向 URI
      * @param scope 权限范围（可选）
-     * @param state 状态参数（可选，用于防止 CSRF 攻击）
+     * @param state 状态参数，用于防止 CSRF 攻击（可选）
      * @param enablePkce 是否启用 PKCE（可选，默认启用）
      * @return 完整的授权 URL
      * @throws IllegalStateException 当缺少 clientId 时抛出
@@ -262,14 +254,11 @@ public class AuthManager(
     }
 
     /**
-     * 使用 OAuth 初始化 SDK
-     * 完整的 OAuth 授权流程：生成参数 → 打开授权页面 → 等待回调 → 交换令牌
-     *
+     * 执行完整的 OAuth 授权流程。
      * @param config OAuth 配置（回调地址、PKCE 等）
      * @param scope 权限范围（可选）
-     * @return TokenInfo 包含访问令牌和刷新令牌
-     * @throws OAuthCallbackException 当回调或令牌交换失败时抛出
-     * @throws IllegalStateException 当缺少 clientId 时抛出
+     * @return TokenInfo 包含 accessToken 和 refreshToken
+     * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
      */
     @Suppress("LongMethod", "ThrowsCount", "MaxLineLength")
     public suspend fun initOAuth(config: OAuthConfig, scope: String? = null): TokenInfo {
@@ -330,14 +319,11 @@ public class AuthManager(
     }
 
     /**
-     * OAuth 令牌交换
-     * 端点：POST /api/proxy/account/sso/token
-     *
-     * @param code 授权码（从 OAuth 授权回调中获取）
+     * 使用授权码交换 OAuth 令牌。
+     * @param code 授权码
      * @param redirectUri 重定向 URI（必须与授权时一致）
-     * @param codeVerifier 可选的 PKCE code_verifier
-     * @return TokenInfo 包含访问令牌和刷新令牌
-     * @throws OAuthCallbackException 当令牌交换失败时抛出
+     * @param codeVerifier PKCE code_verifier（可选）
+     * @return TokenInfo 包含 accessToken 和 refreshToken
      * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
      */
     public suspend fun exchangeOAuthToken(
@@ -382,11 +368,10 @@ public class AuthManager(
     }
 
     /**
-     * 刷新 OAuth 令牌
-     * 端点：POST /api/proxy/account/sso/token
-     *
+     * 刷新 OAuth 令牌。
      * @return TokenInfo 新的令牌信息
-     * @throws TokenExpiredException 如果没有可用的 refresh_token
+     * @throws TokenExpiredException 如果没有可用的 refreshToken
+     * @throws IllegalStateException 当缺少 OAuth 配置时抛出
      */
     @Suppress("ThrowsCount")
     public suspend fun refreshOAuthToken(): TokenInfo {
@@ -427,11 +412,8 @@ public class AuthManager(
     }
 
     /**
-     * 获取用户信息
-     * 端点：GET /api/proxy/account/sso/userinfo
-     *
+     * 获取当前授权用户的详细信息。
      * @return UserInfoData 用户信息
-     * @throws OAuthCallbackException 当认证失败时抛出
      */
     public suspend fun getUserInfo(): UserInfoData {
         val response =

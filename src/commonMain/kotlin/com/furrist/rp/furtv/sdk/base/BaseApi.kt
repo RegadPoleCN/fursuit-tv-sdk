@@ -20,8 +20,7 @@ public class BaseApi(
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
     /**
-     * HelloWorld - 请求验证接口
-     * 端点：GET /api/proxy/base/hello-world
+     * 请求验证接口
      * @return 验证响应
      */
     public suspend fun helloWorld(): HelloWorldResponse {
@@ -31,7 +30,6 @@ public class BaseApi(
 
     /**
      * 健康检查
-     * 端点：GET /api/proxy/furtv/health
      * @return 健康状态响应
      */
     public suspend fun health(): HealthResponse {
@@ -41,7 +39,6 @@ public class BaseApi(
 
     /**
      * 获取 Android 版本信息
-     * 端点：GET /api/proxy/furtv/version/android
      * @return 版本信息数据
      */
     public suspend fun getAndroidVersion(): AndroidVersionData {
@@ -53,8 +50,6 @@ public class BaseApi(
 
     /**
      * 检查 Android 版本更新
-     * 端点：POST /api/proxy/furtv/version/android/check
-     *
      * @param currentVersion 当前版本字符串
      * @param currentVersionCode 当前版本号（可选）
      * @return 版本检查结果
@@ -73,7 +68,6 @@ public class BaseApi(
 
     /**
      * 获取主题包清单
-     * 端点：GET /api/proxy/furtv/theme-packs/manifest
      * @return 主题包清单数据
      */
     public suspend fun getThemePacksManifest(): ThemePacksManifestData {

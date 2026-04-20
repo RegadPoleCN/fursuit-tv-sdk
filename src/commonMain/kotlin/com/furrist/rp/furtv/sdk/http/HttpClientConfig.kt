@@ -20,8 +20,7 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 /**
- * HTTP 客户端配置
- * 创建和配置 Ktor HTTP 客户端，包括序列化、日志、认证、重试等
+ * HTTP 客户端配置，提供 Ktor 客户端的创建和配置功能。
  */
 public object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
@@ -41,12 +40,12 @@ public object HttpClientConfig {
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     /**
-     * 创建配置好的 HTTP 客户端
+     * 创建配置好的 HTTP 客户端。
      *
      * @param config SDK 配置
      * @param accessToken 可选的访问令牌
-     * @param requestIdGenerator 请求 ID 生成器
-     * @return HttpClient 实例
+     * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
+     * @return 配置好的 HttpClient 实例
      */
     public fun createClient(
         config: SdkConfig,
@@ -123,8 +122,8 @@ public object HttpClientConfig {
     }
 
     /**
-     * 验证 HTTP 状态码
-     * 检查响应状态码是否在成功范围内（200-299），如果不是则抛出相应异常
+     * 验证 HTTP 状态码是否在成功范围内（200-299）。
+     *
      * @param statusCode HTTP 响应状态码
      * @throws ApiException 当状态码表示错误时
      */
@@ -136,15 +135,15 @@ public object HttpClientConfig {
     }
 
     /**
-     * 获取错误响应体（简化处理）
-     * 当前实现返回空字符串，实际项目中可从响应中解析错误信息
-     * @return 错误响应体内容，当前为空字符串
+     * 获取错误响应体。
+     *
+     * @return 错误响应体内容，当前实现返回空字符串
      */
     private fun getErrorBody(): String? = ERROR_BODY_EMPTY
 
     /**
-     * 根据状态码抛出相应异常
-     * 将 HTTP 状态码映射为具体的异常类型，便于上层处理
+     * 根据 HTTP 状态码抛出相应异常。
+     *
      * @param statusCode HTTP 响应状态码
      * @param errorBody 错误响应体内容
      * @throws TokenExpiredException 当状态码为 401 时
@@ -176,8 +175,8 @@ public object HttpClientConfig {
     }
 
     /**
-     * 处理响应异常
-     * 将 Ktor 的底层网络异常转换为 SDK 定义的异常类型
+     * 处理响应异常，将 Ktor 底层异常转换为 SDK 定义的异常类型。
+     *
      * @param cause 原始异常
      * @throws NetworkException 当遇到未知异常时
      */
@@ -194,8 +193,8 @@ public object HttpClientConfig {
     }
 
     /**
-     * 生成请求 ID
-     * 生成 16 位随机字符串作为请求 ID，用于日志排查和请求追踪
+     * 生成 16 位随机字符串作为请求 ID。
+     *
      * @return 随机生成的请求 ID，由大小写字母和数字组成
      */
     private fun generateRequestId(): String {

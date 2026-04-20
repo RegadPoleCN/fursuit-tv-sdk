@@ -14,13 +14,10 @@ import io.ktor.client.HttpClient
 import kotlinx.coroutines.runBlocking
 
 /**
- * Fursuit.TV SDK 主客户端
+ * Fursuit.TV SDK 主客户端，提供对平台所有 API 的访问接口。
  *
- * 提供对 Fursuit.TV 平台所有 API 的访问接口。
- * 支持签名交换和 OAuth 两种认证方式。
- *
- * @see SdkConfig 配置类
- * @see AuthManager 认证管理器
+ * @param config SDK 配置
+ * @param tokenInfo 可选的令牌信息
  */
 public class FursuitTvSdk private constructor(
     config: SdkConfig,
@@ -71,12 +68,12 @@ public class FursuitTvSdk private constructor(
 
     public companion object {
         /**
-         * 为签名交换创建 SDK（自动获取令牌）
-         *
-         * @param clientId 应用 ID（格式 vap_xxxx）
-         * @param clientSecret 应用密钥
-         * @return FursuitTvSdk 实例（已自动完成签名交换）
-         */
+     * 为签名交换创建 SDK（自动获取令牌）。
+     *
+     * @param clientId 应用 ID（格式 vap_xxxx）
+     * @param clientSecret 应用密钥
+     * @return FursuitTvSdk 实例
+     */
         @JvmStatic
         public fun createForTokenExchange(clientId: String, clientSecret: String): FursuitTvSdk {
             val config = SdkConfig.forTokenExchange(clientId, clientSecret)
@@ -89,7 +86,7 @@ public class FursuitTvSdk private constructor(
         }
 
         /**
-         * 使用 API 密钥创建 SDK
+         * 使用 API 密钥创建 SDK。
          *
          * @param apiKey VDS 颁发的 API 密钥
          * @return FursuitTvSdk 实例
@@ -99,7 +96,7 @@ public class FursuitTvSdk private constructor(
             FursuitTvSdk(SdkConfig.withApiKey(apiKey))
 
         /**
-         * 使用配置对象创建 SDK
+         * 使用配置对象创建 SDK。
          *
          * @param config SDK 配置
          * @param tokenInfo 可选的令牌信息
@@ -110,7 +107,7 @@ public class FursuitTvSdk private constructor(
             FursuitTvSdk(config, tokenInfo)
 
         /**
-         * 使用 DSL 方式创建 SDK（如配置中包含 clientId + clientSecret，自动获取令牌）
+         * 使用 DSL 方式创建 SDK（如配置中包含 clientId + clientSecret，自动获取令牌）。
          *
          * @param block 配置块
          * @return FursuitTvSdk 实例
@@ -136,7 +133,7 @@ public class FursuitTvSdk private constructor(
 }
 
 /**
- * 使用 DSL 方式创建 FursuitTvSdk
+ * 使用 DSL 方式创建 FursuitTvSdk。
  *
  * @param block 配置块
  * @return FursuitTvSdk 实例
