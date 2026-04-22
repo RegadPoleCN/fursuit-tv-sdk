@@ -102,12 +102,12 @@ public object Sha256 {
 
             // 主循环
             for (i in 0 until 64) {
-                val S1 = rotr(e, 6) xor rotr(e, 11) xor rotr(e, 25)
+                val s1 = rotr(e, 6) xor rotr(e, 11) xor rotr(e, 25)
                 val ch = (e and f) xor (e.inv() and g)
-                val temp1 = hh + S1 + ch + K[i] + w[i]
-                val S0 = rotr(a, 2) xor rotr(a, 13) xor rotr(a, 22)
+                val temp1 = hh + s1 + ch + K[i] + w[i]
+                val s0 = rotr(a, 2) xor rotr(a, 13) xor rotr(a, 22)
                 val maj = (a and b) xor (a and c) xor (b and c)
-                val temp2 = S0 + maj
+                val temp2 = s0 + maj
 
                 hh = g
                 g = f

@@ -75,7 +75,8 @@ public data class TokenData(
  */
 @Serializable
 public data class TokenRefreshRequest(
-    val dummy: String? = null, // 占位符，实际不会发送
+    // 占位符，实际不会发送
+    val dummy: String? = null,
 )
 
 /**
@@ -281,22 +282,24 @@ public data class TokenInfo(
  *
  * @return 包含访问令牌、API 密钥和过期时间的令牌信息
  */
-public fun TokenData.toTokenInfo(): TokenInfo = TokenInfo(
-    accessToken = accessToken,
-    apiKey = apiKey,
-    expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
-    tokenType = tokenType,
-)
+public fun TokenData.toTokenInfo(): TokenInfo =
+    TokenInfo(
+        accessToken = accessToken,
+        apiKey = apiKey,
+        expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
+        tokenType = tokenType,
+    )
 
 /**
  * 将 OAuth 令牌数据转换为 TokenInfo。
  *
  * @return 包含访问令牌和过期时间的令牌信息（apiKey 为空字符串）
  */
-public fun OAuthTokenData.toTokenInfo(): TokenInfo = TokenInfo(
-    accessToken = accessToken,
-    apiKey = "",
-    expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
-    tokenType = tokenType,
-    refreshToken = refreshToken,
-)
+public fun OAuthTokenData.toTokenInfo(): TokenInfo =
+    TokenInfo(
+        accessToken = accessToken,
+        apiKey = "",
+        expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
+        tokenType = tokenType,
+        refreshToken = refreshToken,
+    )

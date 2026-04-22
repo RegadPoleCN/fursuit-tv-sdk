@@ -263,17 +263,18 @@ public class AuthManager(
     @Suppress("LongMethod", "ThrowsCount", "MaxLineLength")
     public suspend fun initOAuth(config: OAuthConfig, scope: String? = null): TokenInfo {
         // From SDK config, get clientId and clientSecret
-        val clientId = this.config.clientId
-            ?: throw IllegalStateException("clientId is required for OAuth")
-        val clientSecret = this.config.clientSecret
-            ?: throw IllegalStateException("clientSecret is required for OAuth")
+        val clientId =
+            this.config.clientId ?: throw IllegalStateException("clientId is required for OAuth")
+        val clientSecret =
+            this.config.clientSecret ?: throw IllegalStateException("clientSecret is required for OAuth")
 
-        val serverConfig = OAuthCallbackServerConfig(
-            callbackHost = config.callbackHost,
-            callbackPort = config.callbackPort,
-            callbackPath = config.callbackPath,
-            timeoutSeconds = config.stateTimeoutMinutes * 60L,
-        )
+        val serverConfig =
+            OAuthCallbackServerConfig(
+                callbackHost = config.callbackHost,
+                callbackPort = config.callbackPort,
+                callbackPath = config.callbackPath,
+                timeoutSeconds = config.stateTimeoutMinutes * 60L,
+            )
         val handler = OAuthCallbackHandler(serverConfig)
 
         val state = Random.nextBytes(16).toHex()
@@ -286,12 +287,13 @@ public class AuthManager(
         }
 
         // 生成授权 URL（自动从 SDK 配置获取 clientId）
-        val authorizeUrl = getOAuthAuthorizeUrl(
-            redirectUri = redirectUri,
-            scope = scope,
-            state = state,
-            enablePkce = config.enablePkce,
-        )
+        val authorizeUrl =
+            getOAuthAuthorizeUrl(
+                redirectUri = redirectUri,
+                scope = scope,
+                state = state,
+                enablePkce = config.enablePkce,
+            )
 
         // 等待回调（handler 会处理打开浏览器等逻辑）
         val result = handler.startAndGetCallback(authorizeUrl)
@@ -398,9 +400,10 @@ public class AuthManager(
                 )
             }.body<OAuthTokenResponse>()
 
-        val newTokenInfo = response.data.toTokenInfo().copy(
-            refreshToken = response.data.refreshToken ?: tokenInfo?.refreshToken,
-        )
+        val newTokenInfo =
+            response.data.toTokenInfo().copy(
+                refreshToken = response.data.refreshToken ?: tokenInfo?.refreshToken,
+            )
 
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
