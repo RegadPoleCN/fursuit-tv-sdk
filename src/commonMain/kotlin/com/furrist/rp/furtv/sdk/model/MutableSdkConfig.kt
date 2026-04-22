@@ -29,17 +29,31 @@ public class MutableSdkConfig {
     public var maxRetries: Int = DEFAULT_MAX_RETRIES
     public var retryInterval: Long = DEFAULT_RETRY_INTERVAL
 
-    internal fun toImmutable(): SdkConfig = SdkConfig(
-        baseUrl = baseUrl,
-        apiKey = apiKey,
-        clientId = clientId,
-        clientSecret = clientSecret,
-        requestTimeout = requestTimeout,
-        connectTimeout = connectTimeout,
-        socketTimeout = socketTimeout,
-        logLevel = logLevel,
-        enableRetry = enableRetry,
-        maxRetries = maxRetries,
-        retryInterval = retryInterval,
-    )
+    /** 链式 Builder 方法 */
+    public fun baseUrl(url: String): MutableSdkConfig = apply { this.baseUrl = url }
+    public fun apiKey(key: String): MutableSdkConfig = apply { this.apiKey = key }
+    public fun clientId(id: String): MutableSdkConfig = apply { this.clientId = id }
+    public fun clientSecret(secret: String): MutableSdkConfig = apply { this.clientSecret = secret }
+    public fun requestTimeout(timeout: Long): MutableSdkConfig = apply { this.requestTimeout = timeout }
+    public fun connectTimeout(timeout: Long): MutableSdkConfig = apply { this.connectTimeout = timeout }
+    public fun socketTimeout(timeout: Long): MutableSdkConfig = apply { this.socketTimeout = timeout }
+    public fun logLevel(level: LogLevel): MutableSdkConfig = apply { this.logLevel = level }
+    public fun enableRetry(enable: Boolean): MutableSdkConfig = apply { this.enableRetry = enable }
+    public fun maxRetries(retries: Int): MutableSdkConfig = apply { this.maxRetries = retries }
+    public fun retryInterval(interval: Long): MutableSdkConfig = apply { this.retryInterval = interval }
+
+    internal fun toImmutable(): SdkConfig =
+        SdkConfig(
+            baseUrl = baseUrl,
+            apiKey = apiKey,
+            clientId = clientId,
+            clientSecret = clientSecret,
+            requestTimeout = requestTimeout,
+            connectTimeout = connectTimeout,
+            socketTimeout = socketTimeout,
+            logLevel = logLevel,
+            enableRetry = enableRetry,
+            maxRetries = maxRetries,
+            retryInterval = retryInterval,
+        )
 }

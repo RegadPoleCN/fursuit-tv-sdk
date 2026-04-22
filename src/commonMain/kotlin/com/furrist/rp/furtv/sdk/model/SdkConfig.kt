@@ -1,7 +1,6 @@
 package com.furrist.rp.furtv.sdk.model
 
 import io.ktor.client.plugins.logging.LogLevel
-import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 private const val DEFAULT_BASE_URL = "https://open-global.vdsentnet.com"
@@ -70,6 +69,14 @@ public class SdkConfig internal constructor(
         @JvmStatic
         public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
             SdkConfig().apply(block)
+
+        /**
+         * 创建 Builder 实例用于链式配置。
+         *
+         * @return MutableSdkConfig 实例，支持链式调用后通过 [MutableSdkConfig.toImmutable] 转换
+         */
+        @JvmStatic
+        public fun builder(): MutableSdkConfig = MutableSdkConfig()
     }
 }
 
