@@ -121,22 +121,40 @@ public data class OAuthAuthorizeParams(
 )
 
 /**
- * OAuth 配置，用于配置 OAuth 回调参数。
+ * OAuth 2.0 授权码流程配置。
  *
- * @param callbackHost 回调主机，默认为 "localhost"
- * @param callbackPort 回调端口，默认为 8080
- * @param callbackPath 回调路径，默认为 "/callback"
- * @param stateTimeoutMinutes 状态超时时间（分钟），默认为 10
- * @param enablePkce 是否启用 PKCE，默认为 false
+ * 控制回调服务器的行为，所有参数都有合理默认值。
+ *
+ * @param callbackHost 回调地址（默认 "localhost"）
+ * @param callbackPort 回调端口（默认 8080，范围 1-65535）
+ * @param callbackPath 回调路径（默认 "/callback"，必须以 "/" 开头）
+ * @param stateTimeoutMinutes 超时时间（默认 5 分钟）
+ * @param enablePkce 是否启用 PKCE 安全增强
+ *
+ * @throws IllegalArgumentException 参数验证失败
  */
 @Serializable
 public data class OAuthConfig(
-    public val callbackHost: String = "localhost",
-    public val callbackPort: Int = 8080,
-    public val callbackPath: String = "/callback",
-    public val stateTimeoutMinutes: Int = 10,
+    public val callbackHost: String = DEFAULT_CALLBACK_HOST,
+    public val callbackPort: Int = DEFAULT_CALLBACK_PORT,
+    public val callbackPath: String = DEFAULT_CALLBACK_PATH,
+    public val stateTimeoutMinutes: Int = DEFAULT_STATE_TIMEOUT_MINUTES,
     public val enablePkce: Boolean = false,
-)
+) {
+    init {
+        require(callbackPort in 1..65535) { "callbackPort must be between 1 and 65535" }
+        require(callbackPath.startsWith("/")) { "callbackPath must start with '/'" }
+        require(stateTimeoutMinutes > 0) { "stateTimeoutMinutes must be positive" }
+        require(callbackHost.isNotBlank()) { "callbackHost must not be blank" }
+    }
+
+    companion object {
+        const val DEFAULT_CALLBACK_HOST = "localhost"
+        const val DEFAULT_CALLBACK_PORT = 8080
+        const val DEFAULT_CALLBACK_PATH = "/callback"
+        const val DEFAULT_STATE_TIMEOUT_MINUTES = 5
+    }
+}
 
 /**
  * OAuth 令牌请求，用于 OAuth 令牌交换接口。

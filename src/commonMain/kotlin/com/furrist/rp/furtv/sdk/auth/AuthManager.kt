@@ -214,6 +214,23 @@ public class AuthManager(
     }
 
     /**
+     * Generate PKCE parameters if enabled.
+     * @param enablePkce Whether to enable PKCE (Proof Key for Code Exchange)
+     * @return PkceParameters if enabled, null otherwise
+     */
+    private fun generatePkceParameters(enablePkce: Boolean): PkceParameters? {
+        if (!enablePkce) return null
+
+        val codeVerifier = generateCodeVerifier()
+        val codeChallenge = generateCodeChallenge(codeVerifier)
+
+        return PkceParameters(
+            codeVerifier = codeVerifier,
+            codeChallenge = codeChallenge,
+        )
+    }
+
+    /**
      * 生成 OAuth 授权 URL。
      * @param redirectUri 重定向 URI
      * @param scope 权限范围（可选）
@@ -227,16 +244,15 @@ public class AuthManager(
         scope: String? = null,
         state: String? = null,
         enablePkce: Boolean = true,
+        codeChallenge: String? = null,
     ): String {
         val clientId = config.clientId ?: throw IllegalStateException("clientId is not configured in SDK")
 
-        var codeVerifier: String? = null
-        var codeChallenge: String? = null
+        var effectiveCodeChallenge: String? = null
         var codeChallengeMethod: String? = null
 
         if (enablePkce) {
-            codeVerifier = generateCodeVerifier()
-            codeChallenge = generateCodeChallenge(codeVerifier)
+            effectiveCodeChallenge = codeChallenge ?: generatePkceParameters(true)?.codeChallenge
             codeChallengeMethod = "SHA256"
         }
 
@@ -247,77 +263,137 @@ public class AuthManager(
                 append("&response_type=code")
                 scope?.let { append("&scope=$it") }
                 state?.let { append("&state=$it") }
-                codeChallenge?.let { append("&code_challenge=$it") }
+                effectiveCodeChallenge?.let { append("&code_challenge=$it") }
                 codeChallengeMethod?.let { append("&code_challenge_method=$it") }
             }
         return "${config.baseUrl}/api/proxy/account/sso/authorize$queryParams"
     }
 
     /**
-     * 执行完整的 OAuth 授权流程。
-     * @param config OAuth 配置（回调地址、PKCE 等）
+     * 执行 OAuth 2.0 授权码流程（自动处理回调）。
+     *
+     * 自动启动本地服务器接收回调，完成授权后交换令牌。
+     *
+     * @param config 回调服务器配置
      * @param scope 权限范围（可选）
-     * @return TokenInfo 包含 accessToken 和 refreshToken
-     * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
+     * @return TokenInfo 令牌信息
+     * @throws IllegalStateException 缺少 clientId/clientSecret
+     * @throws OAuthCallbackException 授权失败（超时、state 不匹配等）
      */
     @Suppress("LongMethod", "ThrowsCount", "MaxLineLength")
     public suspend fun initOAuth(config: OAuthConfig, scope: String? = null): TokenInfo {
-        // From SDK config, get clientId and clientSecret
-        val clientId =
-            this.config.clientId ?: throw IllegalStateException("clientId is required for OAuth")
-        val clientSecret =
-            this.config.clientSecret ?: throw IllegalStateException("clientSecret is required for OAuth")
+        // Step 1: Validate configuration
+        validateOAuthConfiguration(config)
 
-        val serverConfig =
-            OAuthCallbackServerConfig(
-                callbackHost = config.callbackHost,
-                callbackPort = config.callbackPort,
-                callbackPath = config.callbackPath,
-                timeoutSeconds = config.stateTimeoutMinutes * 60L,
-            )
-        val handler = OAuthCallbackHandler(serverConfig)
+        // Step 2: Create callback handler
+        val handler = createOAuthCallbackHandler(config)
 
+        // Step 3: Generate authorization URL and parameters
+        val authParams = generateAuthorizationParams(handler, config, scope)
+
+        try {
+            // Step 4: Wait for OAuth callback
+            val result = handler.startAndGetCallback(authParams.authorizeUrl)
+
+            // Step 5: Process result and exchange token
+            return when (result) {
+                is OAuthCallbackResult.Success -> {
+                    if (result.state != authParams.state) {
+                        throw OAuthCallbackException(
+                            "State mismatch: expected ${authParams.state}, got ${result.state}",
+                        )
+                    }
+                    exchangeOAuthToken(
+                        code = result.code,
+                        redirectUri = authParams.redirectUri,
+                        codeVerifier = authParams.codeVerifier,
+                    )
+                }
+                is OAuthCallbackResult.Error -> {
+                    throw OAuthCallbackException(result.message, result.cause)
+                }
+            }
+        } finally {
+            handler.stop()
+        }
+    }
+
+    /**
+     * 验证 OAuth 配置的必要参数
+     * @param config OAuth 配置
+     * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
+     */
+    private fun validateOAuthConfiguration(config: OAuthConfig) {
+        this.config.clientId ?: throw IllegalStateException("clientId is required for OAuth")
+        this.config.clientSecret ?: throw IllegalStateException("clientSecret is required for OAuth")
+    }
+
+    /**
+     * 创建 OAuth 回调处理器
+     * @param config OAuth 配置
+     * @return OAuthCallbackHandler 实例
+     */
+    private fun createOAuthCallbackHandler(config: OAuthConfig): OAuthCallbackHandler {
+        val serverConfig = OAuthCallbackServerConfig(
+            callbackHost = config.callbackHost,
+            callbackPort = config.callbackPort,
+            callbackPath = config.callbackPath,
+            timeoutSeconds = config.stateTimeoutMinutes * 60L,
+        )
+        return OAuthCallbackHandler(serverConfig)
+    }
+
+    /**
+     * PKCE (Proof Key for Code Exchange) parameters for OAuth security.
+     * @property codeVerifier The random verifier generated by client
+     * @property codeChallenge The SHA256 hash of codeVerifier, base64url encoded
+     */
+    private data class PkceParameters(
+        val codeVerifier: String,
+        val codeChallenge: String,
+    )
+
+    /**
+     * 授权参数数据类
+     */
+    private data class AuthorizationParams(
+        val authorizeUrl: String,
+        val state: String,
+        val codeVerifier: String?,
+        val redirectUri: String,
+    )
+
+    /**
+     * 生成授权 URL 及相关参数（state、codeVerifier、redirectUri）
+     * @param handler OAuth 回调处理器
+     * @param config OAuth 配置
+     * @param scope 权限范围（可选）
+     * @return AuthorizationParams 包含所有授权所需参数
+     */
+    private suspend fun generateAuthorizationParams(
+        handler: OAuthCallbackHandler,
+        config: OAuthConfig,
+        scope: String?,
+    ): AuthorizationParams {
         val state = Random.nextBytes(16).toHex()
         val redirectUri = handler.callbackUrl
 
-        // 生成 PKCE 参数（如果启用）
-        var codeVerifier: String? = null
-        if (config.enablePkce) {
-            codeVerifier = generateCodeVerifier()
-        }
+        val pkceParams = generatePkceParameters(config.enablePkce)
 
-        // 生成授权 URL（自动从 SDK 配置获取 clientId）
-        val authorizeUrl =
-            getOAuthAuthorizeUrl(
-                redirectUri = redirectUri,
-                scope = scope,
-                state = state,
-                enablePkce = config.enablePkce,
-            )
+        val authorizeUrl = getOAuthAuthorizeUrl(
+            redirectUri = redirectUri,
+            scope = scope,
+            state = state,
+            enablePkce = config.enablePkce,
+            codeChallenge = pkceParams?.codeChallenge,
+        )
 
-        // 等待回调（handler 会处理打开浏览器等逻辑）
-        val result = handler.startAndGetCallback(authorizeUrl)
-
-        return when (result) {
-            is OAuthCallbackResult.Success -> {
-                // 验证 state
-                if (result.state != state) {
-                    throw OAuthCallbackException(
-                        "State mismatch: expected $state, got ${result.state}",
-                    )
-                }
-
-                // 交换令牌（自动从 SDK 配置获取 clientId 和 clientSecret）
-                exchangeOAuthToken(
-                    code = result.code,
-                    redirectUri = redirectUri,
-                    codeVerifier = codeVerifier,
-                )
-            }
-            is OAuthCallbackResult.Error -> {
-                throw OAuthCallbackException(result.message, result.cause)
-            }
-        }
+        return AuthorizationParams(
+            authorizeUrl = authorizeUrl,
+            state = state,
+            codeVerifier = pkceParams?.codeVerifier,
+            redirectUri = redirectUri,
+        )
     }
 
     /**

@@ -1,244 +1,176 @@
 # OAuth 完整指南
 
-本指南详细介绍如何在 Fursuit.TV SDK 中使用 OAuth 2.0 授权流程。
+本指南介绍如何在 Fursuit.TV SDK 中使用 OAuth 2.0 授权。
 
 ## 目录
 
-1. [OAuth 2.0 简介](#oauth-20-简介)
-2. [授权流程概览](#授权流程概览)
-3. [准备工作](#准备工作)
-4. [标准授权流程](#标准授权流程)
-5. [PKCE 授权流程](#pkce-授权流程)
-6. [令牌管理](#令牌管理)
-7. [获取用户信息](#获取用户信息)
+1. [快速开始](#快速开始)
+2. [配置说明](#配置说明)
+3. [令牌管理](#令牌管理)
+4. [安全最佳实践](#安全最佳实践)
+5. [错误处理](#错误处理)
 
-## OAuth 2.0 简介
+## 快速开始
 
-OAuth 2.0 允许用户授权第三方应用访问其资源，而无需分享凭据。
-
-### 核心概念
-
-| 术语 | 说明 |
-|------|------|
-| **Client** | 客户端应用（你的应用） |
-| **Authorization Server** | 授权服务器（VDS） |
-| **Access Token** | 访问令牌，用于 API 调用 |
-| **Refresh Token** | 刷新令牌，用于获取新的 Access Token |
-| **Scope** | 权限范围 |
-
-## 授权流程概览
-
-```
-1. 用户 → 客户端：启动授权
-2. 客户端 → 授权服务器：重定向到授权页
-3. 用户 → 授权服务器：登录并授权
-4. 授权服务器 → 客户端：回调带 authorization code
-5. 客户端 → 授权服务器：code 换 token
-6. 客户端 → 资源服务器：使用 token 调用 API
-```
-
-## 准备工作
-
-### 1. 注册应用
-
-在 VDS 开放平台注册应用，获取：
-- `clientId`（应用 ID，格式 `vap_xxxx`）
-- `clientSecret`（应用密钥）
-- 配置回调 URI
-
-### 2. 配置回调 URI
-
-| 平台 | 示例 |
-|------|------|
-| Web | `https://yourapp.com/callback` |
-| iOS | `yourapp://callback` |
-| Android | `yourapp://callback/oauth` |
-
-### 3. 初始化 SDK
+### 基础用法
 
 ```kotlin
 val sdk = fursuitTvSdk {
     clientId = "vap_xxxxxxxxxxxxxxxx"
     clientSecret = "your-app-secret"
 }
-```
 
-## 标准授权流程
-
-### 步骤 1：生成授权 URL
-
-```kotlin
-val authUrl = sdk.auth.getOAuthAuthorizeUrl(
-    redirectUri = "https://yourapp.com/callback",
-    scope = "user.profile",
-    state = "random-state-123",  // 防止 CSRF
-    enablePkce = false
-)
-```
-
-### 步骤 2：引导用户授权
-
-#### Web 应用
-
-```kotlin
-// Ktor 示例
-get("/login") {
-    val authUrl = sdk.auth.getOAuthAuthorizeUrl(
-        redirectUri = "https://yourapp.com/callback",
-        state = generateState()
-    )
-    call.respondRedirect(authUrl)
+try {
+    val tokenInfo = sdk.auth.initOAuth(OAuthConfig())
+    println("授权成功！")
+} catch (e: OAuthCallbackException) {
+    println("失败: ${e.message}")
+} finally {
+    sdk.close()
 }
 ```
 
-### 步骤 3：处理回调并获取 Token
+### 自定义配置
+
+| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| `callbackHost` | `"localhost"` | 回调地址 |
+| `callbackPort` | `8080` | 端口 (1-65535) |
+| `stateTimeoutMinutes` | `5` | 超时时间（分钟） |
+| `enablePkce` | `false` | 启用 PKCE（移动端推荐） |
 
 ```kotlin
-get("/callback") {
-    val code = call.parameters["code"]
-    val state = call.parameters["state"]
-    
-    // 验证 state
-    if (!validateState(state)) {
-        throw SecurityException("Invalid state")
-    }
-    
-    // 换取 token
-    val tokenInfo = sdk.auth.exchangeOAuthToken(
-        code = code,
-        redirectUri = "https://yourapp.com/callback"
-    )
-    
-    // 保存 token
-    saveToken(tokenInfo)
-}
-```
-
-## PKCE 授权流程
-
-PKCE（Proof Key for Code Exchange）增强移动端安全性。
-
-### 完整流程
-
-```kotlin
-// 1. 生成 PKCE 参数
-val codeVerifier = generateCodeVerifier()
-val codeChallenge = generateCodeChallenge(codeVerifier)
-
-// 2. 生成授权 URL（启用 PKCE）
-val authUrl = sdk.auth.getOAuthAuthorizeUrl(
-    redirectUri = "my-app://callback",
-    scope = "user.profile",
-    state = generateState(),
+val config = OAuthConfig(
+    callbackPort = 9000,
     enablePkce = true
 )
-
-// 3. 保存 codeVerifier（用于后续换取 token）
-saveCodeVerifier(codeVerifier)
-
-// 4. 引导用户到 authUrl 授权
-
-// 5. 处理回调
-val code = intent.data?.getQueryParameter("code")
-val tokenInfo = sdk.auth.exchangeOAuthToken(
-    code = code,
-    redirectUri = "my-app://callback",
-    codeVerifier = codeVerifier  // 传入 codeVerifier
-)
+val tokenInfo = sdk.auth.initOAuth(config, scope = "user.profile")
 ```
+
+### ⚠️ 使用要点
+
+- **阻塞调用**：挂起函数，等待用户完成授权或超时
+- **自动管理**：本地服务器自动启动/关闭，无需手动处理
+- **资源释放**：务必在 `finally` 中调用 `sdk.close()`
+
+---
+
+## 配置说明
+
+### 参数验证规则
+
+所有参数在构造时验证，无效时抛出 `IllegalArgumentException`：
+
+```kotlin
+// ✅ 有效
+OAuthConfig(callbackPort = 8080, callbackPath = "/callback")
+
+// ❌ 无效
+OAuthConfig(callbackPort = 0)           // 端口范围错误
+OAuthConfig(callbackPath = "callback")  // 路径缺少 "/"
+OAuthConfig(stateTimeoutMinutes = 0)    // 超时必须 > 0
+OAuthConfig(callbackHost = "")          // 地址不能为空
+```
+
+### 配置类对比
+
+| 类名 | 用途 | 主要参数 |
+|------|------|---------|
+| `OAuthConfig` | 用户配置 | callbackHost/Port/Path, timeoutMinutes, enablePkce |
+| `OAuthCallbackServerConfig` | 内部服务器配置 | callbackHost/Port/Path, timeoutSeconds |
+
+> 💡 通常只需使用 `OAuthConfig`，内部会自动转换为 `OAuthCallbackServerConfig`。
+
+---
 
 ## 令牌管理
 
 ### 保存 Token
 
 ```kotlin
-class TokenStorage {
-    fun saveToken(tokenInfo: TokenInfo) {
-        // 使用加密存储
-        encryptedPrefs.edit()
-            .putString("access_token", tokenInfo.accessToken)
-            .putString("refresh_token", tokenInfo.refreshToken)
-            .putLong("expires_at", tokenInfo.expiresAt)
-            .apply()
-    }
-}
+// TokenInfo 包含所有必要信息
+tokenInfo.accessToken   // 访问令牌
+tokenInfo.refreshToken   // 刷新令牌（可为 null）
+tokenInfo.expiresAt      // 过期时间戳（毫秒）
 ```
 
 ### 刷新 Token
 
+SDK 自动管理令牌刷新（剩余有效期 ≤ 5 分钟时自动刷新）：
+
 ```kotlin
-suspend fun refreshTokenIfNeeded(): Boolean {
-    val tokenInfo = loadToken() ?: return false
-    
-    // 提前 5 分钟刷新
-    if (tokenInfo.expiresAt - System.currentTimeMillis() < 300_000) {
-        val newTokenInfo = sdk.auth.refreshOAuthToken()
-        saveToken(newTokenInfo)
-        return true
-    }
-    
-    return true
+// 方式 1：使用 getValidAccessToken() 自动刷新
+val validToken = sdk.auth.getValidAccessToken(clientId, clientSecret)
+
+// 方式 2：手动检查并刷新
+if (tokenInfo.isExpired()) {
+    val newTokenInfo = sdk.auth.refreshOAuthToken()
 }
 ```
 
-## 获取用户信息
+### 获取用户信息
 
 ```kotlin
-suspend fun getUserInfo(): UserInfo {
-    // 确保 token 有效
-    if (!refreshTokenIfNeeded()) {
-        throw IllegalStateException("No valid token")
-    }
-    
-    // 使用 oauthToken 获取用户信息
-    return sdk.auth.getUserInfo()
-}
-
-// 使用示例
-val userInfo = getUserInfo()
-println("用户：${userInfo.displayName}")
-println("UID: ${userInfo.uid}")
+val userInfo = sdk.auth.getUserInfo()
+println("用户：${userInfo.nickname}")
+println("UID：${userInfo.sub}")
 ```
 
-## 移动端 OAuth
+> 📖 详细 API 文档见 [API 参考](api/auth.md)
 
-### Android
-
-```kotlin
-// AndroidManifest.xml
-<activity android:name=".OAuthCallbackActivity">
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <data android:scheme="my-app" android:host="callback" />
-    </intent-filter>
-</activity>
-```
-
-### iOS
-
-```swift
-// Info.plist
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleURLSchemes</key>
-    <array>
-      <string>my-app</string>
-    </array>
-  </dict>
-</array>
-```
+---
 
 ## 安全最佳实践
 
-1. **始终使用 HTTPS**（生产环境）
-2. **验证 state 参数**（防止 CSRF）
-3. **移动端启用 PKCE**（防止授权码劫持）
-4. **加密存储 token**（不使用明文）
-5. **定期轮换密钥**（clientSecret）
+1. **移动端启用 PKCE** (`enablePkce = true`)
+2. **生产环境使用 HTTPS**
+3. **加密存储 Token**（不使用明文）
+4. **定期轮换密钥**（clientSecret）
+
+---
+
+## 错误处理
+
+### 常见异常
+
+| 异常类型 | 场景 | 处理建议 |
+|---------|------|---------|
+| `IllegalStateException` | 缺少 clientId/clientSecret | 检查 SDK 初始化配置 |
+| `OAuthCallbackException` | 授权失败 | 查看消息内容定位原因 |
+
+### 授权失败场景
+
+| 场景 | 错误信息关键词 | 建议 |
+|------|--------------|------|
+| 用户超时未授权 | `timeout` | 提示用户重试或延长超时 |
+| 端口被占用 | `port.*in use` | 更换端口 |
+| State 不匹配 | `State mismatch` | 检查代码逻辑（理论上不应发生） |
+| 协程取消 | 抛出 `CancellationException` | 正常取消流程 |
+
+### 错误处理示例
+
+```kotlin
+try {
+    val tokenInfo = sdk.auth.initOAuth(config)
+} catch (e: IllegalStateException) {
+    // 配置错误
+    logger.error("初始化错误: ${e.message}")
+} catch (e: OAuthCallbackException) {
+    // 授权失败
+    when {
+        e.message?.contains("timeout") == true -> showTimeoutDialog()
+        e.message?.contains("port") == true -> changePortAndRetry()
+        else -> showError(e.message ?: "未知错误")
+    }
+} finally {
+    sdk.close()
+}
+```
+
+---
 
 ## 相关文档
 
-- [最佳实践](best-practices.md) - OAuth 安全实践
-- [错误处理](error-handling.md) - OAuth 错误处理
+- [API 参考](api/auth.md) - 完整 API 文档
+- [最佳实践](best-practices.md) - 安全实践详解
+- [错误处理](error-handling.md) - 错误处理策略
