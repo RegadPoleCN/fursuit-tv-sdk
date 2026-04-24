@@ -22,7 +22,11 @@ public class FursuitTvSdk private constructor(
     config: SdkConfig,
     tokenInfo: TokenInfo? = null,
 ) {
-    private var httpClient: HttpClient = HttpClientConfig.createClient(config, tokenInfo?.accessToken)
+    private var httpClient: HttpClient = HttpClientConfig.createClient(
+        config,
+        // 优先使用 apiKey（X-Api-Key 头，服务端优先处理），回退到 accessToken
+        tokenInfo?.takeIf { it.apiKey.isNotEmpty() }?.apiKey ?: tokenInfo?.accessToken
+    )
     private val config: SdkConfig = config
 
     /**
