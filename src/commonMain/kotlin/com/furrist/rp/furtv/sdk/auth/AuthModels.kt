@@ -5,6 +5,26 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
+ * VDS 认证系统使用三种类型的凭证：
+ *
+ * 1. 应用凭证 (App Credentials)
+ *    - 字段: clientId + clientSecret
+ *    - 用途: 调用签名交换接口 (/api/auth/token)
+ *    - 来源: VDS 开发者控制台
+ *
+ * 2. 平台签名 (Platform Signature / 开放平台签名)
+ *    - 通过 /api/auth/token 获取
+ *    - 包含: accessToken + apiKey
+ *    - accessToken用途: OAuth接口认证(Bearer) + 用户信息查询(Bearer) + 业务API(Bearer备选)
+ *    - apiKey用途: 业务API(X-Api-Key, 推荐)
+ *
+ * 3. OAuth 用户令牌 (OAuth User Token)
+ *    - 通过 OAuth 2.0 授权码流程获取
+ *    - 用途: 仅用于 X-OAuth-Access-Token 头（用户信息查询）
+ *    - ⚠️ 不可用于 Authorization: Bearer 头
+ */
+
+/**
  * 签名交换请求，用于获取 apiKey/accessToken。
  *
  * @param clientId 应用 ID（格式 vap_xxxx），与 appId 等价
@@ -148,11 +168,11 @@ public data class OAuthConfig(
         require(callbackHost.isNotBlank()) { "callbackHost must not be blank" }
     }
 
-    companion object {
-        const val DEFAULT_CALLBACK_HOST = "localhost"
-        const val DEFAULT_CALLBACK_PORT = 8080
-        const val DEFAULT_CALLBACK_PATH = "/callback"
-        const val DEFAULT_STATE_TIMEOUT_MINUTES = 5
+    public companion object {
+        public const val DEFAULT_CALLBACK_HOST: String = "localhost"
+        public const val DEFAULT_CALLBACK_PORT: Int = 8080
+        public const val DEFAULT_CALLBACK_PATH: String = "/callback"
+        public const val DEFAULT_STATE_TIMEOUT_MINUTES: Int = 5
     }
 }
 

@@ -45,6 +45,9 @@ public class AuthManager(
     private var oauthClientId: String? = null
     private var oauthRedirectUri: String? = null
 
+    // 平台签名（签名交换获取），用于 OAuth 接口的 Authorization Bearer 认证头
+    private var platformAccessToken: String? = null
+
     /**
      * 获取当前访问令牌
      * @return 当前访问令牌，如果未认证则返回 null
@@ -82,10 +85,14 @@ public class AuthManager(
     }
 
     /**
-     * 使用签名交换获取访问令牌。
-     * @param clientId 应用 ID（格式 vap_xxxx）
-     * @param clientSecret 应用密钥
-     * @return TokenInfo 包含 accessToken 和 apiKey
+     * 使用应用凭证（clientId + clientSecret）进行签名交换，获取**平台签名**。
+     *
+     * 平台签名包含 accessToken 和 apiKey，是后续 OAuth 流程的前置步骤。
+     * 调用成功后，内部会自动保存 platformAccessToken 字段供 OAuth 接口使用。
+     *
+     * @param clientId 应用 ID（格式 vap_xxxx），来自 VDS 开发者控制台
+     * @param clientSecret 应用密钥，来自 VDS 开发者控制台
+     * @return 平台签名（TokenInfo），包含 accessToken 和 apiKey
      */
     public suspend fun exchangeToken(clientId: String, clientSecret: String): TokenInfo {
         val response =
@@ -99,6 +106,7 @@ public class AuthManager(
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
             isOAuthToken = false // 标记为非 OAuth 令牌
+            platformAccessToken = newTokenInfo.accessToken
             updateHttpClient()
         }
 
@@ -397,12 +405,20 @@ public class AuthManager(
     }
 
     /**
-     * 使用授权码交换 OAuth 令牌。
-     * @param code 授权码
+     * 使用授权码换取 OAuth 用户令牌。
+     *
+     * ⚠️ **重要前置条件**: 必须先调用 [exchangeToken] 完成签名交换！
+     *
+     * 此方法需要使用"开放平台签名"（即签名交换获取的 platformAccessToken）
+     * 作为 Authorization Bearer 认证头，而不是 config.apiKey 或 OAuth access_token。
+     *
+     * @param code OAuth 授权码（从回调 URL 中获取）
      * @param redirectUri 重定向 URI（必须与授权时一致）
-     * @param codeVerifier PKCE code_verifier（可选）
-     * @return TokenInfo 包含 accessToken 和 refreshToken
-     * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
+     * @param codeVerifier PKCE code_verifier（如果使用了 PKCE）
+     * @return OAuth 用户令牌信息（包含 oauth access_token 和 refresh_token）
+     * @throws IllegalStateException 如果未完成签名交换（platformAccessToken 为空）
+     * @throws OAuthCallbackException 如果授权失败
+     * @see exchangeToken 必须先调用此方法获取平台签名
      */
     public suspend fun exchangeOAuthToken(
         code: String,
@@ -425,10 +441,16 @@ public class AuthManager(
             requestBody["code_verifier"] = it
         }
 
+        val platformAccessToken = tokenInfo?.accessToken
+            ?: throw IllegalStateException(
+                "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
+                "OAuth Token 交换接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。"
+            )
+
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {
                 contentType(ContentType.Application.FormUrlEncoded)
-                header("Authorization", "Bearer ${config.apiKey}")
+                header("Authorization", "Bearer $platformAccessToken")
                 setBody(requestBody)
             }.body<OAuthTokenResponse>()
 
@@ -446,10 +468,14 @@ public class AuthManager(
     }
 
     /**
-     * 刷新 OAuth 令牌。
-     * @return TokenInfo 新的令牌信息
+     * 刷新 OAuth 用户令牌（非平台签名）。
+     *
+     * 此方法刷新的是通过 [exchangeOAuthToken] 获取的 OAuth access_token，
+     * 而非签名交换获取的平台签名。同样需要平台签名作为 Authorization Bearer 认证头。
+     *
+     * @return 新的 OAuth 用户令牌信息（TokenInfo）
      * @throws TokenExpiredException 如果没有可用的 refreshToken
-     * @throws IllegalStateException 当缺少 OAuth 配置时抛出
+     * @throws IllegalStateException 如果未完成签名交换或缺少 OAuth 配置参数
      */
     @Suppress("ThrowsCount")
     public suspend fun refreshOAuthToken(): TokenInfo {
@@ -461,10 +487,16 @@ public class AuthManager(
         val clientSecret = config.clientSecret ?: throw IllegalStateException("clientSecret is not configured in SDK")
         val redirectUri = oauthRedirectUri ?: throw IllegalStateException("OAuth redirect URI not available")
 
+        val platformAccessToken = tokenInfo?.accessToken
+            ?: throw IllegalStateException(
+                "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
+                "OAuth Token 刷新接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。"
+            )
+
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {
                 contentType(ContentType.Application.FormUrlEncoded)
-                header("Authorization", "Bearer ${config.apiKey}")
+                header("Authorization", "Bearer $platformAccessToken")
                 setBody(
                     mapOf(
                         "grant_type" to "refresh_token",
@@ -491,21 +523,22 @@ public class AuthManager(
     }
 
     /**
-     * 获取当前授权用户的详细信息。
-     * @return UserInfoData 用户信息
+     * 查询已授权用户的公开信息。
+     *
+     * 此方法使用**双认证头机制**：
+     * - `Authorization: Bearer <platformAccessToken>` - 验证应用身份（你是哪个应用？）
+     *   来源: 签名交换时获取并保存到 platformAccessToken 字段
+     * - `X-OAuth-Access-Token: <oauthAccessToken>` - 标识用户身份（你是哪个用户？）
+     *   来源: OAuth 授权码流程获取的 tokenInfo.accessToken
+     *
+     * @return 用户信息数据（UserInfoData）
+     * @throws IllegalStateException 如果缺少必要的令牌
      */
     public suspend fun getUserInfo(): UserInfoData {
         val response =
             httpClient.get("${config.baseUrl}/api/proxy/account/sso/userinfo") {
-                // X-OAuth-Access-Token: OAuth access_token 用于标识用户（必须）
                 header("X-OAuth-Access-Token", tokenInfo?.accessToken ?: "")
-
-                // Authorization: Bearer <开放平台签名> 用于验证应用身份（可选）
-                // 场景 A：config.apiKey 不为空时，使用双 header
-                // 场景 B：config.apiKey 为空时（纯 OAuth），只使用 X-OAuth-Access-Token
-                if (config.apiKey != null && config.apiKey.isNotEmpty()) {
-                    header("Authorization", "Bearer ${config.apiKey}")
-                }
+                header("Authorization", "Bearer $platformAccessToken")
             }.body<UserInfoResponse>()
 
         return response.data
