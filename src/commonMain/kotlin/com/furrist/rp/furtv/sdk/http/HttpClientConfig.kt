@@ -69,10 +69,23 @@ public object HttpClientConfig {
 
             install(DefaultRequest) {
                 headers {
-                    // 认证头自动选择逻辑（Kotlin when 表达式）：
-                    // 1. 当 config.apiKey 存在时，使用 X-Api-Key（Client 认证）
-                    // 2. 当仅有 accessToken 时，使用 Authorization: Bearer（OAuth/Client 认证）
-                    // 3. 两者都为 null 时，不设置认证头（用于未认证状态）
+                    /**
+                     * 认证头自动选择逻辑：
+                     *
+                     * 模式 1: config.apiKey 存在且非空
+                     *   → 使用 X-Api-Key 头（适用于用户直接提供 apiKey 的场景）
+                     *
+                     * 模式 2: accessToken 存在（apiKey 为空时）
+                     *   → 使用 Authorization: Bearer 头
+                     *   （适用于签名交换后或 OAuth 后的场景）
+                     *
+                     * 模式 3: 都为空
+                     *   → 不设置认证头（适用于未认证状态，如签名交换接口本身）
+                     *
+                     * 依据：官方文档《认证方式与服务器端点》说明：
+                     *   "同时传入 X-Api-Key 和 Authorization Bearer 时，
+                     *    服务端优先使用 X-Api-Key"
+                     */
                     when {
                         config.apiKey != null && config.apiKey.isNotEmpty() -> {
                             append("X-Api-Key", config.apiKey)

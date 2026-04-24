@@ -1,4 +1,4 @@
-﻿package com.furrist.rp.furtv.sdk.model
+package com.furrist.rp.furtv.sdk.model
 
 import kotlinx.serialization.Serializable
 
