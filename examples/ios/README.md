@@ -1,12 +1,12 @@
 # Fursuit.TV SDK iOS 集成指南
 
-本文档说明如何在 iOS 项目中集成 Fursuit.TV SDK。
+本文档说明如何在 iOS 项目中集成 Kotlin Multiplatform 编译的 Fursuit.TV SDK。
 
 ## 前置要求
 
-- Xcode 14.0+
+- Xcode 16.0+
 - iOS 13.0+
-- Swift 5.7+
+- Swift 5.9+
 - CocoaPods 或 Swift Package Manager
 
 ## 方法 1: 使用 Swift Package Manager (推荐)
@@ -17,14 +17,14 @@
 1. 打开项目
 2. 选择 `File` → `Add Package Dependencies...`
 3. 输入仓库 URL: `https://github.com/RegadPoleCN/fursuit-tv-sdk`
-4. 选择版本范围 (例如 `1.0.0` 到 `2.0.0`)
+4. 选择版本范围 (例如 `0.1.0` 到 `1.0.0`)
 5. 点击 `Add Package`
 
 或在 `Package.swift` 中添加：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/RegadPoleCN/fursuit-tv-sdk", from: "1.0.0")
+    .package(url: "https://github.com/RegadPoleCN/fursuit-tv-sdk", from: "0.1.0")
 ]
 ```
 
@@ -53,7 +53,7 @@ platform :ios, '13.0'
 target 'YourApp' do
   use_frameworks!
   
-  pod 'FursuitTvSdk', '~> 1.0'
+  pod 'FursuitTvSdk', '~> 0.1'
 end
 ```
 
@@ -71,7 +71,7 @@ open YourApp.xcworkspace
 
 ## 步骤 3: 创建 Swift 包装器
 
-由于 SDK 是 Kotlin 编写的，需要创建 Swift 包装器：
+由于 SDK 是 Kotlin 编写的，需要创建 Swift 包装器来使用：
 
 ```swift
 // UserService.swift
@@ -79,51 +79,53 @@ import Foundation
 import FursuitTvSdk
 import Combine
 
+@MainActor
 class UserService: ObservableObject {
-    private let sdk: FursuitTvSdk
-    private let appId: String
-    private let appSecret: String
+    private var sdk: FursuitTvSdk?
+    private let clientId: String
+    private let clientSecret: String
     
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var userProfile: UserProfile?
     
-    init(appId: String, appSecret: String) {
-        self.appId = appId
-        self.appSecret = appSecret
-        self.sdk = FursuitTvSdk(appId: appId, appSecret: appSecret)
+    init(clientId: String, clientSecret: String) {
+        self.clientId = clientId
+        self.clientSecret = clientSecret
+    }
+    
+    func initialize() async throws {
+        // 使用 Kotlin DSL 初始化 SDK
+        // 注意：实际调用方式取决于 Kotlin/Native 的互操作层
+        sdk = try await FursuitTvSdk.Companion.create { config in
+            config.clientId = self.clientId
+            config.clientSecret = self.clientSecret
+        }
     }
     
     func loadUser(username: String) async {
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
+        isLoading = true
+        errorMessage = nil
         
         do {
-            // 确保令牌有效
-            try await sdk.auth.getValidAccessToken(
-                appId: appId,
-                appSecret: appSecret
-            )
+            guard let currentSdk = sdk else {
+                throw NSError(domain: "SDK", code: -1, userInfo: [NSLocalizedDescriptionKey: "SDK not initialized"])
+            }
             
             // 获取用户资料
-            let profile = try await sdk.user.getUserProfile(username: username)
+            let profile = try await currentSdk.user.getUserProfile(username: username)
             
-            await MainActor.run {
-                self.userProfile = profile
-                self.isLoading = false
-            }
+            userProfile = profile
+            isLoading = false
         } catch {
-            await MainActor.run {
-                self.errorMessage = error.localizedDescription
-                self.isLoading = false
-            }
+            errorMessage = error.localizedDescription
+            isLoading = false
         }
     }
     
     func close() {
-        sdk.close()
+        sdk?.close()
+        sdk = nil
     }
     
     deinit {
@@ -140,8 +142,8 @@ import SwiftUI
 
 struct UserView: View {
     @StateObject private var userService = UserService(
-        appId: "vap_xxxxxxxxxxxxxxxx",
-        appSecret: "your-app-secret"
+        clientId: "vap_xxxxxxxxxxxxxxxx",
+        clientSecret: "your-client-secret"
     )
     
     var body: some View {
@@ -170,6 +172,13 @@ struct UserView: View {
             .disabled(userService.isLoading)
         }
         .padding()
+        .task {
+            do {
+                try await userService.initialize()
+            } catch {
+                userService.errorMessage = error.localizedDescription
+            }
+        }
     }
 }
 ```
@@ -187,8 +196,8 @@ class UserViewController: UIViewController {
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     
-    init(appId: String, appSecret: String) {
-        self.userService = UserService(appId: appId, appSecret: appSecret)
+    init(clientId: String, clientSecret: String) {
+        self.userService = UserService(clientId: clientId, clientSecret: clientSecret)
         super.init(nibName: "UserViewController", bundle: nil)
     }
     
@@ -198,25 +207,29 @@ class UserViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadUser()
+        
+        Task { @MainActor in
+            do {
+                try await userService.initialize()
+                await loadUser()
+            } catch {
+                nameLabel.text = "初始化错误：\(error.localizedDescription)"
+            }
+        }
     }
     
-    private func loadUser() {
+    private func loadUser() async {
         loadingIndicator.startAnimating()
         
-        Task {
-            await userService.loadUser(username: "username")
-            
-            await MainActor.run {
-                loadingIndicator.stopAnimating()
-                
-                if let profile = userService.userProfile {
-                    nameLabel.text = "用户：\(profile.displayName)"
-                    usernameLabel.text = "@\(profile.username)"
-                } else if let error = userService.errorMessage {
-                    nameLabel.text = "错误：\(error)"
-                }
-            }
+        await userService.loadUser(username: "username")
+        
+        loadingIndicator.stopAnimating()
+        
+        if let profile = userService.userProfile {
+            nameLabel.text = "用户：\(profile.displayName)"
+            usernameLabel.text = "@\(profile.username)"
+        } else if let error = userService.errorMessage {
+            nameLabel.text = "错误：\(error)"
         }
     }
     
@@ -226,7 +239,7 @@ class UserViewController: UIViewController {
 }
 ```
 
-## 步骤 6: OAuth 支持
+## 步骤 6: OAuth 支持 (可选)
 
 ### 使用 ASWebAuthenticationSession (推荐)
 
@@ -234,19 +247,18 @@ class UserViewController: UIViewController {
 // OAuthManager.swift
 import AuthenticationServices
 
-class OAuthManager {
+@MainActor
+class OAuthManager: NSObject, ASWebAuthenticationPresentationContextProviding {
     
     static let shared = OAuthManager()
     
     func presentOAuth(
-        appId: String,
+        authorizeUrl: String,
         callbackUrlScheme: String,
         from viewController: UIViewController
     ) async throws -> String {
         
         return try await withCheckedThrowingContinuation { continuation in
-            let authorizeUrl = "https://..." // SDK 生成的授权 URL
-            
             guard let url = URL(string: authorizeUrl) else {
                 continuation.resume(throwing: URLError(.badURL))
                 return
@@ -259,7 +271,6 @@ class OAuthManager {
                 if let error = error {
                     continuation.resume(throwing: error)
                 } else if let url = callbackURL {
-                    // 从 URL 中提取授权码
                     if let components = URLComponents(url: url, resolvingAgainstBaseURL: true),
                        let code = components.queryItems?.first(where: { $0.name == "code" })?.value {
                         continuation.resume(returning: code)
@@ -269,18 +280,12 @@ class OAuthManager {
                 }
             }
             
-            // iOS 13+ 需要设置 presentationContextProvider
-            if #available(iOS 13.0, *) {
-                session.presentationContextProvider = self
-            }
-            
+            session.presentationContextProvider = self
+            session.prefersEphemeralWebBrowserSession = false
             session.start()
         }
     }
-}
-
-// 实现 presentationContextProvider
-extension OAuthManager: ASWebAuthenticationPresentationContextProviding {
+    
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         return UIApplication.shared.windows.first ?? ASPresentationAnchor()
     }
@@ -314,62 +319,6 @@ enum OAuthError: LocalizedError {
         <string>com.example.app</string>
     </dict>
 </array>
-```
-
-## 步骤 7: 使用 Combine 响应式编程
-
-```swift
-// UserViewModel.swift
-import Foundation
-import Combine
-import FursuitTvSdk
-
-class UserViewModel: ObservableObject {
-    private let sdk: FursuitTvSdk
-    private var cancellables = Set<AnyCancellable>()
-    
-    @Published var userProfile: UserProfile?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    
-    init(appId: String, appSecret: String) {
-        self.sdk = FursuitTvSdk(appId: appId, appSecret: appSecret)
-        setupBindings()
-    }
-    
-    private func setupBindings() {
-        // 响应式加载
-    }
-    
-    func loadUser(username: String) {
-        isLoading = true
-        
-        Task {
-            do {
-                try await sdk.auth.getValidAccessToken(
-                    appId: appId,
-                    appSecret: appSecret
-                )
-                
-                let profile = try await sdk.user.getUserProfile(username: username)
-                
-                await MainActor.run {
-                    self.userProfile = profile
-                    self.isLoading = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
-                }
-            }
-        }
-    }
-    
-    deinit {
-        sdk.close()
-    }
-}
 ```
 
 ## 完整示例项目结构
@@ -414,57 +363,69 @@ YourApp/
 </dict>
 ```
 
-### 2. 后台任务
+### 2. 异步编程
 
-使用 Background Tasks 处理长时间运行的任务：
+所有 API 都是异步的，使用 Swift Concurrency：
 
 ```swift
-import BackgroundTasks
-
-func scheduleBackgroundRefresh() {
-    let request = BGAppRefreshTaskRequest(identifier: "com.example.app.refresh")
-    request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
-    
-    try? BGTaskScheduler.shared.submit(request)
+// ✅ 正确：在 Task 或 async 函数中调用
+Task {
+    let profile = try await sdk.user.getUserProfile(username: "username")
 }
+
+// ❌ 错误：不能同步调用
+let profile = sdk.user.getUserProfile(username: "username")  // 编译错误
 ```
 
-### 3. 错误处理
+### 3. 主线程安全
+
+确保在主线程更新 UI：
 
 ```swift
-do {
-    let profile = try await sdk.user.getUserProfile(username: "username")
-} catch let error as NotFoundException {
-    print("用户不存在")
-} catch let error as AuthenticationException {
-    print("认证失败")
-} catch {
-    print("其他错误：\(error.localizedDescription)")
+@MainActor
+func updateUserUI(profile: UserProfile) {
+    self.userProfile = profile
+    self.isLoading = false
 }
 ```
 
 ### 4. 内存管理
 
-使用 `weak` 或 `unowned` 避免循环引用：
+避免循环引用：
 
 ```swift
 class UserViewModel: ObservableObject {
-    weak var delegate: UserViewModelDelegate?
-    
-    // ...
+    weak var delegate: UserViewModelDelegate?  // 使用 weak
 }
 ```
 
-### 5. 线程安全
+### 5. 错误处理
 
-确保在主线程更新 UI：
+处理所有可能的异常类型：
 
 ```swift
-await MainActor.run {
-    // 更新 UI
-    self.userProfile = profile
+do {
+    let profile = try await sdk.user.getUserProfile(username: "username")
+} catch let error as NotFoundException {
+    print("用户不存在: \(error.localizedDescription)")
+} catch let error as AuthenticationException {
+    print("认证失败: \(error.localizedDescription)")
+} catch let error as TokenExpiredException {
+    print("令牌过期，SDK 会自动刷新")
+} catch let error as NetworkException {
+    print("网络错误: \(error.localizedDescription)")
+} catch {
+    print("其他错误: \(error.localizedDescription)")
 }
 ```
+
+### 6. Kotlin/Native 互操作注意事项
+
+由于 SDK 是 Kotlin 编译的：
+- 类名和方法名会转换为 Swift 风格（驼峰命名）
+- 可空类型会映射为 Swift Optional
+- 协程 suspend 函数会变为 async 函数
+- 具体映射规则请参考生成的 Framework 头文件
 
 ## 测试
 
@@ -479,13 +440,13 @@ class UserViewModelTests: XCTestCase {
     
     override func setUp() {
         viewModel = UserViewModel(
-            appId: "test_app_id",
-            appSecret: "test_secret"
+            clientId: "test_app_id",
+            clientSecret: "test_secret"
         )
     }
     
-    func testLoadUser() async {
-        await viewModel.loadUser(username: "username")
+    func testLoadUser() async throws {
+        await viewModel.loadUser(username: "testuser")
         
         XCTAssertNotNil(viewModel.userProfile)
         XCTAssertFalse(viewModel.isLoading)
@@ -499,8 +460,9 @@ class UserViewModelTests: XCTestCase {
 
 ## 更多信息
 
-- [开发者指南](../../docs/DEVELOPER_GUIDE.md)
-- [平台指南](../../docs/PLATFORM_GUIDE.md)
+- [认证文档](../../docs/authentication.md)
+- [JVM 示例](../jvm/README.md) - 包含完整的 API 调用示例
+- [API 参考](../../docs/API_REFERENCE.md)
 - [Swift Concurrency](https://docs.swift.org/swift-book/LanguageGuide/Concurrency.html)
 
 ## 许可证
