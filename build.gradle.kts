@@ -1,6 +1,9 @@
+import dev.petuska.npm.publish.extension.domain.NpmAccess
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.npm.publish)
     alias(libs.plugins.detekt)
     alias(libs.plugins.dokka)
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
@@ -79,6 +82,48 @@ kotlin {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
+            }
+        }
+    }
+}
+
+npmPublish {
+    organization = "regadpole"
+    access = NpmAccess.PUBLIC
+
+    registries {
+        npmjs {
+            authToken = project.findProperty("npmToken") as String? ?: ""
+        }
+    }
+
+    packages {
+        named("js") {
+            packageName = "fursuit-tv-sdk"
+            readme = file("README.md")
+            version = libs.versions.fursuit.tv.sdk.get()
+            packageJson {
+                license = "MIT"
+                description = "Cross-platform SDK for Fursuit.TV API built with Kotlin Multiplatform"
+                homepage = "https://github.com/RegadPoleCN/fursuit-tv-sdk"
+                keywords = listOf(
+                    "fursuit-tv",
+                    "furtv",
+                    "sdk",
+                    "kotlin",
+                    "kmp",
+                    "api",
+                    "furry",
+                    "multiplatform"
+                )
+                repository {
+                    type = "git"
+                    url = "https://github.com/RegadPoleCN/fursuit-tv-sdk.git"
+                }
+                author {
+                    name = "RegadPole"
+                    email = "1651233735@qq.com"
+                }
             }
         }
     }

@@ -1,4 +1,4 @@
-name: Publish to Maven Central
+name: Publish to Maven Central and NPM
 
 on:
   push:
@@ -46,7 +46,8 @@ jobs:
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
         ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_signingInMemoryKey }}
 
-    - name: Verify Publication
-      run: |
-        echo "Publication completed. Check Sonatype Central Portal for status."
-        echo "Visit: https://central.sonatype.com/"
+    - name: Publish to NPM Registry
+      run: ./gradlew publishJsPackageToNpmjsRegistry --stacktrace
+      env:
+        ORG_GRADLE_PROJECT_npmToken: ${{ secrets.NPM_TOKEN }}
+

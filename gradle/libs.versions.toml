@@ -4,6 +4,7 @@ fursuit-tv-sdk = "0.1.0"
 
 # Kotlin
 kotlin = "2.3.0"
+kotlin-npm-publish = "3.6.0"
 
 # Ktor
 ktor = "3.4.2"
@@ -41,5 +42,6 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlin-npm-publish = { id = "org.jetbrains.kotlin.npm-publish", version.ref = "kotlin-npm-publish" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

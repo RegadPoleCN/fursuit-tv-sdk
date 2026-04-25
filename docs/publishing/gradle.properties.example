@@ -22,6 +22,8 @@ signing.password=your-gpg-passphrase
 # 将输出内容复制到这里，换行符替换为 \n
 # signing.inMemoryKey=-----BEGIN PGP PRIVATE KEY BLOCK-----\n...\n-----END PGP PRIVATE KEY BLOCK-----
 
-# ==================== 其他配置 ====================
-# 跳过 Native 平台编译（Windows 上可能需要）
-# skipNative=true
+# ==================== NPM 发布令牌 ====================
+# 从 npmjs.com → Access Tokens 生成
+# 类型: Read and Write (手动) 或 Automation (CI/CD)
+# 用于本地测试或手动发布；CI/CD 使用 GitHub Secrets
+# npmToken=your-npm-access-token-here
