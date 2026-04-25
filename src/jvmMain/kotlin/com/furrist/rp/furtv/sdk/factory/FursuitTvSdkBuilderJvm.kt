@@ -10,7 +10,7 @@ import io.ktor.client.plugins.logging.LogLevel
  * @see FursuitTvSdk
  * @see MutableSdkConfig
  */
-public class FursuitTvSdkBuilder private constructor(
+public class FursuitTvSdkBuilderJvm private constructor(
     private val config: MutableSdkConfig,
 ) {
     private var useTokenExchange: Boolean = false
@@ -20,26 +20,26 @@ public class FursuitTvSdkBuilder private constructor(
          * 创建新的 Builder 实例。
          */
         @JvmStatic
-        public fun create(): FursuitTvSdkBuilder =
-            FursuitTvSdkBuilder(MutableSdkConfig())
+        public fun create(): FursuitTvSdkBuilderJvm =
+            FursuitTvSdkBuilderJvm(MutableSdkConfig())
     }
 
     // 基础配置
-    public fun baseUrl(url: String): FursuitTvSdkBuilder = apply { config.baseUrl = url }
-    public fun apiKey(key: String): FursuitTvSdkBuilder = apply { config.apiKey = key }
-    public fun clientId(id: String): FursuitTvSdkBuilder = apply { config.clientId = id; useTokenExchange = true }
-    public fun clientSecret(secret: String): FursuitTvSdkBuilder = apply { config.clientSecret = secret }
+    public fun baseUrl(url: String): FursuitTvSdkBuilderJvm = apply { config.baseUrl = url }
+    public fun apiKey(key: String): FursuitTvSdkBuilderJvm = apply { config.apiKey = key }
+    public fun clientId(id: String): FursuitTvSdkBuilderJvm = apply { config.clientId = id; useTokenExchange = true }
+    public fun clientSecret(secret: String): FursuitTvSdkBuilderJvm = apply { config.clientSecret = secret }
 
     // 超时配置
-    public fun requestTimeout(timeout: Long): FursuitTvSdkBuilder = apply { config.requestTimeout = timeout }
-    public fun connectTimeout(timeout: Long): FursuitTvSdkBuilder = apply { config.connectTimeout = timeout }
-    public fun socketTimeout(timeout: Long): FursuitTvSdkBuilder = apply { config.socketTimeout = timeout }
+    public fun requestTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.requestTimeout = timeout }
+    public fun connectTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.connectTimeout = timeout }
+    public fun socketTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.socketTimeout = timeout }
 
     // 高级配置
-    public fun logLevel(level: LogLevel): FursuitTvSdkBuilder = apply { config.logLevel = level }
-    public fun enableRetry(enable: Boolean): FursuitTvSdkBuilder = apply { config.enableRetry = enable }
-    public fun maxRetries(retries: Int): FursuitTvSdkBuilder = apply { config.maxRetries = retries }
-    public fun retryInterval(interval: Long): FursuitTvSdkBuilder = apply { config.retryInterval = interval }
+    public fun logLevel(level: LogLevel): FursuitTvSdkBuilderJvm = apply { config.logLevel = level }
+    public fun enableRetry(enable: Boolean): FursuitTvSdkBuilderJvm = apply { config.enableRetry = enable }
+    public fun maxRetries(retries: Int): FursuitTvSdkBuilderJvm = apply { config.maxRetries = retries }
+    public fun retryInterval(interval: Long): FursuitTvSdkBuilderJvm = apply { config.retryInterval = interval }
 
     /**
      * 同步构建（仅 API Key 模式）。
@@ -49,13 +49,13 @@ public class FursuitTvSdkBuilder private constructor(
      */
     public fun build(): FursuitTvSdk {
         validateConfiguration()
-        
+
         if (useTokenExchange) {
             throw IllegalStateException(
                 "Cannot use synchronous build() with token exchange. Use buildAsync() instead."
             )
         }
-        
+
         return FursuitTvSdk.create(config.toImmutable())
     }
 
@@ -66,7 +66,7 @@ public class FursuitTvSdkBuilder private constructor(
      */
     public suspend fun buildAsync(): FursuitTvSdk {
         validateConfiguration()
-        
+
         return if (useTokenExchange && config.clientId != null && config.clientSecret != null) {
             FursuitTvSdk.createForTokenExchange(config.clientId!!, config.clientSecret!!)
         } else {
@@ -78,7 +78,7 @@ public class FursuitTvSdkBuilder private constructor(
         if ((config.clientId != null) xor (config.clientSecret != null)) {
             throw IllegalArgumentException("clientId and clientSecret must both be set or both be null")
         }
-        
+
         if (config.apiKey == null && config.clientId == null) {
             throw IllegalArgumentException("At least one authentication method must be configured")
         }
