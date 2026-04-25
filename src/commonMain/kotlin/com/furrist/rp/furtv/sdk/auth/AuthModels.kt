@@ -162,7 +162,9 @@ public data class OAuthConfig(
     public val enablePkce: Boolean = false,
 ) {
     init {
-        require(callbackPort in 1..65535) { "callbackPort must be between 1 and 65535" }
+        require(callbackPort in 1..MAX_PORT_NUMBER) {
+            "callbackPort must be between 1 and $MAX_PORT_NUMBER"
+        }
         require(callbackPath.startsWith("/")) { "callbackPath must start with '/'" }
         require(stateTimeoutMinutes > 0) { "stateTimeoutMinutes must be positive" }
         require(callbackHost.isNotBlank()) { "callbackHost must not be blank" }
@@ -173,6 +175,7 @@ public data class OAuthConfig(
         public const val DEFAULT_CALLBACK_PORT: Int = 8080
         public const val DEFAULT_CALLBACK_PATH: String = "/callback"
         public const val DEFAULT_STATE_TIMEOUT_MINUTES: Int = 5
+        private const val MAX_PORT_NUMBER = 65535
     }
 }
 

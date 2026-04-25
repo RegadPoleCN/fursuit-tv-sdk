@@ -420,6 +420,7 @@ public class AuthManager(
      * @throws OAuthCallbackException 如果授权失败
      * @see exchangeToken 必须先调用此方法获取平台签名
      */
+    @Suppress("ThrowsCount")
     public suspend fun exchangeOAuthToken(
         code: String,
         redirectUri: String,

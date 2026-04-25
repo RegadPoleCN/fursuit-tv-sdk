@@ -37,8 +37,14 @@ public data class OAuthCallbackServerConfig(
     public val callbackPath: String = "/callback",
     public val timeoutSeconds: Long = 300,
 ) {
+    private companion object {
+        private const val MAX_PORT_NUMBER = 65535
+    }
+
     init {
-        require(callbackPort in 1..65535) { "callbackPort must be between 1 and 65535" }
+        require(callbackPort in 1..MAX_PORT_NUMBER) {
+            "callbackPort must be between 1 and $MAX_PORT_NUMBER"
+        }
         require(callbackPath.startsWith("/")) { "callbackPath must start with '/'" }
         require(callbackHost.isNotBlank()) { "callbackHost must not be blank" }
         require(timeoutSeconds > 0) { "timeoutSeconds must be positive" }
@@ -117,6 +123,7 @@ public class OAuthCallbackHandler(
     private companion object {
         private const val GRACE_PERIOD_MS = 1000L
         private const val STOP_TIMEOUT_MS = 2000L
+        private const val LOG_PREFIX_LENGTH = 8
     }
 
     private val server =
@@ -138,66 +145,94 @@ public class OAuthCallbackHandler(
      * @return 回调结果（成功或失败）
      */
     public suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
-        // CompletableDeferred acts as a one-time result holder
-        // It bridges the gap between async HTTP callback and coroutine-based waiting
-        // The deferred completes when handleCallback() is invoked by the Ktor server
         val deferred = CompletableDeferred<OAuthCallbackResult>()
-
-        // Extract state parameter from authorize URL query string
-        // Format: https://server?...&state=abc123&...
-        // Used to match callback with original authorization request for CSRF protection
         val state = extractStateFromUrl(authorizeUrl)
 
-        // Use mutex to ensure thread-safe access to server state and pending callbacks
-        // This prevents race conditions when multiple coroutines interact with the handler
         return mutex.withLock {
             try {
-                logger.info("Starting OAuth callback server on ${config.callbackHost}:${config.callbackPort}${config.callbackPath}")
-                server.start(wait = false)
-
-                if (state != null) {
-                    pendingCallbacks[state] = deferred
-                }
-
-                val timeoutDuration = config.timeoutSeconds.seconds
-                logger.debug("Waiting for OAuth callback with timeout of ${config.timeoutSeconds}s, state=$state")
-
-                // withTimeoutOrNull returns null if timeout expires without completion
-                // This allows graceful handling of user abandonment or network issues
-                // The timeout duration comes from config to allow customization per use case
-                val result =
-                    withTimeoutOrNull(timeoutDuration) {
-                        deferred.await()
-                    }
-
-                if (result == null) {
-                    val timeoutMsg = "OAuth callback timed out after ${config.timeoutSeconds}s (host=${config.callbackHost}, port=${config.callbackPort})"
-                    logger.warn(timeoutMsg)
-                    OAuthCallbackResult.Error(timeoutMsg)
-                } else {
-                    logger.info("OAuth callback received successfully, state=$state")
-                    result
-                }
+                startServerAndRegister(state, deferred)
+                waitForCallback(deferred)
             } catch (e: CancellationException) {
-                logger.error("OAuth callback cancelled (host=${config.callbackHost}, port=${config.callbackPort}): ${e.message}", e)
+                handleCancellationException(e)
                 throw e
             } catch (e: IllegalStateException) {
-                val errorMsg = "Failed to start OAuth callback server on ${config.callbackHost}:${config.callbackPort}: ${e.message}"
-                logger.error(errorMsg, e)
-                OAuthCallbackResult.Error(errorMsg, e)
-            } catch (e: java.net.BindException) {
-                val errorMsg = "Port ${config.callbackPort} is already in use on ${config.callbackHost}, cannot start OAuth callback server"
-                logger.error(errorMsg, e)
-                OAuthCallbackResult.Error(errorMsg, e)
+                handleIllegalStateException(e)
             } catch (e: Exception) {
-                val errorMsg = "Unexpected error during OAuth callback on ${config.callbackHost}:${config.callbackPort} (timeout=${config.timeoutSeconds}s): ${e.message}"
-                logger.error(errorMsg, e)
-                OAuthCallbackResult.Error(errorMsg, e)
+                handleGenericException(e)
             } finally {
                 pendingCallbacks.clear()
                 stopInternal()
             }
         }
+    }
+
+    private fun startServerAndRegister(
+        state: String?,
+        deferred: CompletableDeferred<OAuthCallbackResult>,
+    ) {
+        val logMessage =
+            "Starting OAuth callback server on " +
+                "${config.callbackHost}:${config.callbackPort}${config.callbackPath}"
+        logger.info(logMessage)
+        server.start(wait = false)
+
+        if (state != null) {
+            pendingCallbacks[state] = deferred
+        }
+    }
+
+    private suspend fun waitForCallback(
+        deferred: CompletableDeferred<OAuthCallbackResult>,
+    ): OAuthCallbackResult {
+        val timeoutDuration = config.timeoutSeconds.seconds
+        val debugMessage =
+            "Waiting for OAuth callback with timeout of ${config.timeoutSeconds}s"
+        logger.debug(debugMessage)
+
+        val result =
+            withTimeoutOrNull(timeoutDuration) {
+                deferred.await()
+            }
+
+        return if (result == null) {
+            val timeoutMsg =
+                "OAuth callback timed out after ${config.timeoutSeconds}s " +
+                    "(host=${config.callbackHost}, port=${config.callbackPort})"
+            logger.warn(timeoutMsg)
+            OAuthCallbackResult.Error(timeoutMsg)
+        } else {
+            logger.info("OAuth callback received successfully")
+            result
+        }
+    }
+
+    private fun handleCancellationException(e: CancellationException) {
+        val cancelMessage =
+            "OAuth callback cancelled (host=${config.callbackHost}, " +
+                "port=${config.callbackPort}): ${e.message}"
+        logger.error(cancelMessage, e)
+    }
+
+    private fun handleIllegalStateException(e: IllegalStateException): OAuthCallbackResult.Error {
+        val errorMsg =
+            "Failed to start OAuth callback server on " +
+                "${config.callbackHost}:${config.callbackPort}: ${e.message}"
+        logger.error(errorMsg, e)
+        return OAuthCallbackResult.Error(errorMsg, e)
+    }
+
+    private fun handleGenericException(e: Exception): OAuthCallbackResult.Error {
+        val isBindError = e.message?.contains("bind", ignoreCase = true) == true
+        val errorMsg = if (isBindError) {
+            "Port ${config.callbackPort} is already in use on ${config.callbackHost}, " +
+                "cannot start OAuth callback server"
+        } else {
+            "Unexpected error during OAuth callback on " +
+                "${config.callbackHost}:${config.callbackPort} " +
+                "(timeout=${config.timeoutSeconds}s): ${e.message}"
+        }
+        logger.error(errorMsg, e)
+        return OAuthCallbackResult.Error(errorMsg, e)
     }
 
     /**
@@ -250,7 +285,9 @@ public class OAuthCallbackHandler(
     private suspend fun handleCallback(call: ApplicationCall) {
         val code = call.request.queryParameters["code"]
         val state = call.request.queryParameters["state"]
-        logger.debug("Received OAuth callback request, code=${code?.take(8)}..., state=$state")
+        logger.debug(
+            "Received OAuth callback request, code=${code?.take(LOG_PREFIX_LENGTH)}..., state=$state"
+        )
 
         if (code == null || state == null) {
             logger.warn("OAuth callback missing required parameters: code=$code, state=$state")

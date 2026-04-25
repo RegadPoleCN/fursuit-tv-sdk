@@ -19,8 +19,8 @@ public final class com/furrist/rp/furtv/sdk/FursuitTvSdk$Companion {
 	public final fun createForTokenExchange (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/furrist/rp/furtv/sdk/FursuitTvSdkFactory {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/FursuitTvSdkFactory;
+public final class com/furrist/rp/furtv/sdk/FursuitTvSdkFactoryJvm {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/FursuitTvSdkFactoryJvm;
 	public static final fun create (Lcom/furrist/rp/furtv/sdk/model/SdkConfig;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public static final fun create (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public static final fun createDsl (Ljava/util/function/Consumer;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
@@ -40,8 +40,8 @@ public final class com/furrist/rp/furtv/sdk/auth/AuthManager {
 	public final fun exchangeToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getAccessToken ()Ljava/lang/String;
 	public final fun getApiKey ()Ljava/lang/String;
-	public final fun getOAuthAuthorizeUrl (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Z)Ljava/lang/String;
-	public static synthetic fun getOAuthAuthorizeUrl$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZILjava/lang/Object;)Ljava/lang/String;
+	public final fun getOAuthAuthorizeUrl (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Ljava/lang/String;
+	public static synthetic fun getOAuthAuthorizeUrl$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
 	public final fun getUserInfo (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getValidAccessToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun initOAuth (Lcom/furrist/rp/furtv/sdk/auth/OAuthConfig;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -162,6 +162,10 @@ public final class com/furrist/rp/furtv/sdk/auth/OAuthCallbackServerConfig {
 
 public final class com/furrist/rp/furtv/sdk/auth/OAuthConfig {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/OAuthConfig$Companion;
+	public static final field DEFAULT_CALLBACK_HOST Ljava/lang/String;
+	public static final field DEFAULT_CALLBACK_PATH Ljava/lang/String;
+	public static final field DEFAULT_CALLBACK_PORT I
+	public static final field DEFAULT_STATE_TIMEOUT_MINUTES I
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;ILjava/lang/String;IZ)V
 	public synthetic fun <init> (Ljava/lang/String;ILjava/lang/String;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1022,27 +1026,27 @@ public final class com/furrist/rp/furtv/sdk/exception/ValidationException : com/
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
-public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder$Companion;
+public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm$Companion;
 	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun apiKey (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun baseUrl (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
+	public final fun apiKey (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun baseUrl (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
 	public final fun build ()Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public final fun buildAsync (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun clientId (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun clientSecret (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public static final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun enableRetry (Z)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
-	public final fun socketTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
+	public final fun clientId (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun clientSecret (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public static final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun enableRetry (Z)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun socketTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
 }
 
-public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder$Companion {
-	public final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilder;
+public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm$Companion {
+	public final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
 }
 
 public final class com/furrist/rp/furtv/sdk/gathering/AgendaItem {
@@ -1729,72 +1733,6 @@ public final synthetic class com/furrist/rp/furtv/sdk/model/ApiResponse$$seriali
 
 public final class com/furrist/rp/furtv/sdk/model/ApiResponse$Companion {
 	public final fun serializer (Lkotlinx/serialization/KSerializer;)Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/model/DiscoverySearchParams {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/Integer;
-	public final fun component3 ()Ljava/lang/Integer;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPage ()Ljava/lang/Integer;
-	public final fun getPageSize ()Ljava/lang/Integer;
-	public final fun getQuery ()Ljava/lang/String;
-	public final fun getType ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/model/DiscoverySearchParams$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/model/DiscoverySearchParams$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/Integer;
-	public final fun component3 ()Ljava/lang/Integer;
-	public final fun copy (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPage ()Ljava/lang/Integer;
-	public final fun getPageSize ()Ljava/lang/Integer;
-	public final fun getSpeciesId ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/furrist/rp/furtv/sdk/model/GatheringMonthlyParams {
@@ -2616,601 +2554,6 @@ public final class com/furrist/rp/furtv/sdk/school/UserSchoolsResponse$Companion
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;I)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCount ()I
-	public final fun getId ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryLocationInfo$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData$Companion;
-	public fun <init> (Ljava/util/List;)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getUsers ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryPopularData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData$Companion;
-	public fun <init> (Ljava/util/List;)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getLocations ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularLocationsResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularUser {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()I
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getPopularity ()I
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryPopularUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryPopularUser;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryPopularUser$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse$Companion;
-	public fun <init> (ZLjava/util/List;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLjava/util/List;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse;ZLjava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Ljava/util/List;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryRandomResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryRandomUser {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getSpecies ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoveryRandomUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoveryRandomUser;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoveryRandomUser$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData$Companion;
-	public fun <init> (Ljava/util/List;Ljava/lang/String;Z)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Z
-	public final fun copy (Ljava/util/List;Ljava/lang/String;Z)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;Ljava/util/List;Ljava/lang/String;ZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getHasMore ()Z
-	public final fun getNextCursor ()Ljava/lang/String;
-	public final fun getResults ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySearchData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySearchResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchResult {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getType ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySearchResult$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchResult;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchResult$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData$Companion;
-	public fun <init> (Ljava/util/List;)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getSuggestions ()Ljava/util/List;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySearchSuggestionsResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData$Companion;
-	public fun <init> (Ljava/util/List;I)V
-	public final fun component1 ()Ljava/util/List;
-	public final fun component2 ()I
-	public final fun copy (Ljava/util/List;I)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;Ljava/util/List;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getSpecies ()Ljava/util/List;
-	public final fun getTotalCount ()I
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;I)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCount ()I
-	public final fun getId ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesInfo$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Z)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Z
-	public final fun copy (Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Z)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;ZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getHasMore ()Z
-	public final fun getNextCursor ()Ljava/lang/String;
-	public final fun getResults ()Ljava/util/List;
-	public final fun getSpeciesId ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse$Companion;
-	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;Ljava/lang/String;)V
-	public final fun component1 ()Z
-	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse;ZLcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchData;
-	public final fun getRequestId ()Ljava/lang/String;
-	public final fun getSuccess ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/DiscoverySpeciesSearchResult$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public final class com/furrist/rp/furtv/sdk/search/LocationInfo {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/LocationInfo$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;I)V
@@ -3462,28 +2805,16 @@ public final class com/furrist/rp/furtv/sdk/search/SearchApi {
 	public fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;)V
 	public synthetic fun <init> (Lio/ktor/client/HttpClient;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getPopular (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getPopularDiscovery (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getPopularLocations (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getPopularLocationsDiscovery (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getRandomDiscovery (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun getRandomDiscovery$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getRandomFursuit (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getRandomFursuit (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getRandomFursuit$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getSearchSuggestions (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getSearchSuggestionsDiscovery (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getSpeciesDiscovery (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getSpeciesList (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun search (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun search (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun search$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun searchBySpecies (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun searchBySpeciesDiscovery (Lcom/furrist/rp/furtv/sdk/model/DiscoverySpeciesSearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun searchBySpeciesDiscovery (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun searchBySpeciesDiscovery$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun searchDiscovery (Lcom/furrist/rp/furtv/sdk/model/DiscoverySearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun searchDiscovery (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun searchDiscovery$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchData {
