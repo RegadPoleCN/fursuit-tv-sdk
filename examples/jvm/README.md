@@ -216,7 +216,7 @@ examples/jvm/
 
 ## 依赖
 
-- **Fursuit.TV SDK**: `com.furrist.rp:fursuit-tv-sdk:0.1.0`
+- **Fursuit.TV SDK**: `com.furrist.rp:fursuit-tv-sdk:{version}`
 - **Kotlinx Coroutines**: `org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1`
 - **Ktor Client (JVM)**: `io.ktor:ktor-client-java:3.4.2`
 

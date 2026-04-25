@@ -408,14 +408,14 @@ git push origin v0.1.0
 **Kotlin (Gradle Kotlin DSL):**
 ```kotlin
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
 }
 ```
 
 **Kotlin (Gradle Groovy):**
 ```groovy
 dependencies {
-    implementation 'com.furrist.rp:fursuit-tv-sdk:0.1.0'
+    implementation 'com.furrist.rp:fursuit-tv-sdk:{version}'
 }
 ```
 
@@ -424,7 +424,7 @@ dependencies {
 <dependency>
     <groupId>com.furrist.rp</groupId>
     <artifactId>fursuit-tv-sdk</artifactId>
-    <version>0.1.0</version>
+    <version>{version}</version>
 </dependency>
 ```
 

@@ -23,7 +23,7 @@
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
 }
 ```
 
@@ -89,7 +89,7 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+                implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
             }
         }
     }
@@ -165,7 +165,7 @@ kotlin {
     sourceSets {
         val macosMain by getting {
             dependencies {
-                implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+                implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
             }
         }
     }
@@ -182,7 +182,7 @@ kotlin {
     sourceSets {
         val linuxMain by getting {
             dependencies {
-                implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+                implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
             }
         }
     }
@@ -199,7 +199,7 @@ kotlin {
     sourceSets {
         val mingwMain by getting {
             dependencies {
-                implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+                implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
             }
         }
     }
@@ -219,7 +219,7 @@ kotlin {
 ```kotlin
 // app/build.gradle.kts
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
     implementation("io.ktor:ktor-client-android:2.3.7")
 }
 ```
@@ -298,7 +298,7 @@ kotlin {
     sourceSets {
         val iosMain by getting {
             dependencies {
-                implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+                implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
             }
         }
     }

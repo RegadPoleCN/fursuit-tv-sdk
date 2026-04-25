@@ -17,14 +17,14 @@
 1. 打开项目
 2. 选择 `File` → `Add Package Dependencies...`
 3. 输入仓库 URL: `https://github.com/RegadPoleCN/fursuit-tv-sdk`
-4. 选择版本范围 (例如 `0.1.0` 到 `1.0.0`)
+4. 选择版本范围 (例如 `0.1.0` 到 `0.2.0`)
 5. 点击 `Add Package`
 
 或在 `Package.swift` 中添加：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/RegadPoleCN/fursuit-tv-sdk", from: "0.1.0")
+    .package(url: "https://github.com/RegadPoleCN/fursuit-tv-sdk", from: "{version}")
 ]
 ```
 

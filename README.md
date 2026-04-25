@@ -12,7 +12,7 @@
 ```kotlin
 // 1. 添加依赖
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
 }
 
 // 2. 初始化（签名交换方式）

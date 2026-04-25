@@ -34,7 +34,7 @@ android {
 
 dependencies {
     // Fursuit.TV SDK
-    implementation("com.furrist.rp:fursuit-tv-sdk:0.1.0")
+    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
     
     // Kotlinx Coroutines (Android)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
