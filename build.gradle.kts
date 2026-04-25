@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.npm.publish)
     alias(libs.plugins.detekt)
     alias(libs.plugins.dokka)
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
     id("com.vanniktech.maven.publish") version "0.36.0"
     signing
