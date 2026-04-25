@@ -18,7 +18,7 @@ datetime = "0.6.2"
 detekt = "2.0.0-alpha.2"
 
 # Dokka
-dokka = "2.0.0"
+dokka = "2.2.0"
 
 [libraries]
 # Ktor Core
