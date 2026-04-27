@@ -6,7 +6,7 @@ import com.furrist.rp.furtv.sdk.model.SdkConfig
 /**
  * JVM 平台工厂，提供 Java 友好的 @JvmStatic 静态方法。
  */
-public object FursuitTvSdkFactoryJvm {
+public object JvmFursuitTvSdkFactory {
     /**
      * 使用 API 密钥创建 SDK 实例。
      *

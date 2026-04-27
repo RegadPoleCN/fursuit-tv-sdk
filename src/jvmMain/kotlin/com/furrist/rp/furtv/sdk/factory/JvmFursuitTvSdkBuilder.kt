@@ -10,7 +10,7 @@ import io.ktor.client.plugins.logging.LogLevel
  * @see FursuitTvSdk
  * @see MutableSdkConfig
  */
-public class FursuitTvSdkBuilderJvm private constructor(
+public class JvmFursuitTvSdkBuilder private constructor(
     private val config: MutableSdkConfig,
 ) {
     private var useTokenExchange: Boolean = false
@@ -20,38 +20,38 @@ public class FursuitTvSdkBuilderJvm private constructor(
          * 创建新的 Builder 实例。
          */
         @JvmStatic
-        public fun create(): FursuitTvSdkBuilderJvm =
-            FursuitTvSdkBuilderJvm(MutableSdkConfig())
+        public fun create(): JvmFursuitTvSdkBuilder =
+            JvmFursuitTvSdkBuilder(MutableSdkConfig())
     }
 
     // 基础配置
-    public fun baseUrl(url: String): FursuitTvSdkBuilderJvm = apply { config.baseUrl = url }
+    public fun baseUrl(url: String): JvmFursuitTvSdkBuilder = apply { config.baseUrl = url }
 
-    public fun apiKey(key: String): FursuitTvSdkBuilderJvm = apply { config.apiKey = key }
+    public fun apiKey(key: String): JvmFursuitTvSdkBuilder = apply { config.apiKey = key }
 
-    public fun clientId(id: String): FursuitTvSdkBuilderJvm =
+    public fun clientId(id: String): JvmFursuitTvSdkBuilder =
         apply {
             config.clientId = id
             useTokenExchange = true
         }
 
-    public fun clientSecret(secret: String): FursuitTvSdkBuilderJvm = apply { config.clientSecret = secret }
+    public fun clientSecret(secret: String): JvmFursuitTvSdkBuilder = apply { config.clientSecret = secret }
 
     // 超时配置
-    public fun requestTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.requestTimeout = timeout }
+    public fun requestTimeout(timeout: Long): JvmFursuitTvSdkBuilder = apply { config.requestTimeout = timeout }
 
-    public fun connectTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.connectTimeout = timeout }
+    public fun connectTimeout(timeout: Long): JvmFursuitTvSdkBuilder = apply { config.connectTimeout = timeout }
 
-    public fun socketTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.socketTimeout = timeout }
+    public fun socketTimeout(timeout: Long): JvmFursuitTvSdkBuilder = apply { config.socketTimeout = timeout }
 
     // 高级配置
-    public fun logLevel(level: LogLevel): FursuitTvSdkBuilderJvm = apply { config.logLevel = level }
+    public fun logLevel(level: LogLevel): JvmFursuitTvSdkBuilder = apply { config.logLevel = level }
 
-    public fun enableRetry(enable: Boolean): FursuitTvSdkBuilderJvm = apply { config.enableRetry = enable }
+    public fun enableRetry(enable: Boolean): JvmFursuitTvSdkBuilder = apply { config.enableRetry = enable }
 
-    public fun maxRetries(retries: Int): FursuitTvSdkBuilderJvm = apply { config.maxRetries = retries }
+    public fun maxRetries(retries: Int): JvmFursuitTvSdkBuilder = apply { config.maxRetries = retries }
 
-    public fun retryInterval(interval: Long): FursuitTvSdkBuilderJvm = apply { config.retryInterval = interval }
+    public fun retryInterval(interval: Long): JvmFursuitTvSdkBuilder = apply { config.retryInterval = interval }
 
     /**
      * 同步构建（仅 API Key 模式）。
