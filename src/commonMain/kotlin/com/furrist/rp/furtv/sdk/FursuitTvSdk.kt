@@ -11,6 +11,8 @@ import com.furrist.rp.furtv.sdk.school.SchoolApi
 import com.furrist.rp.furtv.sdk.search.SearchApi
 import com.furrist.rp.furtv.sdk.user.UserApi
 import io.ktor.client.HttpClient
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * Fursuit.TV SDK 主客户端，提供对平台所有 API 的访问接口。
@@ -18,16 +20,19 @@ import io.ktor.client.HttpClient
  * @param config SDK 配置
  * @param tokenInfo 可选的令牌信息
  */
-public class FursuitTvSdk private constructor(
-    config: SdkConfig,
+@JsExport
+@JsName("FursuitTvSdk")
+public class FursuitTvSdk internal constructor(
+    private val config: SdkConfig,
     tokenInfo: TokenInfo? = null,
 ) {
-    private var httpClient: HttpClient = HttpClientConfig.createClient(
-        config,
-        // 优先使用 apiKey（X-Api-Key 头，服务端优先处理），回退到 accessToken
-        tokenInfo?.takeIf { it.apiKey.isNotEmpty() }?.apiKey ?: tokenInfo?.accessToken
-    )
-    private val config: SdkConfig = config
+    @JsName("_httpClient")
+    private var httpClient: HttpClient =
+        HttpClientConfig.createClient(
+            config,
+            // 优先使用 apiKey（X-Api-Key 头，服务端优先处理），回退到 accessToken
+            tokenInfo?.takeIf { it.apiKey.isNotEmpty() }?.apiKey ?: tokenInfo?.accessToken,
+        )
 
     /**
      * 认证管理器
@@ -38,20 +43,26 @@ public class FursuitTvSdk private constructor(
         }
 
     /** 基础接口 API */
-    public val base: BaseApi by lazy { BaseApi(httpClient, config.baseUrl) }
+    @JsName("base")
+    public val base: BaseApi = BaseApi(httpClient, config.baseUrl)
 
     /** 用户相关 API */
-    public val user: UserApi by lazy { UserApi(httpClient, config.baseUrl) }
+    @JsName("user")
+    public val user: UserApi = UserApi(httpClient, config.baseUrl)
 
     /** 搜索和发现 API */
-    public val search: SearchApi by lazy { SearchApi(httpClient, config.baseUrl) }
+    @JsName("search")
+    public val search: SearchApi = SearchApi(httpClient, config.baseUrl)
 
     /** 聚会相关 API */
-    public val gathering: GatheringApi by lazy { GatheringApi(httpClient, config.baseUrl) }
+    @JsName("gathering")
+    public val gathering: GatheringApi = GatheringApi(httpClient, config.baseUrl)
 
     /** 学校和角色 API */
-    public val school: SchoolApi by lazy { SchoolApi(httpClient, config.baseUrl) }
+    @JsName("school")
+    public val school: SchoolApi = SchoolApi(httpClient, config.baseUrl)
 
+    @JsName("getConfig")
     /**
      * 获取当前配置
      * @return SDK 配置对象
@@ -66,6 +77,7 @@ public class FursuitTvSdk private constructor(
         auth.close()
     }
 
+    @JsName("updateHttpClient")
     internal fun updateHttpClient(accessToken: String?) {
         httpClient = HttpClientConfig.createClient(config, accessToken)
     }
@@ -78,6 +90,7 @@ public class FursuitTvSdk private constructor(
          * @param clientSecret 应用密钥
          * @return FursuitTvSdk 实例
          */
+        @JsName("createForTokenExchange")
         public suspend fun createForTokenExchange(clientId: String, clientSecret: String): FursuitTvSdk {
             val config = SdkConfig.forTokenExchange(clientId, clientSecret)
             // 自动调用签名交换获取令牌
@@ -92,6 +105,7 @@ public class FursuitTvSdk private constructor(
          * @param apiKey VDS 颁发的 API 密钥
          * @return FursuitTvSdk 实例
          */
+        @JsName("createWithApiKey")
         public fun create(apiKey: String): FursuitTvSdk =
             FursuitTvSdk(SdkConfig.withApiKey(apiKey))
 
@@ -102,6 +116,7 @@ public class FursuitTvSdk private constructor(
          * @param tokenInfo 可选的令牌信息
          * @return FursuitTvSdk 实例
          */
+        @JsName("createWithConfig")
         public fun create(config: SdkConfig, tokenInfo: TokenInfo? = null): FursuitTvSdk =
             FursuitTvSdk(config, tokenInfo)
 
@@ -111,6 +126,7 @@ public class FursuitTvSdk private constructor(
          * @param block 配置块
          * @return FursuitTvSdk 实例
          */
+        @JsName("createWithDsl")
         public suspend fun create(block: MutableSdkConfig.() -> Unit): FursuitTvSdk {
             val mutableConfig = MutableSdkConfig()
             mutableConfig.block()
@@ -134,5 +150,10 @@ public class FursuitTvSdk private constructor(
  * @param block 配置块
  * @return FursuitTvSdk 实例
  */
-public suspend fun fursuitTvSdk(block: MutableSdkConfig.() -> Unit = {}): FursuitTvSdk =
-    FursuitTvSdk.create(block)
+@JsExport
+@JsName("fursuitTvSdk")
+public fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk {
+    val mutableConfig = MutableSdkConfig()
+    block(mutableConfig)
+    return FursuitTvSdk.create(mutableConfig.toImmutable())
+}

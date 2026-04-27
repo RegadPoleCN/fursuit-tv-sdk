@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.search
 
+import kotlin.js.JsExport
 import kotlinx.serialization.Serializable
 
 // ==================== 标准搜索 API 响应模型 ====================
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
 /**
  * 热门推荐响应
  * 热门推荐接口的响应包装 */
+@JsExport
 @Serializable
 public data class PopularResponse(
     public val success: Boolean,
@@ -20,6 +22,7 @@ public data class PopularResponse(
  * 热门推荐数据
  * 包含热门用户列表
  */
+@JsExport
 @Serializable
 public data class PopularData(
     public val users: List<PopularUser>,
@@ -33,6 +36,7 @@ public data class PopularData(
  * @param avatarUrl 头像 URL
  * @param popularity 热门程度值
  */
+@JsExport
 @Serializable
 public data class PopularUser(
     public val username: String,
@@ -46,6 +50,7 @@ public data class PopularUser(
 /**
  * 随机推荐响应
  * 随机推荐接口的响应包装 */
+@JsExport
 @Serializable
 public data class RandomFursuitResponse(
     public val success: Boolean,
@@ -61,6 +66,7 @@ public data class RandomFursuitResponse(
  * @param avatarUrl 头像 URL
  * @param species 物种
  */
+@JsExport
 @Serializable
 public data class RandomFursuit(
     public val username: String,
@@ -74,6 +80,7 @@ public data class RandomFursuit(
 /**
  * 搜索响应
  * 搜索接口的响应包装 */
+@JsExport
 @Serializable
 public data class SearchResponse(
     public val success: Boolean,
@@ -88,6 +95,7 @@ public data class SearchResponse(
  * @param nextCursor 下一页游标
  * @param hasMore 是否还有更多结果
  */
+@JsExport
 @Serializable
 public data class SearchData(
     public val results: List<SearchResult>,
@@ -104,6 +112,7 @@ public data class SearchData(
  * @param avatarUrl 头像 URL
  * @param description 描述
  */
+@JsExport
 @Serializable
 public data class SearchResult(
     public val type: String,
@@ -118,6 +127,7 @@ public data class SearchResult(
 /**
  * 搜索建议响应
  * 搜索建议接口的响应包装 */
+@JsExport
 @Serializable
 public data class SearchSuggestionsResponse(
     public val success: Boolean,
@@ -129,6 +139,7 @@ public data class SearchSuggestionsResponse(
  * 搜索建议数据
  * 包含搜索建议列表
  */
+@JsExport
 @Serializable
 public data class SearchSuggestionsData(
     public val suggestions: List<String>,
@@ -139,6 +150,7 @@ public data class SearchSuggestionsData(
 /**
  * 物种搜索响应
  * 物种搜索接口的响应包装 */
+@JsExport
 @Serializable
 public data class SpeciesSearchResponse(
     public val success: Boolean,
@@ -153,6 +165,7 @@ public data class SpeciesSearchResponse(
  * @param users 用户列表
  * @param totalCount 总数
  */
+@JsExport
 @Serializable
 public data class SpeciesSearchData(
     public val species: String,
@@ -167,6 +180,7 @@ public data class SpeciesSearchData(
  * @param displayName 显示名称
  * @param avatarUrl 头像 URL
  */
+@JsExport
 @Serializable
 public data class SpeciesUser(
     public val username: String,
@@ -179,6 +193,7 @@ public data class SpeciesUser(
 /**
  * 物种列表响应
  * 物种列表接口的响应包装 */
+@JsExport
 @Serializable
 public data class SpeciesListResponse(
     public val success: Boolean,
@@ -192,6 +207,7 @@ public data class SpeciesListResponse(
  * @param species 物种列表
  * @param totalCount 物种总数
  */
+@JsExport
 @Serializable
 public data class SpeciesListData(
     public val species: List<SpeciesInfo>,
@@ -204,6 +220,7 @@ public data class SpeciesListData(
  * @param name 物种名称
  * @param count 该物种的用户数量
  */
+@JsExport
 @Serializable
 public data class SpeciesInfo(
     public val name: String,
@@ -215,6 +232,7 @@ public data class SpeciesInfo(
 /**
  * 热门地区响应
  * 热门地区接口的响应包装 */
+@JsExport
 @Serializable
 public data class PopularLocationsResponse(
     public val success: Boolean,
@@ -226,6 +244,7 @@ public data class PopularLocationsResponse(
  * 热门地区数据
  * 包含热门地区列表
  */
+@JsExport
 @Serializable
 public data class PopularLocationsData(
     public val locations: List<LocationInfo>,
@@ -238,6 +257,7 @@ public data class PopularLocationsData(
  * @param city 城市
  * @param count 用户数量
  */
+@JsExport
 @Serializable
 public data class LocationInfo(
     public val province: String,

@@ -1,6 +1,8 @@
 package com.furrist.rp.furtv.sdk.model
 
 import io.ktor.client.plugins.logging.LogLevel
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.jvm.JvmStatic
 
 private const val DEFAULT_BASE_URL = "https://open-global.vdsentnet.com"
@@ -25,7 +27,9 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * @property maxRetries 最大重试次数
  * @property retryInterval 重试间隔（毫秒）
  */
-public class SdkConfig internal constructor(
+@JsExport
+@JsName("SdkConfig")
+public class SdkConfig(
     public val baseUrl: String = DEFAULT_BASE_URL,
     public val apiKey: String? = null,
     public val clientId: String? = null,
@@ -86,5 +90,7 @@ public class SdkConfig internal constructor(
  * @param block 配置块
  * @return SdkConfig 实例
  */
-public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
-    SdkConfig.sdkConfig(block)
+@JsExport
+@JsName("sdkConfig")
+public fun sdkConfig(block: (SdkConfig) -> Unit): SdkConfig =
+    SdkConfig().apply(block)

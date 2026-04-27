@@ -1,6 +1,8 @@
 package com.furrist.rp.furtv.sdk.model
 
 import io.ktor.client.plugins.logging.LogLevel
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 // 导入 SdkConfig 中的常量（通过内部访问）
 private const val DEFAULT_BASE_URL = "https://open-global.vdsentnet.com"
@@ -16,6 +18,8 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * 与 SdkConfig 不同，此类的属性是可变的，支持在 DSL 块中修改。
  * 使用 `toImmutable()` 方法可转换为不可变的 SdkConfig。
  */
+@JsExport
+@JsName("MutableSdkConfig")
 public class MutableSdkConfig {
     public var baseUrl: String = DEFAULT_BASE_URL
     public var apiKey: String? = null
@@ -29,9 +33,9 @@ public class MutableSdkConfig {
     public var maxRetries: Int = DEFAULT_MAX_RETRIES
     public var retryInterval: Long = DEFAULT_RETRY_INTERVAL
 
-    /** 链式 Builder 方法 */
-
     /**
+     * 链式 Builder 方法。
+     *
      * 设置 API 基础 URL。
      *
      * 指定 Fursuit.TV API 服务器的地址。生产环境默认使用官方服务器，
@@ -40,6 +44,7 @@ public class MutableSdkConfig {
      * @param url API 服务器地址，必须以 `http://` 或 `https://` 开头
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setBaseUrl")
     public fun baseUrl(url: String): MutableSdkConfig = apply { this.baseUrl = url }
 
     /**
@@ -52,6 +57,7 @@ public class MutableSdkConfig {
      * @return 此配置实例（支持链式调用）
      * @see SdkConfig.withApiKey
      */
+    @JsName("setApiKey")
     public fun apiKey(key: String): MutableSdkConfig = apply { this.apiKey = key }
 
     /**
@@ -63,6 +69,7 @@ public class MutableSdkConfig {
      * @param id 客户端 ID 字符串（格式：`vap_xxxxxxxx`）
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setClientId")
     public fun clientId(id: String): MutableSdkConfig = apply { this.clientId = id }
 
     /**
@@ -74,6 +81,7 @@ public class MutableSdkConfig {
      * @param secret 应用密钥字符串
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setClientSecret")
     public fun clientSecret(secret: String): MutableSdkConfig = apply { this.clientSecret = secret }
 
     /**
@@ -85,6 +93,7 @@ public class MutableSdkConfig {
      * @param timeout 超时时间（毫秒），默认 30000
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setRequestTimeout")
     public fun requestTimeout(timeout: Long): MutableSdkConfig = apply { this.requestTimeout = timeout }
 
     /**
@@ -96,6 +105,7 @@ public class MutableSdkConfig {
      * @param timeout 超时时间（毫秒），默认 10000
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setConnectTimeout")
     public fun connectTimeout(timeout: Long): MutableSdkConfig = apply { this.connectTimeout = timeout }
 
     /**
@@ -107,6 +117,7 @@ public class MutableSdkConfig {
      * @param timeout 超时时间（毫秒），默认 30000
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setSocketTimeout")
     public fun socketTimeout(timeout: Long): MutableSdkConfig = apply { this.socketTimeout = timeout }
 
     /**
@@ -118,6 +129,7 @@ public class MutableSdkConfig {
      * @param level 日志级别（OFF/ERROR/WARNING/INFO/DEBUG/ALL），默认 INFO
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setLogLevel")
     public fun logLevel(level: LogLevel): MutableSdkConfig = apply { this.logLevel = level }
 
     /**
@@ -129,6 +141,7 @@ public class MutableSdkConfig {
      * @param enable 是否启用重试（true=启用, false=禁用），默认 true
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setEnableRetry")
     public fun enableRetry(enable: Boolean): MutableSdkConfig = apply { this.enableRetry = enable }
 
     /**
@@ -140,6 +153,7 @@ public class MutableSdkConfig {
      * @param retries 最大重试次数，默认 3
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setMaxRetries")
     public fun maxRetries(retries: Int): MutableSdkConfig = apply { this.maxRetries = retries }
 
     /**
@@ -151,6 +165,7 @@ public class MutableSdkConfig {
      * @param interval 重试间隔时间（毫秒），默认 1000
      * @return 此配置实例（支持链式调用）
      */
+    @JsName("setRetryInterval")
     public fun retryInterval(interval: Long): MutableSdkConfig = apply { this.retryInterval = interval }
 
     internal fun toImmutable(): SdkConfig =

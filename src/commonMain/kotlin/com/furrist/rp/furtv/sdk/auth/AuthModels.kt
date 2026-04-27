@@ -1,35 +1,23 @@
 package com.furrist.rp.furtv.sdk.auth
 
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.datetime.Clock
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * VDS 认证系统使用三种类型的凭证：
- *
- * 1. 应用凭证 (App Credentials)
- *    - 字段: clientId + clientSecret
- *    - 用途: 调用签名交换接口 (/api/auth/token)
- *    - 来源: VDS 开发者控制台
- *
- * 2. 平台签名 (Platform Signature / 开放平台签名)
- *    - 通过 /api/auth/token 获取
- *    - 包含: accessToken + apiKey
- *    - accessToken用途: OAuth接口认证(Bearer) + 用户信息查询(Bearer) + 业务API(Bearer备选)
- *    - apiKey用途: 业务API(X-Api-Key, 推荐)
- *
- * 3. OAuth 用户令牌 (OAuth User Token)
- *    - 通过 OAuth 2.0 授权码流程获取
- *    - 用途: 仅用于 X-OAuth-Access-Token 头（用户信息查询）
- *    - ⚠️ 不可用于 Authorization: Bearer 头
- */
-
-/**
  * 签名交换请求，用于获取 apiKey/accessToken。
+ *
+ * VDS 认证系统使用三种类型的凭证：
+ * 1. 应用凭证 (App Credentials) - clientId + clientSecret
+ * 2. 平台签名 (Platform Signature) - 通过 /api/auth/token 获取
+ * 3. OAuth 用户令牌 (OAuth User Token) - 通过 OAuth 2.0 授权码流程获取
  *
  * @param clientId 应用 ID（格式 vap_xxxx），与 appId 等价
  * @param clientSecret 应用密钥
  */
+@JsExport
 @Serializable
 public data class TokenExchangeRequest(
     @SerialName("clientId")
@@ -45,6 +33,7 @@ public data class TokenExchangeRequest(
  * @param data 令牌数据
  * @param requestId 请求 ID，用于日志排查
  */
+@JsExport
 @Serializable
 public data class TokenExchangeResponse(
     public val success: Boolean,
@@ -59,6 +48,7 @@ public data class TokenExchangeResponse(
  * @param refreshWindowSeconds 刷新窗口时间（秒）
  * @param previousTokenSecondsRemaining 旧令牌剩余有效期（秒）
  */
+@JsExport
 @Serializable
 public data class TokenRefreshInfo(
     @SerialName("mode")
@@ -78,6 +68,7 @@ public data class TokenRefreshInfo(
  * @param tokenType 令牌类型，通常为 "Bearer"
  * @param refresh 可选的令牌刷新信息
  */
+@JsExport
 @Serializable
 public data class TokenData(
     public val accessToken: String,
@@ -93,6 +84,7 @@ public data class TokenData(
  * 令牌刷新请求，用于令牌刷新接口。
  * 刷新接口不需要请求体，只需要 Authorization header。
  */
+@JsExport
 @Serializable
 public data class TokenRefreshRequest(
     // 占位符，实际不会发送
@@ -107,6 +99,7 @@ public data class TokenRefreshRequest(
  * @param requestId 请求 ID
  * @param refresh 可选的令牌刷新信息
  */
+@JsExport
 @Serializable
 public data class TokenRefreshResponse(
     public val success: Boolean,
@@ -127,6 +120,7 @@ public data class TokenRefreshResponse(
  * @param codeChallenge 可选的 PKCE code_challenge
  * @param codeChallengeMethod 可选的 PKCE code_challenge_method，默认为 "SHA256"
  */
+@JsExport
 @Serializable
 public data class OAuthAuthorizeParams(
     public val clientId: String,
@@ -153,6 +147,7 @@ public data class OAuthAuthorizeParams(
  *
  * @throws IllegalArgumentException 参数验证失败
  */
+@JsExport
 @Serializable
 public data class OAuthConfig(
     public val callbackHost: String = DEFAULT_CALLBACK_HOST,
@@ -189,6 +184,7 @@ public data class OAuthConfig(
  * @param clientId 应用 ID（格式 vap_xxxx）
  * @param codeVerifier 可选的 PKCE code_verifier
  */
+@JsExport
 @Serializable
 public data class OAuthTokenRequest(
     @SerialName("grant_type")
@@ -212,6 +208,7 @@ public data class OAuthTokenRequest(
  * @param data OAuth 令牌数据
  * @param requestId 请求 ID
  */
+@JsExport
 @Serializable
 public data class OAuthTokenResponse(
     public val success: Boolean,
@@ -228,6 +225,7 @@ public data class OAuthTokenResponse(
  * @param scope 授权的权限范围
  * @param refreshToken 刷新令牌，用于获取新的访问令牌
  */
+@JsExport
 @Serializable
 public data class OAuthTokenData(
     @SerialName("access_token")
@@ -248,6 +246,7 @@ public data class OAuthTokenData(
  * @param data 用户信息数据
  * @param requestId 请求 ID
  */
+@JsExport
 @Serializable
 public data class UserInfoResponse(
     public val success: Boolean,
@@ -267,6 +266,7 @@ public data class UserInfoResponse(
  * @param updatedAt 用户信息更新时间戳（毫秒）
  * @param phoneNumber 用户电话号码
  */
+@JsExport
 @Serializable
 public data class UserInfoData(
     public val sub: String,
@@ -291,6 +291,7 @@ public data class UserInfoData(
  * @param tokenType 令牌类型
  * @param refreshToken 可选的刷新令牌，用于 OAuth 令牌刷新
  */
+@JsExport
 @Serializable
 public data class TokenInfo(
     public val accessToken: String,
@@ -323,6 +324,8 @@ public data class TokenInfo(
  *
  * @return 包含访问令牌、API 密钥和过期时间的令牌信息
  */
+@JsExport
+@JsName("toTokenInfo")
 public fun TokenData.toTokenInfo(): TokenInfo =
     TokenInfo(
         accessToken = accessToken,
@@ -336,6 +339,8 @@ public fun TokenData.toTokenInfo(): TokenInfo =
  *
  * @return 包含访问令牌和过期时间的令牌信息（apiKey 为空字符串）
  */
+@JsExport
+@JsName("toTokenInfoFromOAuth")
 public fun OAuthTokenData.toTokenInfo(): TokenInfo =
     TokenInfo(
         accessToken = accessToken,

@@ -2,6 +2,8 @@
 
 package com.furrist.rp.furtv.sdk.utils
 
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.jvm.JvmName
 
 /**
@@ -9,6 +11,8 @@ import kotlin.jvm.JvmName
  *
  * @return 十六进制编码的字符串
  */
+@JsExport
+@JsName("toHex")
 public fun ByteArray.toHex(): String =
     joinToString("") { byte ->
         val hex = byte.toInt().and(0xFF).toString(16)

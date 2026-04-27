@@ -14,6 +14,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.random.Random
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -27,7 +29,9 @@ import kotlinx.datetime.Clock
  * @property config SDK 配置
  */
 @Suppress("TooManyFunctions")
-public class AuthManager(
+@JsExport
+@JsName("AuthManager")
+public class AuthManager internal constructor(
     private val config: SdkConfig,
 ) {
     private var httpClient: HttpClient = HttpClientConfig.createClient(config)
@@ -45,8 +49,10 @@ public class AuthManager(
     private var oauthClientId: String? = null
     private var oauthRedirectUri: String? = null
 
-    // 平台签名（签名交换获取），用于 OAuth 接口的 Authorization Bearer 认证头
+    // 平台签名
     private var platformAccessToken: String? = null
+
+    private var callbackHandler: OAuthCallbackHandler? = createDefaultOAuthHandler()
 
     /**
      * 获取当前访问令牌
@@ -82,6 +88,52 @@ public class AuthManager(
     public fun clearToken() {
         tokenInfo = null
         updateHttpClient()
+    }
+
+    /**
+     * 设置自定义 OAuth 回调处理器
+     * @param handler 回调处理器
+     */
+    @JsName("setOAuthCallbackHandler")
+    public fun setOAuthCallbackHandler(handler: OAuthCallbackHandler) {
+        this.callbackHandler = handler
+    }
+
+    /**
+     * 执行完整的 OAuth 登录流程
+     *
+     * 1. 自动生成状态和 PKCE 参数
+     * 2. 调用回调处理器开始监听
+     * 3. 交换授权码获取用户令牌
+     *
+     * @param scope 权限范围（可选）
+     * @return TokenInfo 获取到的用户令牌信息
+     * @throws IllegalStateException 如果没有可用的回调处理器
+     */
+    @JsName("loginWithOAuth")
+    public suspend fun loginWithOAuth(scope: String? = null): TokenInfo {
+        val handler = callbackHandler ?: throw IllegalStateException("OAuth callback handler not set")
+
+        val config =
+            OAuthConfig(
+                enablePkce = true,
+            )
+
+        val params = generateAuthorizationParams(handler, config, scope)
+
+        val result = handler.startAndGetCallback(params.authorizeUrl)
+
+        return when (result) {
+            is OAuthCallbackResult.Success -> {
+                exchangeOAuthToken(result.code, params.redirectUri, params.codeVerifier)
+            }
+            is OAuthCallbackResult.Error -> {
+                throw com.furrist.rp.furtv.sdk.exception.AuthenticationException(
+                    "OAuth login failed: ${result.message}",
+                    result.cause,
+                )
+            }
+        }
     }
 
     /**
@@ -278,80 +330,6 @@ public class AuthManager(
     }
 
     /**
-     * 执行 OAuth 2.0 授权码流程（自动处理回调）。
-     *
-     * 自动启动本地服务器接收回调，完成授权后交换令牌。
-     *
-     * @param config 回调服务器配置
-     * @param scope 权限范围（可选）
-     * @return TokenInfo 令牌信息
-     * @throws IllegalStateException 缺少 clientId/clientSecret
-     * @throws OAuthCallbackException 授权失败（超时、state 不匹配等）
-     */
-    @Suppress("LongMethod", "ThrowsCount", "MaxLineLength")
-    public suspend fun initOAuth(config: OAuthConfig, scope: String? = null): TokenInfo {
-        // Step 1: Validate configuration
-        validateOAuthConfiguration(config)
-
-        // Step 2: Create callback handler
-        val handler = createOAuthCallbackHandler(config)
-
-        // Step 3: Generate authorization URL and parameters
-        val authParams = generateAuthorizationParams(handler, config, scope)
-
-        try {
-            // Step 4: Wait for OAuth callback
-            val result = handler.startAndGetCallback(authParams.authorizeUrl)
-
-            // Step 5: Process result and exchange token
-            return when (result) {
-                is OAuthCallbackResult.Success -> {
-                    if (result.state != authParams.state) {
-                        throw OAuthCallbackException(
-                            "State mismatch: expected ${authParams.state}, got ${result.state}",
-                        )
-                    }
-                    exchangeOAuthToken(
-                        code = result.code,
-                        redirectUri = authParams.redirectUri,
-                        codeVerifier = authParams.codeVerifier,
-                    )
-                }
-                is OAuthCallbackResult.Error -> {
-                    throw OAuthCallbackException(result.message, result.cause)
-                }
-            }
-        } finally {
-            handler.stop()
-        }
-    }
-
-    /**
-     * 验证 OAuth 配置的必要参数
-     * @param config OAuth 配置
-     * @throws IllegalStateException 当缺少 clientId 或 clientSecret 时抛出
-     */
-    private fun validateOAuthConfiguration(config: OAuthConfig) {
-        this.config.clientId ?: throw IllegalStateException("clientId is required for OAuth")
-        this.config.clientSecret ?: throw IllegalStateException("clientSecret is required for OAuth")
-    }
-
-    /**
-     * 创建 OAuth 回调处理器
-     * @param config OAuth 配置
-     * @return OAuthCallbackHandler 实例
-     */
-    private fun createOAuthCallbackHandler(config: OAuthConfig): OAuthCallbackHandler {
-        val serverConfig = OAuthCallbackServerConfig(
-            callbackHost = config.callbackHost,
-            callbackPort = config.callbackPort,
-            callbackPath = config.callbackPath,
-            timeoutSeconds = config.stateTimeoutMinutes * 60L,
-        )
-        return OAuthCallbackHandler(serverConfig)
-    }
-
-    /**
      * PKCE (Proof Key for Code Exchange) parameters for OAuth security.
      * @property codeVerifier The random verifier generated by client
      * @property codeChallenge The SHA256 hash of codeVerifier, base64url encoded
@@ -388,13 +366,14 @@ public class AuthManager(
 
         val pkceParams = generatePkceParameters(config.enablePkce)
 
-        val authorizeUrl = getOAuthAuthorizeUrl(
-            redirectUri = redirectUri,
-            scope = scope,
-            state = state,
-            enablePkce = config.enablePkce,
-            codeChallenge = pkceParams?.codeChallenge,
-        )
+        val authorizeUrl =
+            getOAuthAuthorizeUrl(
+                redirectUri = redirectUri,
+                scope = scope,
+                state = state,
+                enablePkce = config.enablePkce,
+                codeChallenge = pkceParams?.codeChallenge,
+            )
 
         return AuthorizationParams(
             authorizeUrl = authorizeUrl,
@@ -442,11 +421,12 @@ public class AuthManager(
             requestBody["code_verifier"] = it
         }
 
-        val platformAccessToken = tokenInfo?.accessToken
-            ?: throw IllegalStateException(
-                "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
-                "OAuth Token 交换接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。"
-            )
+        val platformAccessToken =
+            tokenInfo?.accessToken
+                ?: throw IllegalStateException(
+                    "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
+                        "OAuth Token 交换接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。",
+                )
 
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {
@@ -488,11 +468,12 @@ public class AuthManager(
         val clientSecret = config.clientSecret ?: throw IllegalStateException("clientSecret is not configured in SDK")
         val redirectUri = oauthRedirectUri ?: throw IllegalStateException("OAuth redirect URI not available")
 
-        val platformAccessToken = tokenInfo?.accessToken
-            ?: throw IllegalStateException(
-                "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
-                "OAuth Token 刷新接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。"
-            )
+        val platformAccessToken =
+            tokenInfo?.accessToken
+                ?: throw IllegalStateException(
+                    "未找到平台签名。请先调用 exchangeToken(clientId, clientSecret) 完成签名交换。" +
+                        "OAuth Token 刷新接口需要使用'开放平台签名'作为 Authorization Bearer 认证头。",
+                )
 
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {

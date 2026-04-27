@@ -6,6 +6,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 搜索和发现 API。
@@ -32,7 +34,9 @@ import io.ktor.client.request.parameter
  * @see FursuitTvSdkException 异常层次结构
  */
 @Suppress("TooManyFunctions")
-public class SearchApi(
+@JsExport
+@JsName("SearchApi")
+public class SearchApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
@@ -69,6 +73,7 @@ public class SearchApi(
      * @throws ValidationException 参数值超出允许范围
      * @throws ApiException 服务器返回业务错误(4xx/5xx)
      */
+    @JsName("getRandomFursuitWithParams")
     public suspend fun getRandomFursuit(params: RandomFursuitParams): List<RandomFursuit> {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
@@ -109,6 +114,7 @@ public class SearchApi(
      * @throws ValidationException 参数验证失败（如 query 为空）
      * @throws ApiException 服务器返回业务错误(4xx/5xx)
      */
+    @JsName("searchWithParams")
     public suspend fun search(params: SearchParams): SearchData {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/search") {

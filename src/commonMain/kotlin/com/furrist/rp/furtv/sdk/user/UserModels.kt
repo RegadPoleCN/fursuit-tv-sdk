@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.user
 
+import kotlin.js.JsExport
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
  * 端点：GET /api/proxy/furtv/users/profile
  * 用户资料接口的响应包装
  */
+@JsExport
 @Serializable
 public data class UserProfileResponse(
     @SerialName("success")
@@ -33,6 +35,7 @@ public data class UserProfileResponse(
  * @param destinations 目的地列表
  * @param privacy 隐私设置
  */
+@JsExport
 @Serializable
 public data class UserProfile(
     @SerialName("id")
@@ -61,6 +64,7 @@ public data class UserProfile(
  * @param showVisitorDetails 是否显示访客详情
  * @param showRelationships 是否显示关系列表
  */
+@JsExport
 @Serializable
 public data class UserPrivacySettings(
     @SerialName("showVisitorDetails")
@@ -76,6 +80,7 @@ public data class UserPrivacySettings(
  * 端点：GET /api/proxy/furtv/users/id
  * 通过标识符查询用户 ID 的响应包装
  */
+@JsExport
 @Serializable
 public data class UserIdResponse(
     @SerialName("success")
@@ -94,6 +99,7 @@ public data class UserIdResponse(
  * @param displayName 显示名称
  * @param avatarUrl 头像 URL
  */
+@JsExport
 @Serializable
 public data class UserIdData(
     @SerialName("id")
@@ -113,6 +119,7 @@ public data class UserIdData(
  * 端点：GET /api/proxy/furtv/fursuit/likestatus
  * 点赞状态接口的响应包装
  */
+@JsExport
 @Serializable
 public data class LikeStatusResponse(
     @SerialName("success")
@@ -130,6 +137,7 @@ public data class LikeStatusResponse(
  * @param isLiked 是否已点赞
  * @param likeCount 点赞总数量
  */
+@JsExport
 @Serializable
 public data class LikeStatusData(
     @SerialName("canLike")
@@ -147,6 +155,7 @@ public data class LikeStatusData(
  * 端点：GET /api/proxy/furtv/relationships/user
  * 用户关系接口的响应包装
  */
+@JsExport
 @Serializable
 public data class UserRelationshipsResponse(
     @SerialName("success")
@@ -164,6 +173,7 @@ public data class UserRelationshipsResponse(
  * @param partners 关系伴侣列表
  * @param totalCount 关系总数
  */
+@JsExport
 @Serializable
 public data class UserRelationshipsData(
     @SerialName("userId")
@@ -183,6 +193,7 @@ public data class UserRelationshipsData(
  * @param avatarUrl 伴侣头像 URL
  * @param relationshipType 关系类型
  */
+@JsExport
 @Serializable
 public data class RelationshipPartner(
     @SerialName("userId")
@@ -204,6 +215,7 @@ public data class RelationshipPartner(
  * 端点：GET /api/proxy/furtv/users/visitors
  * 访客记录接口的响应包装
  */
+@JsExport
 @Serializable
 public data class UserVisitorsResponse(
     @SerialName("success")
@@ -222,6 +234,7 @@ public data class UserVisitorsResponse(
  * @param totalCount 访客总数
  * @param showVisitorDetails 是否显示访客详情
  */
+@JsExport
 @Serializable
 public data class UserVisitorsData(
     @SerialName("userId")
@@ -243,6 +256,7 @@ public data class UserVisitorsData(
  * @param avatarUrl 访客头像 URL
  * @param visitedAt 访问时间
  */
+@JsExport
 @Serializable
 public data class UserVisitor(
     @SerialName("userId")
@@ -264,6 +278,7 @@ public data class UserVisitor(
  * 端点：GET /api/proxy/furtv/users/socialbadges
  * 社交徽章接口的响应包装
  */
+@JsExport
 @Serializable
 public data class SocialBadgesResponse(
     @SerialName("success")
@@ -280,6 +295,7 @@ public data class SocialBadgesResponse(
  * @param userId 用户 ID
  * @param badges 徽章列表
  */
+@JsExport
 @Serializable
 public data class SocialBadgesData(
     @SerialName("userId")
@@ -298,6 +314,7 @@ public data class SocialBadgesData(
  * @param glbUrl 3D 模型 URL（GLB 格式）
  * @param awardedAt 授予时间
  */
+@JsExport
 @Serializable
 public data class SocialBadge(
     @SerialName("id")
@@ -319,6 +336,7 @@ public data class SocialBadge(
  * 端点：GET /api/proxy/furtv/users/socialbadges/detail
  * 徽章详情接口的响应包装
  */
+@JsExport
 @Serializable
 public data class SocialBadgeDetailResponse(
     @SerialName("success")
@@ -341,6 +359,7 @@ public data class SocialBadgeDetailResponse(
  * @param awardedAt 授予时间
  * @param awardedBy 授予者
  */
+@JsExport
 @Serializable
 public data class SocialBadgeDetailData(
     @SerialName("id")
@@ -368,6 +387,7 @@ public data class SocialBadgeDetailData(
  * 端点：GET /api/proxy/furtv/users/storeproducts
  * 商店商品接口的响应包装
  */
+@JsExport
 @Serializable
 public data class StoreProductsResponse(
     @SerialName("success")
@@ -385,6 +405,7 @@ public data class StoreProductsResponse(
  * @param isMerchant 是否是商家
  * @param products 商品列表
  */
+@JsExport
 @Serializable
 public data class StoreProductsData(
     @SerialName("userId")
@@ -406,6 +427,7 @@ public data class StoreProductsData(
  * @param externalUrl 外部购买链接
  * @param imageUrl 商品图片 URL
  */
+@JsExport
 @Serializable
 public data class StoreProduct(
     @SerialName("id")

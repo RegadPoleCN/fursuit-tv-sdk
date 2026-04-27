@@ -7,6 +7,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 基础接口 API。
@@ -25,7 +27,9 @@ import io.ktor.http.contentType
  * @see BaseModels 基础数据模型定义
  * @see FursuitTvSdkException 异常层次结构
  */
-public class BaseApi(
+@JsExport
+@JsName("BaseApi")
+public class BaseApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {

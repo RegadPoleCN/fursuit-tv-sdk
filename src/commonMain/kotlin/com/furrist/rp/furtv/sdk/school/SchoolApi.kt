@@ -5,18 +5,20 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 学校和角色相关 API。
  *
- * 提供学校信息查询、用户学校关联、角色管理等功能的访问接口。
+ * 提供学校搜索、学校详情、用户关联学校以及用户角色列表的访问接口。
  * 所有方法均通过 HTTP GET 请求获取数据，返回对应的学校/角色数据模型。
  *
  * ## 主要功能
- * - 学校搜索（searchSchools）：按关键词搜索学校，支持 cursor-based 分页
- * - 学校详情（getSchoolDetail）：获取指定学校的完整信息
- * - 用户学校（getUserSchools）：查询用户的学校列表和关联信息
- * - 用户角色（getUserCharacters）：查询用户的角色列表和详细信息
+ * - 学校搜索（searchSchools）：按关键词搜索学校，支持分页
+ * - 学校详情（getSchoolDetail）：获取单个学校的完整资料
+ * - 用户学校（getUserSchools）：查询指定用户关联的学校信息
+ * - 用户角色（getUserCharacters）：查询指定用户的角色列表
  *
  * ## 分页说明
  * - searchSchools() 方法使用 **cursor-based 分页**：通过 cursor 游标翻页
@@ -25,10 +27,12 @@ import io.ktor.client.request.parameter
  *
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL，默认为 https://open-global.vdsentnet.com
- * @see SchoolModels 学校相关的数据模型定义
+ * @see SchoolModels 学校/角色数据模型定义
  * @see FursuitTvSdkException 异常层次结构
  */
-public class SchoolApi(
+@JsExport
+@JsName("SchoolApi")
+public class SchoolApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
@@ -46,6 +50,7 @@ public class SchoolApi(
      * @throws ValidationException 参数验证失败（如 query 为空）
      * @throws ApiException 服务器返回业务错误(4xx/5xx)
      */
+    @JsName("searchSchoolsWithParams")
     public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchData {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {

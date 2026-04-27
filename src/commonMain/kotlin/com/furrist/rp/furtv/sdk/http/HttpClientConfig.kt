@@ -17,11 +17,15 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.json.Json
 
 /**
  * HTTP 客户端配置，提供 Ktor 客户端的创建和配置功能。
  */
+@JsExport
+@JsName("HttpClientConfig")
 public object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
     private const val SUCCESS_STATUS_START = 200

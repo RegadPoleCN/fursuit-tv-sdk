@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.school
 
+import kotlin.js.JsExport
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
  * 端点：GET /api/proxy/furtv/schools/search
  * 学校搜索接口的响应包装
  */
+@JsExport
 @Serializable
 public data class SchoolSearchResponse(
     @SerialName("success")
@@ -27,6 +29,7 @@ public data class SchoolSearchResponse(
  * @param totalCount 总数量
  * @param cursor 分页游标（可选）
  */
+@JsExport
 @Serializable
 public data class SchoolSearchData(
     @SerialName("schools")
@@ -47,6 +50,7 @@ public data class SchoolSearchData(
  * @param description 学校描述（可选）
  * @param studentCount 学生数量（可选）
  */
+@JsExport
 @Serializable
 public data class SchoolInfo(
     @SerialName("id")
@@ -70,6 +74,7 @@ public data class SchoolInfo(
  * 端点：GET /api/proxy/furtv/schools/detail
  * 学校详情接口的响应包装
  */
+@JsExport
 @Serializable
 public data class SchoolDetailResponse(
     @SerialName("success")
@@ -94,6 +99,7 @@ public data class SchoolDetailResponse(
  * @param createdAt 创建时间（ISO 8601 格式）
  * @param updatedAt 更新时间（ISO 8601 格式，可选）
  */
+@JsExport
 @Serializable
 public data class SchoolDetail(
     @SerialName("id")
@@ -125,6 +131,7 @@ public data class SchoolDetail(
  * 端点：GET /api/proxy/furtv/schools/user
  * 用户学校信息接口的响应包装
  */
+@JsExport
 @Serializable
 public data class UserSchoolsResponse(
     @SerialName("success")
@@ -142,6 +149,7 @@ public data class UserSchoolsResponse(
  * @param username 用户名
  * @param schools 用户关联的学校列表
  */
+@JsExport
 @Serializable
 public data class UserSchoolsData(
     @SerialName("userId")
@@ -163,6 +171,7 @@ public data class UserSchoolsData(
  * @param enrollmentYear 入学年份
  * @param isVerified 是否已认证
  */
+@JsExport
 @Serializable
 public data class UserSchoolInfo(
     @SerialName("schoolId")
@@ -188,6 +197,7 @@ public data class UserSchoolInfo(
  * 端点：GET /api/proxy/furtv/characters/user
  * 用户角色接口的响应包装
  */
+@JsExport
 @Serializable
 public data class UserCharactersResponse(
     @SerialName("success")
@@ -206,6 +216,7 @@ public data class UserCharactersResponse(
  * @param characters 角色列表
  * @param totalCount 角色总数
  */
+@JsExport
 @Serializable
 public data class UserCharactersData(
     @SerialName("userId")
@@ -231,6 +242,7 @@ public data class UserCharactersData(
  * @param isPrimary 是否是主要角色
  * @param createdAt 创建时间（ISO 8601 格式）
  */
+@JsExport
 @Serializable
 public data class CharacterInfo(
     @SerialName("id")

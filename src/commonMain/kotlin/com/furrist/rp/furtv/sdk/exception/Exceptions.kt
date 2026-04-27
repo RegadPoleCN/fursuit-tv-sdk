@@ -1,5 +1,8 @@
 package com.furrist.rp.furtv.sdk.exception
 
+import kotlin.js.JsExport
+import kotlin.js.JsName
+
 /**
  * SDK 基础异常类。
  *
@@ -26,6 +29,8 @@ package com.furrist.rp.furtv.sdk.exception
  * @see NetworkException 网络连接问题
  * @see TokenExpiredException 令牌过期需刷新
  */
+@JsExport
+@JsName("FursuitTvSdkException")
 public open class FursuitTvSdkException(
     message: String,
     cause: Throwable? = null,
@@ -57,6 +62,8 @@ public open class FursuitTvSdkException(
  * @param cause 底层异常原因（如 JSON 解析失败），可能为 null
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("ApiException")
 public class ApiException(
     public val statusCode: Int,
     message: String,
@@ -89,6 +96,8 @@ public class ApiException(
  * @param cause 根本原因（如 java.net.UnknownHostException），可能为 null
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("NetworkException")
 public class NetworkException(
     message: String,
     cause: Throwable? = null,
@@ -121,6 +130,8 @@ public class NetworkException(
  * @see AuthManager.exchangeToken
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("TokenExpiredException")
 public class TokenExpiredException(
     message: String = "Access token has expired",
     cause: Throwable? = null,
@@ -153,6 +164,8 @@ public class TokenExpiredException(
  * @see TokenExpiredException
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("AuthenticationException")
 public class AuthenticationException(
     message: String,
     cause: Throwable? = null,
@@ -183,6 +196,8 @@ public class AuthenticationException(
  * @param cause 底层原因（较少见，可能为 JSON 序列化错误），可能为 null
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("ValidationException")
 public class ValidationException(
     message: String,
     cause: Throwable? = null,
@@ -212,6 +227,8 @@ public class ValidationException(
  * @param cause 底层原因（较少见），可能为 null
  * @see FursuitTvSdkException
  */
+@JsExport
+@JsName("NotFoundException")
 public class NotFoundException(
     message: String,
     cause: Throwable? = null,

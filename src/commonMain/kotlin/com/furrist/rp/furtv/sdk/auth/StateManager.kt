@@ -1,6 +1,8 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import kotlin.concurrent.Volatile
+import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +24,8 @@ import kotlinx.datetime.Instant
  * - 超时失效：支持自定义超时时间
  * - 线程安全：使用 ConcurrentMap 存储
  */
+@JsExport
+@JsName("StateManager")
 public object StateManager {
     private const val STATE_LENGTH = 32
     private const val DEFAULT_TIMEOUT_MINUTES = 10

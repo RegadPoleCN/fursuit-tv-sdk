@@ -7,6 +7,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 聚会相关 API。
@@ -31,7 +33,9 @@ import io.ktor.client.request.parameter
  * @see GatheringModels 聚会相关的数据模型定义
  * @see FursuitTvSdkException 异常层次结构
  */
-public class GatheringApi(
+@JsExport
+@JsName("GatheringApi")
+public class GatheringApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
@@ -87,6 +91,7 @@ public class GatheringApi(
      * @throws NetworkException 网络连接失败或超时
      * @throws TokenExpiredException 访问令牌已过期或无效
      */
+    @JsName("getMonthlyWithParams")
     public suspend fun getMonthly(params: GatheringMonthlyParams): List<GatheringMonthlyItem> {
         return getMonthly(params.year, params.month)
     }
@@ -134,6 +139,7 @@ public class GatheringApi(
      * @throws NetworkException 网络连接失败或超时
      * @throws TokenExpiredException 访问令牌已过期或无效
      */
+    @JsName("getMonthlyDistanceWithParams")
     public suspend fun getMonthlyDistance(params: GatheringMonthlyParams): List<GatheringMonthlyDistanceItem> {
         return getMonthlyDistance(params.year, params.month, params.lat, params.lng)
     }
@@ -178,6 +184,7 @@ public class GatheringApi(
      * @throws NetworkException 网络连接失败或超时
      * @throws TokenExpiredException 访问令牌已过期或无效
      */
+    @JsName("getNearbyWithParams")
     public suspend fun getNearby(params: GatheringNearbyParams): List<GatheringNearbyItem> {
         return getNearby(params.lat, params.lng, params.radius)
     }
@@ -262,6 +269,7 @@ public class GatheringApi(
      * @throws NetworkException 网络连接失败或超时
      * @throws TokenExpiredException 访问令牌已过期或无效
      */
+    @JsName("getRegistrationsWithParams")
     public suspend fun getRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsData {
         return getRegistrations(params.gatheringId, params.status, params.cursor, params.limit)
     }

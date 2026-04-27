@@ -3,6 +3,8 @@ package com.furrist.rp.furtv.sdk.user
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 用户相关 API。
@@ -22,7 +24,9 @@ import io.ktor.client.request.get
  * @see UserModels 用户数据模型定义
  * @see FursuitTvSdkException 异常层次结构
  */
-public class UserApi(
+@JsExport
+@JsName("UserApi")
+public class UserApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {

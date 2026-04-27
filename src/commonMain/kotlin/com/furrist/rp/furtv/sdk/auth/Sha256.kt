@@ -1,6 +1,8 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import kotlin.ExperimentalUnsignedTypes
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
  * 纯 Kotlin 实现的 SHA256 哈希算法
@@ -8,6 +10,8 @@ import kotlin.ExperimentalUnsignedTypes
  */
 @OptIn(ExperimentalUnsignedTypes::class)
 @Suppress("MagicNumber")
+@JsExport
+@JsName("Sha256")
 public object Sha256 {
     private val K =
         uintArrayOf(
@@ -143,6 +147,8 @@ public object Sha256 {
  * 计算 ByteArray 的 SHA256 哈希
  * @return SHA256 哈希结果（32 字节）
  */
+@JsExport
+@JsName("sha256")
 public fun ByteArray.sha256(): ByteArray {
     return Sha256.hash(this)
 }

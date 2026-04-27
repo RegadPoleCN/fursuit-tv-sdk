@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.base
 
+import kotlin.js.JsExport
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,6 +16,7 @@ import kotlinx.serialization.Serializable
  *   "requestId": "uuid"
  * }
  */
+@JsExport
 @Serializable
 public data class HelloWorldResponse(
     public val success: Boolean,
@@ -35,6 +37,7 @@ public data class HelloWorldResponse(
  *   "requestId": "uuid"
  * }
  */
+@JsExport
 @Serializable
 public data class HealthResponse(
     public val success: Boolean,
@@ -46,6 +49,7 @@ public data class HealthResponse(
 /**
  * Android 版本信息响应
  * Android 版本信息接口的响应包装 */
+@JsExport
 @Serializable
 public data class AndroidVersionResponse(
     public val success: Boolean,
@@ -76,6 +80,7 @@ public data class AndroidVersionResponse(
  * @param minSupportedVersion 最低支持版本
  * @param changelog 更新日志列表
  */
+@JsExport
 @Serializable
 public data class AndroidVersionData(
     public val version: String,
@@ -94,6 +99,7 @@ public data class AndroidVersionData(
  * @param currentVersion 当前版本字符串
  * @param currentVersionCode 当前版本代码（可选）
  */
+@JsExport
 @Serializable
 public data class AndroidVersionCheckRequest(
     public val currentVersion: String,
@@ -104,6 +110,7 @@ public data class AndroidVersionCheckRequest(
  * Android 版本检查响应
  * 版本检查接口的响应包装
  */
+@JsExport
 @Serializable
 public data class AndroidVersionCheckResponse(
     public val success: Boolean,
@@ -118,6 +125,7 @@ public data class AndroidVersionCheckResponse(
  * @param forceUpdate 是否强制更新
  * @param currentVersion 当前版本信息
  * @param latestVersion 最新版本信息 */
+@JsExport
 @Serializable
 public data class AndroidVersionCheckData(
     public val needUpdate: Boolean,
@@ -132,6 +140,7 @@ public data class AndroidVersionCheckData(
  * @param version 版本字符串
  * @param versionCode 版本代码
  */
+@JsExport
 @Serializable
 public data class VersionInfo(
     public val version: String,
@@ -142,6 +151,7 @@ public data class VersionInfo(
  * 主题包清单响应
  * 主题包清单接口的响应包装
  */
+@JsExport
 @Serializable
 public data class ThemePacksManifestResponse(
     public val success: Boolean,
@@ -154,6 +164,7 @@ public data class ThemePacksManifestResponse(
  * 包含主题包清单信息
  * @param version 清单版本
  * @param packs 主题包列表 */
+@JsExport
 @Serializable
 public data class ThemePacksManifestData(
     public val version: String,
@@ -175,6 +186,7 @@ public data class ThemePacksManifestData(
  * @param zipUrl 下载链接
  * @param updatedAt 更新时间
  */
+@JsExport
 @Serializable
 public data class ThemePack(
     public val id: String,

@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.gathering
 
+import kotlin.js.JsExport
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,6 +10,7 @@ import kotlinx.serialization.Serializable
  * 聚会年度统计响应
  * 端点：GET /api/proxy/furtv/gatherings/stats/thisyear
  */
+@JsExport
 @Serializable
 public data class GatheringYearStatsResponse(
     @SerialName("success")
@@ -27,6 +29,7 @@ public data class GatheringYearStatsResponse(
  * @param ongoing 正在进行中的聚会数
  * @param completed 已完成的聚会数
  */
+@JsExport
 @Serializable
 public data class GatheringYearStatsData(
     @SerialName("year")
@@ -47,6 +50,7 @@ public data class GatheringYearStatsData(
  * 聚会月历响应
  * 端点：GET /api/proxy/furtv/gatherings/monthly
  */
+@JsExport
 @Serializable
 public data class GatheringMonthlyResponse(
     @SerialName("success")
@@ -66,6 +70,7 @@ public data class GatheringMonthlyResponse(
  * @param location 地点
  * @param status 状态
  */
+@JsExport
 @Serializable
 public data class GatheringMonthlyItem(
     @SerialName("id")
@@ -88,6 +93,7 @@ public data class GatheringMonthlyItem(
  * 聚会月历距离响应
  * 端点：GET /api/proxy/furtv/gatherings/monthlydistance
  */
+@JsExport
 @Serializable
 public data class GatheringMonthlyDistanceResponse(
     @SerialName("success")
@@ -108,6 +114,7 @@ public data class GatheringMonthlyDistanceResponse(
  * @param status 状态
  * @param distance 距离（公里，可选）
  */
+@JsExport
 @Serializable
 public data class GatheringMonthlyDistanceItem(
     @SerialName("id")
@@ -132,6 +139,7 @@ public data class GatheringMonthlyDistanceItem(
  * 聚会附近响应
  * 端点：GET /api/proxy/furtv/gatherings/nearby
  */
+@JsExport
 @Serializable
 public data class GatheringNearbyResponse(
     @SerialName("success")
@@ -154,6 +162,7 @@ public data class GatheringNearbyResponse(
  * @param endDate 结束日期（ISO 8601 格式，可选）
  * @param status 状态
  */
+@JsExport
 @Serializable
 public data class GatheringNearbyItem(
     @SerialName("id")
@@ -182,6 +191,7 @@ public data class GatheringNearbyItem(
  * 聚会附近模式响应
  * 端点：GET /api/proxy/furtv/gatherings/nearbymode
  */
+@JsExport
 @Serializable
 public data class GatheringNearbyModeResponse(
     @SerialName("success")
@@ -197,6 +207,7 @@ public data class GatheringNearbyModeResponse(
  * @param mode 模式
  * @param intentGatheringIds 意图聚会 ID 列表
  */
+@JsExport
 @Serializable
 public data class GatheringNearbyModeData(
     @SerialName("mode")
@@ -211,6 +222,7 @@ public data class GatheringNearbyModeData(
  * 聚会详情响应
  * 端点：GET /api/proxy/furtv/gatherings/detail
  */
+@JsExport
 @Serializable
 public data class GatheringDetailResponse(
     @SerialName("success")
@@ -237,6 +249,7 @@ public data class GatheringDetailResponse(
  * @param status 状态
  * @param organizer 组织者信息
  */
+@JsExport
 @Serializable
 public data class GatheringDetailData(
     @SerialName("id")
@@ -273,6 +286,7 @@ public data class GatheringDetailData(
  * @param title 标题
  * @param description 描述
  */
+@JsExport
 @Serializable
 public data class AgendaItem(
     @SerialName("time")
@@ -291,6 +305,7 @@ public data class AgendaItem(
  * @param checkedIn 已签到人数
  * @param capacity 容量限制（可选）
  */
+@JsExport
 @Serializable
 public data class RegistrationStatsData(
     @SerialName("total")
@@ -312,6 +327,7 @@ public data class RegistrationStatsData(
  * @param displayName 组织者显示名称
  * @param avatarUrl 组织者头像 URL（可选）
  */
+@JsExport
 @Serializable
 public data class OrganizerData(
     @SerialName("userId")
@@ -330,6 +346,7 @@ public data class OrganizerData(
  * 聚会报名列表响应
  * 端点：GET /api/proxy/furtv/gatherings/registrations
  */
+@JsExport
 @Serializable
 public data class GatheringRegistrationsResponse(
     @SerialName("success")
@@ -346,6 +363,7 @@ public data class GatheringRegistrationsResponse(
  * @param registrations 报名列表
  * @param totalCount 总人数
  */
+@JsExport
 @Serializable
 public data class GatheringRegistrationsData(
     @SerialName("gatheringId")
@@ -367,6 +385,7 @@ public data class GatheringRegistrationsData(
  * @param checkedIn 是否已签到
  * @param registeredAt 报名时间（ISO 8601 格式）
  */
+@JsExport
 @Serializable
 public data class RegistrationData(
     @SerialName("id")

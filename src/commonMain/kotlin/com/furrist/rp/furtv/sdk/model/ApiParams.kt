@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.model
 
+import kotlin.js.JsExport
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
  * @param cursor 分页游标（可选）
  * @param limit 返回数量限制（可选）
  */
+@JsExport
 @Serializable
 public data class SearchParams(
     /**
@@ -36,6 +38,7 @@ public data class SearchParams(
  * @param count 返回数量（可选）
  * @param personalized 是否个性化推荐（可选）
  */
+@JsExport
 @Serializable
 public data class RandomFursuitParams(
     /**
@@ -56,6 +59,7 @@ public data class RandomFursuitParams(
  * @param lat 纬度（可选，用于计算距离）
  * @param lng 经度（可选，用于计算距离）
  */
+@JsExport
 @Serializable
 public data class GatheringMonthlyParams(
     /**
@@ -83,6 +87,7 @@ public data class GatheringMonthlyParams(
  * @param lng 经度
  * @param radius 搜索半径（米，可选）
  */
+@JsExport
 @Serializable
 public data class GatheringNearbyParams(
     /**
@@ -107,6 +112,7 @@ public data class GatheringNearbyParams(
  * @param cursor 分页游标（可选）
  * @param limit 返回数量限制（可选）
  */
+@JsExport
 @Serializable
 public data class GatheringRegistrationsParams(
     /**
@@ -134,6 +140,7 @@ public data class GatheringRegistrationsParams(
  * @param cursor 分页游标（可选）
  * @param limit 返回数量限制（可选）
  */
+@JsExport
 @Serializable
 public data class SchoolSearchParams(
     /**
