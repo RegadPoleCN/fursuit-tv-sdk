@@ -26,19 +26,31 @@ public class FursuitTvSdkBuilderJvm private constructor(
 
     // 基础配置
     public fun baseUrl(url: String): FursuitTvSdkBuilderJvm = apply { config.baseUrl = url }
+
     public fun apiKey(key: String): FursuitTvSdkBuilderJvm = apply { config.apiKey = key }
-    public fun clientId(id: String): FursuitTvSdkBuilderJvm = apply { config.clientId = id; useTokenExchange = true }
+
+    public fun clientId(id: String): FursuitTvSdkBuilderJvm =
+        apply {
+            config.clientId = id
+            useTokenExchange = true
+        }
+
     public fun clientSecret(secret: String): FursuitTvSdkBuilderJvm = apply { config.clientSecret = secret }
 
     // 超时配置
     public fun requestTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.requestTimeout = timeout }
+
     public fun connectTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.connectTimeout = timeout }
+
     public fun socketTimeout(timeout: Long): FursuitTvSdkBuilderJvm = apply { config.socketTimeout = timeout }
 
     // 高级配置
     public fun logLevel(level: LogLevel): FursuitTvSdkBuilderJvm = apply { config.logLevel = level }
+
     public fun enableRetry(enable: Boolean): FursuitTvSdkBuilderJvm = apply { config.enableRetry = enable }
+
     public fun maxRetries(retries: Int): FursuitTvSdkBuilderJvm = apply { config.maxRetries = retries }
+
     public fun retryInterval(interval: Long): FursuitTvSdkBuilderJvm = apply { config.retryInterval = interval }
 
     /**
@@ -52,7 +64,7 @@ public class FursuitTvSdkBuilderJvm private constructor(
 
         if (useTokenExchange) {
             throw IllegalStateException(
-                "Cannot use synchronous build() with token exchange. Use buildAsync() instead."
+                "Cannot use synchronous build() with token exchange. Use buildAsync() instead.",
             )
         }
 

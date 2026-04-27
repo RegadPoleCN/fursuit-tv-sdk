@@ -23,13 +23,40 @@ kotlin {
     applyDefaultHierarchyTemplate()
     explicitApi()
 
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-XXLanguage:+JsAllowExportingSuspendFunctions",
+            "-opt-in=kotlin.js.ExperimentalJsExport",
+        )
+    }
+
     jvm()
 
     // Configure JVM toolchain to auto-provision JDK 17
     jvmToolchain(17)
 
     js {
-        nodejs()
+        compilerOptions {
+            moduleName.set("fursuit-tv-sdk")
+            // 设置 UMD 模块，确保跨环境兼容性
+            moduleKind.set(org.jetbrains.kotlin.gradle.dsl.JsModuleKind.MODULE_UMD)
+            sourceMap.set(true)
+        }
+
+        // 同时支持浏览器和 Node.js
+        browser {
+            commonWebpackConfig {
+                cssSupport { enabled.set(true) }
+            }
+            testTask {
+                useKarma { useChromeHeadless() }
+            }
+        }
+        nodejs {
+            testTask { useMocha() }
+        }
+
+        // 生成二进制库产物
         binaries.library()
     }
 
@@ -65,11 +92,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                // API - 只暴露必要的依赖
-                // kotlinx.coroutines 需要暴露，因为 SDK 使用 suspend 函数
                 api(libs.kotlinx.coroutines.core)
-
-                // Implementation - 内部使用，不暴露给使用者
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
                 implementation(libs.ktor.serialization.kotlinx.json)
@@ -77,8 +100,12 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
+            }
+        }
 
-                // OAuth 回调服务器 - CIO 引擎
+        // 只有 JVM 目标支持回调服务器（基于 CIO 引擎）
+        jvmMain {
+            dependencies {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
@@ -106,16 +133,17 @@ npmPublish {
                 license = "MIT"
                 description = "Cross-platform SDK for Fursuit.TV API built with Kotlin Multiplatform"
                 homepage = "https://github.com/RegadPoleCN/fursuit-tv-sdk"
-                keywords = listOf(
-                    "fursuit-tv",
-                    "furtv",
-                    "sdk",
-                    "kotlin",
-                    "kmp",
-                    "api",
-                    "furry",
-                    "multiplatform"
-                )
+                keywords =
+                    listOf(
+                        "fursuit-tv",
+                        "furtv",
+                        "sdk",
+                        "kotlin",
+                        "kmp",
+                        "api",
+                        "furry",
+                        "multiplatform",
+                    )
                 repository {
                     type = "git"
                     url = "https://github.com/RegadPoleCN/fursuit-tv-sdk.git"
@@ -124,6 +152,22 @@ npmPublish {
                     name = "RegadPole"
                     email = "1651233735@qq.com"
                 }
+                // 显式指定导出，提高兼容性，实现 UMD/ESM 智能切换
+                (this as ExtensionAware).extra["type"] = "module"
+                (this as ExtensionAware).extra["exports"] =
+                    mapOf(
+                        "." to
+                            mapOf(
+                                "import" to "./index.js",
+                                "require" to "./index.js",
+                                "browser" to "./index.js",
+                                "types" to "./index.d.ts",
+                            ),
+                    )
+                (this as ExtensionAware).extra["main"] = "./index.js"
+                (this as ExtensionAware).extra["module"] = "./index.js"
+                (this as ExtensionAware).extra["browser"] = "./index.js"
+                (this as ExtensionAware).extra["engines"] = mapOf("node" to ">=14.0.0")
             }
         }
     }
