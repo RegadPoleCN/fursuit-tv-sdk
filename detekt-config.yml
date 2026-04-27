@@ -13,9 +13,12 @@ style:
       - '16'
       - '32'
       - '64'
+      - '80'
       - '128'
       - '256'
+      - '443'
       - '1000'
+      - '2000'
     ignoreHashCodeFunction: true
     ignorePropertyDeclaration: false
     ignoreLocalVariableDeclaration: true
