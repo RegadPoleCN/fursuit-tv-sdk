@@ -1,6 +1,5 @@
 package com.furrist.rp.furtv.sdk.model
 
-import io.ktor.client.plugins.logging.LogLevel
 import kotlin.js.JsExport
 import kotlin.js.JsName
 
@@ -16,7 +15,19 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * 可变的 SDK 配置构建器，用于 DSL 方式创建 SdkConfig
  *
  * 与 SdkConfig 不同，此类的属性是可变的，支持在 DSL 块中修改。
- * 使用 `toImmutable()` 方法可转换为不可变的 SdkConfig。
+ * 使用 [toImmutable] 方法可转换为不可变的 SdkConfig。
+ *
+ * @property baseUrl API 基础 URL
+ * @property apiKey API 密钥（可选）
+ * @property clientId 客户端 ID
+ * @property clientSecret 客户端密钥
+ * @property requestTimeout 请求超时时间（毫秒）
+ * @property connectTimeout 连接超时时间（毫秒）
+ * @property socketTimeout 套接字超时时间（毫秒）
+ * @property logLevel HTTP 日志级别，参见 [SdkLogLevel]
+ * @property enableRetry 是否启用重试
+ * @property maxRetries 最大重试次数
+ * @property retryInterval 重试间隔（毫秒）
  */
 @JsExport
 @JsName("MutableSdkConfig")
@@ -28,7 +39,7 @@ public class MutableSdkConfig {
     public var requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT
     public var connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT
     public var socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT
-    public var logLevel: LogLevel = LogLevel.INFO
+    public var logLevel: SdkLogLevel = SdkLogLevel.INFO
     public var enableRetry: Boolean = true
     public var maxRetries: Int = DEFAULT_MAX_RETRIES
     public var retryInterval: Long = DEFAULT_RETRY_INTERVAL
@@ -130,7 +141,7 @@ public class MutableSdkConfig {
      * @return 此配置实例（支持链式调用）
      */
     @JsName("setLogLevel")
-    public fun logLevel(level: LogLevel): MutableSdkConfig = apply { this.logLevel = level }
+    public fun logLevel(level: SdkLogLevel): MutableSdkConfig = apply { this.logLevel = level }
 
     /**
      * 是否启用自动重试机制。

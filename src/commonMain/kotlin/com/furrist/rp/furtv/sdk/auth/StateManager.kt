@@ -11,7 +11,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 
 /**
  * State 管理器
@@ -68,8 +67,8 @@ public object StateManager {
      * @param timeoutMinutes 超时时间（分钟），默认为 10 分钟
      */
     public fun storeState(state: String, timeoutMinutes: Int = DEFAULT_TIMEOUT_MINUTES) {
-        val expiresAt = Clock.System.now().plus(timeoutMinutes.minutes)
-        stateStorage[state] = StateEntry(expiresAt = expiresAt)
+        val expiresAtEpochMs = Clock.System.now().plus(timeoutMinutes.minutes).toEpochMilliseconds()
+        stateStorage[state] = StateEntry(expiresAtEpochMs = expiresAtEpochMs)
 
         if (!cleanupRunning) {
             scheduleCleanup()
@@ -85,8 +84,8 @@ public object StateManager {
     public fun isStateValid(state: String): Boolean {
         val entry = stateStorage[state] ?: return false
 
-        val now = Clock.System.now()
-        val isValid = now < entry.expiresAt
+        val nowEpochMs = Clock.System.now().toEpochMilliseconds()
+        val isValid = nowEpochMs < entry.expiresAtEpochMs
 
         if (!isValid) {
             stateStorage.remove(state)
@@ -137,8 +136,8 @@ public object StateManager {
      * 遍历存储并移除所有已过期的 state
      */
     private fun cleanupExpiredStates() {
-        val now = Clock.System.now()
-        val expiredStates = stateStorage.entries.filter { it.value.expiresAt <= now }.map { it.key }
+        val nowEpochMs = Clock.System.now().toEpochMilliseconds()
+        val expiredStates = stateStorage.entries.filter { it.value.expiresAtEpochMs <= nowEpochMs }.map { it.key }
         expiredStates.forEach { stateStorage.remove(it) }
     }
 
@@ -156,9 +155,9 @@ public object StateManager {
 
     /**
      * State 存储条目
-     * @property expiresAt 过期时间
+     * @property expiresAtEpochMs 过期时间（epoch 毫秒值）
      */
     private data class StateEntry(
-        val expiresAt: Instant,
+        val expiresAtEpochMs: Long,
     )
 }

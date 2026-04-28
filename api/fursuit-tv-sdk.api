@@ -18,15 +18,15 @@ public final class com/furrist/rp/furtv/sdk/FursuitTvSdk$Companion {
 	public final fun createForTokenExchange (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/furrist/rp/furtv/sdk/FursuitTvSdkFactoryJvm {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/FursuitTvSdkFactoryJvm;
+public final class com/furrist/rp/furtv/sdk/FursuitTvSdkKt {
+	public static final fun fursuitTvSdk (Lkotlin/jvm/functions/Function1;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
+}
+
+public final class com/furrist/rp/furtv/sdk/JvmFursuitTvSdkFactory {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/JvmFursuitTvSdkFactory;
 	public static final fun create (Lcom/furrist/rp/furtv/sdk/model/SdkConfig;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public static final fun create (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public static final fun createDsl (Ljava/util/function/Consumer;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
-}
-
-public final class com/furrist/rp/furtv/sdk/FursuitTvSdkKt {
-	public static final fun fursuitTvSdk (Lkotlin/jvm/functions/Function1;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 }
 
 public final class com/furrist/rp/furtv/sdk/auth/AuthManager {
@@ -1054,27 +1054,27 @@ public final class com/furrist/rp/furtv/sdk/exception/ValidationException : com/
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
-public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm$Companion;
+public final class com/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder$Companion;
 	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun apiKey (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun baseUrl (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun apiKey (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun baseUrl (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun build ()Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public final fun buildAsync (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun clientId (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun clientSecret (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public static final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun enableRetry (Z)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
-	public final fun socketTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+	public final fun clientId (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun clientSecret (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public static final fun create ()Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun enableRetry (Z)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun socketTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 }
 
-public final class com/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm$Companion {
-	public final fun create ()Lcom/furrist/rp/furtv/sdk/factory/FursuitTvSdkBuilderJvm;
+public final class com/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder$Companion {
+	public final fun create ()Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 }
 
 public final class com/furrist/rp/furtv/sdk/gathering/AgendaItem {
@@ -1862,6 +1862,7 @@ public final class com/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams$C
 }
 
 public final class com/furrist/rp/furtv/sdk/model/GeoLocation {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/GeoLocation$Companion;
 	public fun <init> (DD)V
 	public final fun component1 ()D
 	public final fun component2 ()D
@@ -1872,6 +1873,21 @@ public final class com/furrist/rp/furtv/sdk/model/GeoLocation {
 	public final fun getLng ()D
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/model/GeoLocation$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/model/GeoLocation$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/model/GeoLocation;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/model/GeoLocation;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/model/GeoLocation$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/furrist/rp/furtv/sdk/model/ImageResource {

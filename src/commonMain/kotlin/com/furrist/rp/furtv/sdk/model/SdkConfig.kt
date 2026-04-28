@@ -13,6 +13,43 @@ private const val DEFAULT_MAX_RETRIES = 3
 private const val DEFAULT_RETRY_INTERVAL = 1000L
 
 /**
+ * SDK 日志级别枚举。
+ *
+ * 用于控制 SDK 内部 HTTP 请求的日志输出详细程度。
+ *
+ * @property OFF 关闭所有日志
+ * @property ERROR 仅输出错误日志
+ * @property WARNING 输出警告及以上级别日志
+ * @property INFO 输出信息及以上级别日志（默认）
+ * @property DEBUG 输出调试及以上级别日志，包含请求/响应体
+ * @property ALL 输出所有级别日志
+ */
+@JsExport
+@JsName("SdkLogLevel")
+public enum class SdkLogLevel {
+    OFF,
+    ERROR,
+    WARNING,
+    INFO,
+    DEBUG,
+    ALL;
+
+    /**
+     * 将 SDK 日志级别转换为 Ktor 客户端的 [LogLevel]。
+     *
+     * @return 对应的 Ktor 日志级别
+     */
+    internal fun toKtorLogLevel(): LogLevel = when (this) {
+        OFF -> LogLevel.NONE
+        ERROR -> LogLevel.INFO
+        WARNING -> LogLevel.INFO
+        INFO -> LogLevel.INFO
+        DEBUG -> LogLevel.BODY
+        ALL -> LogLevel.ALL
+    }
+}
+
+/**
  * Fursuit.TV SDK 配置。
  *
  * @property baseUrl API 基础 URL
@@ -22,7 +59,7 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
  * @property requestTimeout 请求超时时间（毫秒）
  * @property connectTimeout 连接超时时间（毫秒）
  * @property socketTimeout 套接字超时时间（毫秒）
- * @property logLevel HTTP 日志级别
+ * @property logLevel HTTP 日志级别，参见 [SdkLogLevel]
  * @property enableRetry 是否启用重试
  * @property maxRetries 最大重试次数
  * @property retryInterval 重试间隔（毫秒）
@@ -37,7 +74,7 @@ public class SdkConfig(
     public val requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT,
     public val connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT,
     public val socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT,
-    public val logLevel: LogLevel = LogLevel.INFO,
+    public val logLevel: SdkLogLevel = SdkLogLevel.INFO,
     public val enableRetry: Boolean = true,
     public val maxRetries: Int = DEFAULT_MAX_RETRIES,
     public val retryInterval: Long = DEFAULT_RETRY_INTERVAL,

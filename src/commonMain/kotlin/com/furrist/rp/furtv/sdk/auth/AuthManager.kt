@@ -278,6 +278,7 @@ public class AuthManager internal constructor(
      * @param enablePkce Whether to enable PKCE (Proof Key for Code Exchange)
      * @return PkceParameters if enabled, null otherwise
      */
+    @Suppress("NON_EXPORTABLE_TYPE")
     private fun generatePkceParameters(enablePkce: Boolean): PkceParameters? {
         if (!enablePkce) return null
 
@@ -356,6 +357,7 @@ public class AuthManager internal constructor(
      * @param scope 权限范围（可选）
      * @return AuthorizationParams 包含所有授权所需参数
      */
+    @Suppress("NON_EXPORTABLE_TYPE")
     private suspend fun generateAuthorizationParams(
         handler: OAuthCallbackHandler,
         config: OAuthConfig,

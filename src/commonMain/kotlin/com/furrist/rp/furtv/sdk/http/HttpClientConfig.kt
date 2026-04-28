@@ -51,6 +51,7 @@ public object HttpClientConfig {
      * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
      * @return 配置好的 HttpClient 实例
      */
+    @Suppress("NON_EXPORTABLE_TYPE")
     public fun createClient(
         config: SdkConfig,
         accessToken: String? = null,
@@ -68,7 +69,7 @@ public object HttpClientConfig {
             }
 
             install(Logging) {
-                level = config.logLevel
+                level = config.logLevel.toKtorLogLevel()
             }
 
             install(DefaultRequest) {
