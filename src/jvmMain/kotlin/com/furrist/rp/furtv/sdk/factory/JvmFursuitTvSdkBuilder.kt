@@ -2,7 +2,7 @@ package com.furrist.rp.furtv.sdk.factory
 
 import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import com.furrist.rp.furtv.sdk.model.MutableSdkConfig
-import io.ktor.client.plugins.logging.LogLevel
+import com.furrist.rp.furtv.sdk.model.SdkLogLevel
 
 /**
  * 纯 Java 风格的链式构建器。
@@ -45,7 +45,14 @@ public class JvmFursuitTvSdkBuilder private constructor(
     public fun socketTimeout(timeout: Long): JvmFursuitTvSdkBuilder = apply { config.socketTimeout = timeout }
 
     // 高级配置
-    public fun logLevel(level: LogLevel): JvmFursuitTvSdkBuilder = apply { config.logLevel = level }
+
+    /**
+     * 设置 HTTP 客户端日志级别。
+     *
+     * @param level SDK 日志级别，参见 [SdkLogLevel]
+     * @return 此构建器实例（支持链式调用）
+     */
+    public fun logLevel(level: SdkLogLevel): JvmFursuitTvSdkBuilder = apply { config.logLevel = level }
 
     public fun enableRetry(enable: Boolean): JvmFursuitTvSdkBuilder = apply { config.enableRetry = enable }
 
