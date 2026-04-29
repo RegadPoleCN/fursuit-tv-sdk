@@ -1,266 +1,355 @@
 package com.furrist.rp.furtv.sdk.search
 
 import kotlin.js.JsExport
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// ==================== 标准搜索 API 响应模型 ====================
-
-// ==================== 热门推荐 ====================
-
-/**
- * 热门推荐响应
- * 热门推荐接口的响应包装 */
 @JsExport
 @Serializable
 public data class PopularResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: PopularData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 热门推荐数据
- * 包含热门用户列表
- */
+/** Popular users data containing a list of trending users. */
 @JsExport
 @Serializable
 public data class PopularData(
+    @SerialName("users")
     public val users: List<PopularUser>,
 )
 
-/**
- * 热门用户
- * 表示一个热门用户的信息
- * @param username 用户名
- * @param displayName 显示名称
- * @param avatarUrl 头像 URL
- * @param popularity 热门程度值
- */
+/** A popular user with full profile information from VDS. */
 @JsExport
 @Serializable
 public data class PopularUser(
+    @SerialName("id")
+    public val id: Int,
+    @SerialName("username")
     public val username: String,
-    public val displayName: String,
+    @SerialName("nickname")
+    public val nickname: String? = null,
+    @SerialName("avatar_url")
     public val avatarUrl: String? = null,
-    public val popularity: Int,
+    @SerialName("fursuit_species")
+    public val fursuitSpecies: String? = null,
+    @SerialName("fursuit_maker")
+    public val fursuitMaker: String? = null,
+    @SerialName("showcase_portrait")
+    public val showcasePortrait: String? = null,
+    @SerialName("introduction")
+    public val introduction: String? = null,
+    @SerialName("view_count")
+    public val viewCount: Int? = null,
+    @SerialName("is_verified")
+    public val isVerified: Boolean? = null,
+    @SerialName("like_count")
+    public val likeCount: Int? = null,
+    @SerialName("created_at")
+    public val createdAt: String? = null,
+    @SerialName("destination")
+    public val destination: String? = null,
+    @SerialName("destination_expires_at")
+    public val destinationExpiresAt: String? = null,
+    @SerialName("popularity_score")
+    public val popularityScore: Int? = null,
 )
 
-// ==================== 随机推荐 ====================
-
-/**
- * 随机推荐响应
- * 随机推荐接口的响应包装 */
+/** Response for random fursuit recommendation supporting single and multiple results. */
 @JsExport
 @Serializable
 public data class RandomFursuitResponse(
+    @SerialName("success")
     public val success: Boolean,
-    public val data: List<RandomFursuit>,
+    @SerialName("fursuit")
+    public val fursuit: RandomFursuit? = null,
+    @SerialName("fursuits")
+    public val fursuits: List<RandomFursuit>? = null,
+    @SerialName("count")
+    public val count: Int? = null,
+    @SerialName("requested_count")
+    public val requestedCount: Int? = null,
+    @SerialName("debug_info")
+    public val debugInfo: RandomDebugInfo? = null,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 随机推荐用户
- * 表示一个随机推荐的用户信息
- * @param username 用户名
- * @param displayName 显示名称
- * @param avatarUrl 头像 URL
- * @param species 物种
- */
+/** A randomly recommended fursuit user. */
 @JsExport
 @Serializable
 public data class RandomFursuit(
+    @SerialName("id")
+    public val id: Int,
+    @SerialName("username")
     public val username: String,
-    public val displayName: String,
+    @SerialName("nickname")
+    public val nickname: String? = null,
+    @SerialName("avatar_url")
     public val avatarUrl: String? = null,
-    public val species: String? = null,
+    @SerialName("fursuit_species")
+    public val fursuitSpecies: String? = null,
+    @SerialName("fursuit_maker")
+    public val fursuitMaker: String? = null,
+    @SerialName("location")
+    public val location: String? = null,
+    @SerialName("destination")
+    public val destination: String? = null,
+    @SerialName("introduction")
+    public val introduction: String? = null,
+    @SerialName("view_count")
+    public val viewCount: Int? = null,
+    @SerialName("is_verified")
+    public val isVerified: Boolean? = null,
 )
 
-// ==================== 搜索 ====================
+/** Debug information returned by the random fursuit endpoint. */
+@JsExport
+@Serializable
+public data class RandomDebugInfo(
+    @SerialName("is_personalized")
+    public val isPersonalized: Boolean? = null,
+    @SerialName("cache_hit_count")
+    public val cacheHitCount: Int? = null,
+    @SerialName("response_ms")
+    public val responseMs: Int? = null,
+)
 
-/**
- * 搜索响应
- * 搜索接口的响应包装 */
 @JsExport
 @Serializable
 public data class SearchResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: SearchData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 搜索数据
- * 包含搜索结果和分页信息
- * @param results 搜索结果列表
- * @param nextCursor 下一页游标
- * @param hasMore 是否还有更多结果
- */
+/** Search results with pagination and metadata from VDS. */
 @JsExport
 @Serializable
 public data class SearchData(
-    public val results: List<SearchResult>,
+    @SerialName("users")
+    public val users: List<SearchUser>,
+    @SerialName("search_type")
+    public val searchType: String? = null,
+    @SerialName("search_keywords")
+    public val searchKeywords: List<String>? = null,
+    @SerialName("pagination")
+    public val pagination: SearchPagination? = null,
+    @SerialName("has_more")
+    public val hasMore: Boolean = false,
+    @SerialName("total")
+    public val total: Int? = null,
+    @SerialName("next_cursor")
     public val nextCursor: String? = null,
-    public val hasMore: Boolean,
 )
 
-/**
- * 搜索结果
- * 表示一个搜索结果项
- * @param type 结果类型
- * @param username 用户名
- * @param displayName 显示名称
- * @param avatarUrl 头像 URL
- * @param description 描述
- */
+/** Pagination metadata for search results. */
 @JsExport
 @Serializable
-public data class SearchResult(
-    public val type: String,
-    public val username: String? = null,
-    public val displayName: String? = null,
-    public val avatarUrl: String? = null,
-    public val description: String? = null,
+public data class SearchPagination(
+    @SerialName("page")
+    public val page: Int? = null,
+    @SerialName("limit")
+    public val limit: Int? = null,
+    @SerialName("total")
+    public val total: Int? = null,
+    @SerialName("total_pages")
+    public val totalPages: Int? = null,
+    @SerialName("next_cursor")
+    public val nextCursor: String? = null,
 )
 
-// ==================== 搜索建议 ====================
+/** A user returned in search results. */
+@JsExport
+@Serializable
+public data class SearchUser(
+    @SerialName("id")
+    public val id: Int? = null,
+    @SerialName("username")
+    public val username: String? = null,
+    @SerialName("nickname")
+    public val nickname: String? = null,
+    @SerialName("avatar_url")
+    public val avatarUrl: String? = null,
+    @SerialName("showcase_portrait")
+    public val showcasePortrait: String? = null,
+    @SerialName("fursuit_species")
+    public val fursuitSpecies: String? = null,
+    @SerialName("fursuit_maker")
+    public val fursuitMaker: String? = null,
+    @SerialName("location")
+    public val location: String? = null,
+    @SerialName("destinations")
+    public val destinations: List<String>? = null,
+    @SerialName("destination")
+    public val destination: String? = null,
+    @SerialName("destination_expires_at")
+    public val destinationExpiresAt: String? = null,
+    @SerialName("introduction")
+    public val introduction: String? = null,
+    @SerialName("view_count")
+    public val viewCount: Int? = null,
+    @SerialName("is_verified")
+    public val isVerified: Boolean? = null,
+    @SerialName("created_at")
+    public val createdAt: String? = null,
+)
 
-/**
- * 搜索建议响应
- * 搜索建议接口的响应包装 */
 @JsExport
 @Serializable
 public data class SearchSuggestionsResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: SearchSuggestionsData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 搜索建议数据
- * 包含搜索建议列表
- */
+/** Search suggestions data containing a list of suggestion strings. */
 @JsExport
 @Serializable
 public data class SearchSuggestionsData(
+    @SerialName("suggestions")
     public val suggestions: List<String>,
 )
 
-// ==================== 物种搜索 ====================
-
-/**
- * 物种搜索响应
- * 物种搜索接口的响应包装 */
 @JsExport
 @Serializable
 public data class SpeciesSearchResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: SpeciesSearchData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 物种搜索数据
- * 包含物种搜索结果
- * @param species 物种名称
- * @param users 用户列表
- * @param totalCount 总数
- */
+/** Species search results with pagination from VDS. */
 @JsExport
 @Serializable
 public data class SpeciesSearchData(
+    @SerialName("species")
     public val species: String,
-    public val users: List<SpeciesUser>,
-    public val totalCount: Int,
+    @SerialName("users")
+    public val users: List<SpeciesSearchUser>,
+    @SerialName("pagination")
+    public val pagination: SearchPagination? = null,
+    @SerialName("has_more")
+    public val hasMore: Boolean = false,
+    @SerialName("total")
+    public val total: Int? = null,
+    @SerialName("next_cursor")
+    public val nextCursor: String? = null,
 )
 
-/**
- * 物种用户
- * 表示属于某个物种的用户
- * @param username 用户名
- * @param displayName 显示名称
- * @param avatarUrl 头像 URL
- */
+/** A user returned in species search results. */
 @JsExport
 @Serializable
-public data class SpeciesUser(
-    public val username: String,
-    public val displayName: String,
+public data class SpeciesSearchUser(
+    @SerialName("id")
+    public val id: Int? = null,
+    @SerialName("username")
+    public val username: String? = null,
+    @SerialName("nickname")
+    public val nickname: String? = null,
+    @SerialName("avatar_url")
     public val avatarUrl: String? = null,
+    @SerialName("showcase_portrait")
+    public val showcasePortrait: String? = null,
+    @SerialName("fursuit_species")
+    public val fursuitSpecies: String? = null,
+    @SerialName("fursuit_maker")
+    public val fursuitMaker: String? = null,
+    @SerialName("introduction")
+    public val introduction: String? = null,
+    @SerialName("view_count")
+    public val viewCount: Int? = null,
+    @SerialName("is_verified")
+    public val isVerified: Boolean? = null,
+    @SerialName("created_at")
+    public val createdAt: String? = null,
 )
 
-// ==================== 物种列表 ====================
-
-/**
- * 物种列表响应
- * 物种列表接口的响应包装 */
 @JsExport
 @Serializable
 public data class SpeciesListResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: SpeciesListData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 物种列表数据
- * 包含物种列表和统计信息
- * @param species 物种列表
- * @param totalCount 物种总数
- */
+/** Species list data with statistics. */
 @JsExport
 @Serializable
 public data class SpeciesListData(
+    @SerialName("species")
     public val species: List<SpeciesInfo>,
-    public val totalCount: Int,
+    @SerialName("total")
+    public val total: Int,
 )
 
-/**
- * 物种信息
- * 表示一个物种的统计信息
- * @param name 物种名称
- * @param count 该物种的用户数量
- */
+/** A species entry with its user count. */
 @JsExport
 @Serializable
 public data class SpeciesInfo(
-    public val name: String,
+    @SerialName("species")
+    public val species: String,
+    @SerialName("count")
     public val count: Int,
 )
 
-// ==================== 热门地区 ====================
-
-/**
- * 热门地区响应
- * 热门地区接口的响应包装 */
 @JsExport
 @Serializable
 public data class PopularLocationsResponse(
+    @SerialName("success")
     public val success: Boolean,
+    @SerialName("data")
     public val data: PopularLocationsData,
+    @SerialName("requestId")
     public val requestId: String,
 )
 
-/**
- * 热门地区数据
- * 包含热门地区列表
- */
+/** Popular locations data structured by provinces and cities. */
 @JsExport
 @Serializable
 public data class PopularLocationsData(
-    public val locations: List<LocationInfo>,
+    @SerialName("popular_provinces")
+    public val popularProvinces: List<ProvinceInfo>,
+    @SerialName("popular_cities")
+    public val popularCities: List<CityInfo>,
+    @SerialName("total_users")
+    public val totalUsers: Int? = null,
 )
 
-/**
- * 地区信息
- * 表示一个地区的信息
- * @param province 省份
- * @param city 城市
- * @param count 用户数量
- */
+/** A province with its user count. */
 @JsExport
 @Serializable
-public data class LocationInfo(
+public data class ProvinceInfo(
+    @SerialName("province")
     public val province: String,
-    public val city: String? = null,
+    @SerialName("count")
+    public val count: Int,
+)
+
+/** A city with its province and user count. */
+@JsExport
+@Serializable
+public data class CityInfo(
+    @SerialName("province")
+    public val province: String,
+    @SerialName("city")
+    public val city: String,
+    @SerialName("count")
     public val count: Int,
 )

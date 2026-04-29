@@ -5,16 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * HelloWorld 响应
- * HelloWorld 接口的响应，直接包含所有字段（无 data 包装）
- * 根据文档，响应格式为：
- * {
- *   "success": true,
- *   "message": "helloworld",
- *   "verify": "request_normal",
- *   "appId": "vap_xxx",
- *   "requestId": "uuid"
- * }
+ * HelloWorld 接口响应，无 data 包装。
+ *
+ * @param success 请求是否成功
+ * @param message 响应消息
+ * @param verify 验证状态
+ * @param appId 应用 ID
+ * @param requestId 请求 ID
  */
 @JsExport
 @Serializable
@@ -27,15 +24,12 @@ public data class HelloWorldResponse(
 )
 
 /**
- * 健康检查响应
- * 健康检查接口的响应，直接包含所有字段（无 data 包装）
- * 根据官方文档，响应格式为：
- * {
- *   "success": true,
- *   "message": "Fursuit.TV API is running",
- *   "timestamp": "2026-03-21T10:00:00.000Z",
- *   "requestId": "uuid"
- * }
+ * 健康检查接口响应，无 data 包装。
+ *
+ * @param success 请求是否成功
+ * @param message 健康状态消息
+ * @param timestamp 时间戳
+ * @param requestId 请求 ID
  */
 @JsExport
 @Serializable
@@ -47,8 +41,12 @@ public data class HealthResponse(
 )
 
 /**
- * Android 版本信息响应
- * Android 版本信息接口的响应包装 */
+ * Android 版本信息响应包装。
+ *
+ * @param success 请求是否成功
+ * @param data 版本数据
+ * @param requestId 请求 ID
+ */
 @JsExport
 @Serializable
 public data class AndroidVersionResponse(
@@ -58,19 +56,8 @@ public data class AndroidVersionResponse(
 )
 
 /**
- * Android 版本数据
- * 包含 Android 应用的版本信息
- * 根据官方文档，响应格式为：
- * {
- *   "version": "2.4.1",
- *   "versionCode": 241,
- *   "description": "修复若干已知问题并优化性能",
- *   "forceUpdate": false,
- *   "downloadUrl": "https://example.com/furtv/android-latest.apk",
- *   "updateTime": "2026-03-19T08:30:00.000Z",
- *   "minSupportedVersion": "2.2.0",
- *   "changelog": ["优化首页加载", "修复已知崩溃"]
- * }
+ * Android 应用版本数据。
+ *
  * @param version 版本号
  * @param versionCode 版本代码
  * @param description 版本描述
@@ -94,8 +81,8 @@ public data class AndroidVersionData(
 )
 
 /**
- * Android 版本检查请求
- * 用于版本检查接口的请求体
+ * Android 版本检查请求体。
+ *
  * @param currentVersion 当前版本字符串
  * @param currentVersionCode 当前版本代码（可选）
  */
@@ -107,8 +94,11 @@ public data class AndroidVersionCheckRequest(
 )
 
 /**
- * Android 版本检查响应
- * 版本检查接口的响应包装
+ * Android 版本检查响应包装。
+ *
+ * @param success 请求是否成功
+ * @param data 版本检查结果数据
+ * @param requestId 请求 ID
  */
 @JsExport
 @Serializable
@@ -119,12 +109,13 @@ public data class AndroidVersionCheckResponse(
 )
 
 /**
- * Android 版本检查数据
- * 包含版本检查的结果
+ * Android 版本检查结果数据。
+ *
  * @param needUpdate 是否需要更新
  * @param forceUpdate 是否强制更新
  * @param currentVersion 当前版本信息
- * @param latestVersion 最新版本信息 */
+ * @param latestVersion 最新版本信息
+ */
 @JsExport
 @Serializable
 public data class AndroidVersionCheckData(
@@ -135,8 +126,8 @@ public data class AndroidVersionCheckData(
 )
 
 /**
- * 版本信息
- * 表示一个版本的基本信息
+ * 版本基本信息。
+ *
  * @param version 版本字符串
  * @param versionCode 版本代码
  */
@@ -148,8 +139,11 @@ public data class VersionInfo(
 )
 
 /**
- * 主题包清单响应
- * 主题包清单接口的响应包装
+ * 主题包清单响应包装。
+ *
+ * @param success 请求是否成功
+ * @param data 主题包清单数据
+ * @param requestId 请求 ID
  */
 @JsExport
 @Serializable
@@ -160,10 +154,11 @@ public data class ThemePacksManifestResponse(
 )
 
 /**
- * 主题包清单数据
- * 包含主题包清单信息
+ * 主题包清单数据。
+ *
  * @param version 清单版本
- * @param packs 主题包列表 */
+ * @param packs 主题包列表
+ */
 @JsExport
 @Serializable
 public data class ThemePacksManifestData(
@@ -172,15 +167,8 @@ public data class ThemePacksManifestData(
 )
 
 /**
- * 主题包
- * 表示一个主题包的信息
- * 根据官方文档，响应格式为：
- * {
- *   "id": "spring-night",
- *   "name": "Spring Night",
- *   "zip_url": "https://example.com/theme-packs/spring-night.zip",
- *   "updated_at": "2026-03-21T01:10:00.000Z"
- * }
+ * 主题包信息。
+ *
  * @param id 主题包 ID
  * @param name 主题包名称
  * @param zipUrl 下载链接

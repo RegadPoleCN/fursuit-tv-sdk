@@ -23,6 +23,10 @@ import kotlinx.serialization.json.Json
 
 /**
  * HTTP 客户端配置，提供 Ktor 客户端的创建和配置功能。
+ *
+ * 认证头自动选择逻辑：apiKey 存在时使用 X-Api-Key 头；否则 accessToken 存在时使用
+ * Authorization Bearer 头；两者均无时不设置认证头（用于签名交换等未认证场景）。
+ * 同时传入 X-Api-Key 和 Authorization Bearer 时，服务端优先使用 X-Api-Key。
  */
 @JsExport
 @JsName("HttpClientConfig")
@@ -44,13 +48,14 @@ public object HttpClientConfig {
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     /**
-     * 创建配置好的 HTTP 客户端。
+     * 创建配置好的 HTTP 客户端，自动根据 [config] 和 [accessToken] 选择认证头。
      *
      * @param config SDK 配置
-     * @param accessToken 可选的访问令牌
-     * @param requestIdGenerator 请求 ID 生成器，默认为随机生成
+     * @param accessToken 可选的访问令牌，apiKey 为空时使用 Bearer 认证
+     * @param requestIdGenerator 请求 ID 生成器，默认随机生成
      * @return 配置好的 HttpClient 实例
      */
+    @JsName("createClient")
     @Suppress("NON_EXPORTABLE_TYPE")
     public fun createClient(
         config: SdkConfig,
@@ -74,23 +79,6 @@ public object HttpClientConfig {
 
             install(DefaultRequest) {
                 headers {
-                    /**
-                     * 认证头自动选择逻辑：
-                     *
-                     * 模式 1: config.apiKey 存在且非空
-                     *   → 使用 X-Api-Key 头（适用于用户直接提供 apiKey 的场景）
-                     *
-                     * 模式 2: accessToken 存在（apiKey 为空时）
-                     *   → 使用 Authorization: Bearer 头
-                     *   （适用于签名交换后或 OAuth 后的场景）
-                     *
-                     * 模式 3: 都为空
-                     *   → 不设置认证头（适用于未认证状态，如签名交换接口本身）
-                     *
-                     * 依据：官方文档《认证方式与服务器端点》说明：
-                     *   "同时传入 X-Api-Key 和 Authorization Bearer 时，
-                     *    服务端优先使用 X-Api-Key"
-                     */
                     when {
                         config.apiKey != null && config.apiKey.isNotEmpty() -> {
                             append("X-Api-Key", config.apiKey)
@@ -99,14 +87,12 @@ public object HttpClientConfig {
                             append("Authorization", "Bearer $accessToken")
                         }
                         else -> {
-                            // 无认证头，用于未认证状态（如签名交换接口）
                         }
                     }
 
                     append("X-Request-ID", requestIdGenerator())
                     contentType(ContentType.Application.Json)
                     append("Accept", "application/json")
-                    // 强制使用 Chrome UA，确保服务端兼容性
                     append("User-Agent", USER_AGENT_CHROME)
                 }
             }

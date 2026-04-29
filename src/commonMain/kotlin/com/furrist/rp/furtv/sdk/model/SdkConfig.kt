@@ -13,9 +13,7 @@ private const val DEFAULT_MAX_RETRIES = 3
 private const val DEFAULT_RETRY_INTERVAL = 1000L
 
 /**
- * SDK 日志级别枚举。
- *
- * 用于控制 SDK 内部 HTTP 请求的日志输出详细程度。
+ * SDK 日志级别枚举，控制 HTTP 请求日志输出详细程度。
  *
  * @property OFF 关闭所有日志
  * @property ERROR 仅输出错误日志
@@ -50,11 +48,11 @@ public enum class SdkLogLevel {
 }
 
 /**
- * Fursuit.TV SDK 配置。
+ * Fursuit.TV SDK 不可变配置。
  *
  * @property baseUrl API 基础 URL
  * @property apiKey API 密钥（可选，签名交换后可为空）
- * @property clientId 客户端 ID，用于签名交换或 OAuth
+ * @property clientId 客户端 ID（即 VDS 文档中的 appId），用于签名交换或 OAuth
  * @property clientSecret 客户端密钥，用于签名交换或 OAuth
  * @property requestTimeout 请求超时时间（毫秒）
  * @property connectTimeout 连接超时时间（毫秒）
@@ -83,11 +81,12 @@ public class SdkConfig(
         /**
          * 为签名交换创建配置。
          *
-         * @param clientId 应用 ID（格式 vap_xxxx）
-         * @param clientSecret 应用密钥
+         * @param clientId 客户端 ID（即 VDS 文档中的 appId，格式 vap_xxxx）
+         * @param clientSecret 客户端密钥
          * @return SdkConfig 实例
          */
         @JvmStatic
+        @JsName("forTokenExchange")
         public fun forTokenExchange(clientId: String, clientSecret: String): SdkConfig =
             SdkConfig(clientId = clientId, clientSecret = clientSecret)
 
@@ -98,6 +97,7 @@ public class SdkConfig(
          * @return SdkConfig 实例
          */
         @JvmStatic
+        @JsName("withApiKey")
         public fun withApiKey(apiKey: String): SdkConfig =
             SdkConfig(apiKey = apiKey)
 
@@ -108,6 +108,7 @@ public class SdkConfig(
          * @return SdkConfig 实例
          */
         @JvmStatic
+        @JsName("createSdkConfig")
         public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
             SdkConfig().apply(block)
 
@@ -117,6 +118,7 @@ public class SdkConfig(
          * @return MutableSdkConfig 实例，支持链式调用后通过 [MutableSdkConfig.toImmutable] 转换
          */
         @JvmStatic
+        @JsName("builder")
         public fun builder(): MutableSdkConfig = MutableSdkConfig()
     }
 }

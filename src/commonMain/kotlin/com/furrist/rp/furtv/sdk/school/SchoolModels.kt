@@ -4,12 +4,14 @@ import kotlin.js.JsExport
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-// ==================== 学校搜索 ====================
-
 /**
- * 学校搜索响应
+ * 学校搜索响应。
+ *
  * 端点：GET /api/proxy/furtv/schools/search
- * 学校搜索接口的响应包装
+ *
+ * @property success 请求是否成功
+ * @property data 搜索结果数据
+ * @property requestId 请求唯一标识
  */
 @JsExport
 @Serializable
@@ -23,113 +25,105 @@ public data class SchoolSearchResponse(
 )
 
 /**
- * 学校搜索数据
- * 包含学校搜索结果
- * @param schools 学校列表
- * @param totalCount 总数量
- * @param cursor 分页游标（可选）
+ * 学校搜索结果数据。
+ *
+ * @property schools 匹配的学校列表
  */
 @JsExport
 @Serializable
 public data class SchoolSearchData(
     @SerialName("schools")
     public val schools: List<SchoolInfo>,
-    @SerialName("totalCount")
-    public val totalCount: Int,
-    @SerialName("cursor")
-    public val cursor: String? = null,
 )
 
 /**
- * 学校信息
- * 表示一个学校的基本信息
- * @param id 学校 ID
- * @param name 学校名称
- * @param logoUrl 学校 Logo URL
- * @param location 学校位置
- * @param description 学校描述（可选）
- * @param studentCount 学生数量（可选）
+ * 学校基本信息。
+ *
+ * @property id 学校 ID
+ * @property name 学校全称
+ * @property shortName 学校简称
+ * @property location 学校位置
+ * @property type 学校类型
+ * @property logoUrl 学校 Logo URL
+ * @property studentCount 学生数量
  */
 @JsExport
 @Serializable
 public data class SchoolInfo(
     @SerialName("id")
-    public val id: String,
+    public val id: Int,
     @SerialName("name")
     public val name: String,
-    @SerialName("logoUrl")
-    public val logoUrl: String? = null,
+    @SerialName("short_name")
+    public val shortName: String? = null,
     @SerialName("location")
     public val location: String? = null,
-    @SerialName("description")
-    public val description: String? = null,
-    @SerialName("studentCount")
+    @SerialName("type")
+    public val type: String? = null,
+    @SerialName("logo_url")
+    public val logoUrl: String? = null,
+    @SerialName("student_count")
     public val studentCount: Int? = null,
 )
 
-// ==================== 学校详情 ====================
-
 /**
- * 学校详情响应
- * 端点：GET /api/proxy/furtv/schools/detail
- * 学校详情接口的响应包装
+ * 学校详情响应。
+ *
+ * 端点：GET /api/proxy/furtv/schools/{schoolId}
+ *
+ * @property success 请求是否成功
+ * @property school 学校详情
+ * @property requestId 请求唯一标识
  */
 @JsExport
 @Serializable
 public data class SchoolDetailResponse(
     @SerialName("success")
     public val success: Boolean,
-    @SerialName("data")
-    public val data: SchoolDetail,
+    @SerialName("school")
+    public val school: SchoolDetail,
     @SerialName("requestId")
     public val requestId: String,
 )
 
 /**
- * 学校详情
- * 包含学校的详细信息
- * @param id 学校 ID
- * @param name 学校名称
- * @param logoUrl 学校 Logo URL
- * @param description 学校描述
- * @param location 学校位置
- * @param lat 纬度（可选）
- * @param lng 经度（可选）
- * @param studentCount 学生数量
- * @param createdAt 创建时间（ISO 8601 格式）
- * @param updatedAt 更新时间（ISO 8601 格式，可选）
+ * 学校详情。
+ *
+ * @property id 学校 ID
+ * @property name 学校全称
+ * @property shortName 学校简称
+ * @property location 学校位置
+ * @property type 学校类型
+ * @property logoUrl 学校 Logo URL
+ * @property studentCount 学生数量
  */
 @JsExport
 @Serializable
 public data class SchoolDetail(
     @SerialName("id")
-    public val id: String,
+    public val id: Int,
     @SerialName("name")
     public val name: String,
-    @SerialName("logoUrl")
-    public val logoUrl: String? = null,
-    @SerialName("description")
-    public val description: String? = null,
+    @SerialName("short_name")
+    public val shortName: String? = null,
     @SerialName("location")
     public val location: String? = null,
-    @SerialName("lat")
-    public val lat: Double? = null,
-    @SerialName("lng")
-    public val lng: Double? = null,
-    @SerialName("studentCount")
-    public val studentCount: Int,
-    @SerialName("createdAt")
-    public val createdAt: String,
-    @SerialName("updatedAt")
-    public val updatedAt: String? = null,
+    @SerialName("type")
+    public val type: String? = null,
+    @SerialName("logo_url")
+    public val logoUrl: String? = null,
+    @SerialName("student_count")
+    public val studentCount: Int? = null,
 )
 
-// ==================== 用户学校信息 ====================
-
 /**
- * 用户学校信息响应
- * 端点：GET /api/proxy/furtv/schools/user
- * 用户学校信息接口的响应包装
+ * 用户学校信息响应。
+ *
+ * 端点：GET /api/proxy/furtv/schools/user/{userId}
+ *
+ * @property success 请求是否成功
+ * @property data 用户学校数据
+ * @property requestId 请求唯一标识
  */
 @JsExport
 @Serializable
@@ -143,59 +137,73 @@ public data class UserSchoolsResponse(
 )
 
 /**
- * 用户学校数据
- * 包含用户的学校信息
- * @param userId 用户 ID
- * @param username 用户名
- * @param schools 用户关联的学校列表
+ * 用户学校数据。
+ *
+ * @property schools 用户关联的学校列表
  */
 @JsExport
 @Serializable
 public data class UserSchoolsData(
-    @SerialName("userId")
-    public val userId: String,
-    @SerialName("username")
-    public val username: String,
     @SerialName("schools")
     public val schools: List<UserSchoolInfo>,
 )
 
 /**
- * 用户学校信息
- * 表示用户与学校的关联信息
- * @param schoolId 学校 ID
- * @param schoolName 学校名称
- * @param logoUrl 学校 Logo URL
- * @param className 班级名称
- * @param graduationYear 毕业年份
- * @param enrollmentYear 入学年份
- * @param isVerified 是否已认证
+ * 用户学校关联信息。
+ *
+ * @property userSchoolId 用户学校关联 ID
+ * @property className 班级名称
+ * @property enrollmentYear 入学年份
+ * @property graduationYear 毕业年份
+ * @property isCurrent 是否在读（1=在读）
+ * @property isPublic 是否公开（1=公开）
+ * @property schoolId 学校 ID
+ * @property schoolName 学校全称
+ * @property shortName 学校简称
+ * @property location 学校位置
+ * @property type 学校类型
+ * @property logoUrl 学校 Logo URL
+ * @property studentCount 学生数量
  */
 @JsExport
 @Serializable
 public data class UserSchoolInfo(
-    @SerialName("schoolId")
-    public val schoolId: String,
-    @SerialName("schoolName")
-    public val schoolName: String,
-    @SerialName("logoUrl")
-    public val logoUrl: String? = null,
-    @SerialName("className")
+    @SerialName("user_school_id")
+    public val userSchoolId: Int? = null,
+    @SerialName("class_name")
     public val className: String? = null,
-    @SerialName("graduationYear")
-    public val graduationYear: Int? = null,
-    @SerialName("enrollmentYear")
+    @SerialName("enrollment_year")
     public val enrollmentYear: Int? = null,
-    @SerialName("isVerified")
-    public val isVerified: Boolean = false,
+    @SerialName("graduation_year")
+    public val graduationYear: Int? = null,
+    @SerialName("is_current")
+    public val isCurrent: Int? = null,
+    @SerialName("is_public")
+    public val isPublic: Int? = null,
+    @SerialName("school_id")
+    public val schoolId: Int,
+    @SerialName("school_name")
+    public val schoolName: String,
+    @SerialName("short_name")
+    public val shortName: String? = null,
+    @SerialName("location")
+    public val location: String? = null,
+    @SerialName("type")
+    public val type: String? = null,
+    @SerialName("logo_url")
+    public val logoUrl: String? = null,
+    @SerialName("student_count")
+    public val studentCount: Int? = null,
 )
 
-// ==================== 用户角色列表 ====================
-
 /**
- * 用户角色列表响应
- * 端点：GET /api/proxy/furtv/characters/user
- * 用户角色接口的响应包装
+ * 用户角色列表响应。
+ *
+ * 端点：GET /api/proxy/furtv/characters/user/{username}
+ *
+ * @property success 请求是否成功
+ * @property data 用户角色数据
+ * @property requestId 请求唯一标识
  */
 @JsExport
 @Serializable
@@ -209,12 +217,12 @@ public data class UserCharactersResponse(
 )
 
 /**
- * 用户角色数据
- * 包含用户的角色列表
- * @param userId 用户 ID
- * @param username 用户名
- * @param characters 角色列表
- * @param totalCount 角色总数
+ * 用户角色数据。
+ *
+ * @property userId 用户 ID
+ * @property username 用户名
+ * @property characters 角色列表
+ * @property totalCount 角色总数
  */
 @JsExport
 @Serializable
@@ -230,17 +238,13 @@ public data class UserCharactersData(
 )
 
 /**
- * 角色信息
- * 表示一个角色的详细信息
- * @param id 角色 ID
- * @param name 角色名称
- * @param species 物种
- * @param speciesId 物种 ID
- * @param avatarUrl 头像 URL
- * @param description 角色描述
- * @param gender 性别
- * @param isPrimary 是否是主要角色
- * @param createdAt 创建时间（ISO 8601 格式）
+ * 角色信息。
+ *
+ * @property id 角色 ID
+ * @property name 角色名称
+ * @property species 物种
+ * @property gender 性别
+ * @property worldview 世界观
  */
 @JsExport
 @Serializable
@@ -251,16 +255,8 @@ public data class CharacterInfo(
     public val name: String,
     @SerialName("species")
     public val species: String? = null,
-    @SerialName("speciesId")
-    public val speciesId: String? = null,
-    @SerialName("avatarUrl")
-    public val avatarUrl: String? = null,
-    @SerialName("description")
-    public val description: String? = null,
     @SerialName("gender")
     public val gender: String? = null,
-    @SerialName("isPrimary")
-    public val isPrimary: Boolean = false,
-    @SerialName("createdAt")
-    public val createdAt: String? = null,
+    @SerialName("worldview")
+    public val worldview: String? = null,
 )

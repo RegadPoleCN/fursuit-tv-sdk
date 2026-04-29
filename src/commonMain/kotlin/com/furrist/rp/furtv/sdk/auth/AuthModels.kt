@@ -14,10 +14,11 @@ import kotlinx.serialization.Serializable
  * 2. 平台签名 (Platform Signature) - 通过 /api/auth/token 获取
  * 3. OAuth 用户令牌 (OAuth User Token) - 通过 OAuth 2.0 授权码流程获取
  *
- * @param clientId 应用 ID（格式 vap_xxxx），与 appId 等价
+ * @param clientId 应用 ID（格式 vap_xxxx），SDK 统一使用 clientId 命名，与 VDS 文档中的 appId 等价
  * @param clientSecret 应用密钥
  */
 @JsExport
+@JsName("TokenExchangeRequest")
 @Serializable
 public data class TokenExchangeRequest(
     @SerialName("clientId")
@@ -34,6 +35,7 @@ public data class TokenExchangeRequest(
  * @param requestId 请求 ID，用于日志排查
  */
 @JsExport
+@JsName("TokenExchangeResponse")
 @Serializable
 public data class TokenExchangeResponse(
     public val success: Boolean,
@@ -49,6 +51,7 @@ public data class TokenExchangeResponse(
  * @param previousTokenSecondsRemaining 旧令牌剩余有效期（秒）
  */
 @JsExport
+@JsName("TokenRefreshInfo")
 @Serializable
 public data class TokenRefreshInfo(
     @SerialName("mode")
@@ -66,9 +69,12 @@ public data class TokenRefreshInfo(
  * @param apiKey API 密钥，用于 X-Api-Key 认证头
  * @param expiresIn 令牌有效期（秒）
  * @param tokenType 令牌类型，通常为 "Bearer"
+ * @param appId 应用 ID（格式 vap_xxxx），与 VDS 文档中的 appId 等价
+ * @param grants 授权的权限范围列表
  * @param refresh 可选的令牌刷新信息
  */
 @JsExport
+@JsName("TokenData")
 @Serializable
 public data class TokenData(
     public val accessToken: String,
@@ -76,19 +82,12 @@ public data class TokenData(
     @SerialName("expiresInSeconds")
     public val expiresIn: Int,
     public val tokenType: String,
+    @SerialName("appId")
+    public val appId: String? = null,
+    @SerialName("grants")
+    public val grants: List<String>? = null,
     @SerialName("refresh")
     public val refresh: TokenRefreshInfo? = null,
-)
-
-/**
- * 令牌刷新请求，用于令牌刷新接口。
- * 刷新接口不需要请求体，只需要 Authorization header。
- */
-@JsExport
-@Serializable
-public data class TokenRefreshRequest(
-    // 占位符，实际不会发送
-    val dummy: String? = null,
 )
 
 /**
@@ -100,6 +99,7 @@ public data class TokenRefreshRequest(
  * @param refresh 可选的令牌刷新信息
  */
 @JsExport
+@JsName("TokenRefreshResponse")
 @Serializable
 public data class TokenRefreshResponse(
     public val success: Boolean,
@@ -112,7 +112,7 @@ public data class TokenRefreshResponse(
 /**
  * OAuth 授权 URL 参数，用于生成 OAuth 授权 URL。
  *
- * @param clientId 应用 ID（格式 vap_xxxx）
+ * @param clientId 应用 ID（格式 vap_xxxx），SDK 统一使用 clientId 命名，与 VDS 文档中的 appId 等价
  * @param redirectUri 授权后重定向 URI
  * @param state 可选的状态参数，用于防止 CSRF 攻击
  * @param scope 可选的权限范围
@@ -121,6 +121,7 @@ public data class TokenRefreshResponse(
  * @param codeChallengeMethod 可选的 PKCE code_challenge_method，默认为 "SHA256"
  */
 @JsExport
+@JsName("OAuthAuthorizeParams")
 @Serializable
 public data class OAuthAuthorizeParams(
     public val clientId: String,
@@ -143,11 +144,12 @@ public data class OAuthAuthorizeParams(
  * @param callbackPort 回调端口（默认 8080，范围 1-65535）
  * @param callbackPath 回调路径（默认 "/callback"，必须以 "/" 开头）
  * @param stateTimeoutMinutes 超时时间（默认 5 分钟）
- * @param enablePkce 是否启用 PKCE 安全增强
+ * @param enablePkce 是否启用 PKCE 安全增强（默认 false）
  *
  * @throws IllegalArgumentException 参数验证失败
  */
 @JsExport
+@JsName("OAuthConfig")
 @Serializable
 public data class OAuthConfig(
     public val callbackHost: String = DEFAULT_CALLBACK_HOST,
@@ -166,9 +168,13 @@ public data class OAuthConfig(
     }
 
     public companion object {
+        /** 默认回调地址主机名 */
         public const val DEFAULT_CALLBACK_HOST: String = "localhost"
+        /** 默认回调端口 */
         public const val DEFAULT_CALLBACK_PORT: Int = 8080
+        /** 默认回调路径 */
         public const val DEFAULT_CALLBACK_PATH: String = "/callback"
+        /** 默认 state 超时时间（分钟） */
         public const val DEFAULT_STATE_TIMEOUT_MINUTES: Int = 5
         private const val MAX_PORT_NUMBER = 65535
     }
@@ -181,10 +187,11 @@ public data class OAuthConfig(
  * @param clientSecret 应用密钥（开放平台签名）
  * @param code 授权码（从 OAuth 授权回调中获取）
  * @param redirectUri 重定向 URI（必须与授权时一致）
- * @param clientId 应用 ID（格式 vap_xxxx）
+ * @param clientId 应用 ID（格式 vap_xxxx），SDK 统一使用 clientId 命名，与 VDS 文档中的 appId 等价
  * @param codeVerifier 可选的 PKCE code_verifier
  */
 @JsExport
+@JsName("OAuthTokenRequest")
 @Serializable
 public data class OAuthTokenRequest(
     @SerialName("grant_type")
@@ -209,6 +216,7 @@ public data class OAuthTokenRequest(
  * @param requestId 请求 ID
  */
 @JsExport
+@JsName("OAuthTokenResponse")
 @Serializable
 public data class OAuthTokenResponse(
     public val success: Boolean,
@@ -226,6 +234,7 @@ public data class OAuthTokenResponse(
  * @param refreshToken 刷新令牌，用于获取新的访问令牌
  */
 @JsExport
+@JsName("OAuthTokenData")
 @Serializable
 public data class OAuthTokenData(
     @SerialName("access_token")
@@ -247,6 +256,7 @@ public data class OAuthTokenData(
  * @param requestId 请求 ID
  */
 @JsExport
+@JsName("UserInfoResponse")
 @Serializable
 public data class UserInfoResponse(
     public val success: Boolean,
@@ -265,8 +275,11 @@ public data class UserInfoResponse(
  * @param username 用户名
  * @param updatedAt 用户信息更新时间戳（毫秒）
  * @param phoneNumber 用户电话号码
+ * @param iss 令牌签发者（issuer）
+ * @param aud 令牌受众（audience）
  */
 @JsExport
+@JsName("UserInfoData")
 @Serializable
 public data class UserInfoData(
     public val sub: String,
@@ -280,6 +293,10 @@ public data class UserInfoData(
     public val updatedAt: Long? = null,
     @SerialName("phone_number")
     public val phoneNumber: String? = null,
+    @SerialName("iss")
+    public val iss: String? = null,
+    @SerialName("aud")
+    public val aud: Long? = null,
 )
 
 /**
@@ -292,6 +309,7 @@ public data class UserInfoData(
  * @param refreshToken 可选的刷新令牌，用于 OAuth 令牌刷新
  */
 @JsExport
+@JsName("TokenInfo")
 @Serializable
 public data class TokenInfo(
     public val accessToken: String,
