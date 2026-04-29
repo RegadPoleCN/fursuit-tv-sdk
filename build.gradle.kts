@@ -38,15 +38,16 @@ kotlin {
     // ESM target - for modern bundlers and ES module consumers
     js {
         generateTypeScriptDefinitions()
-        useEsModules()
         compilerOptions {
+            moduleKind.set(org.jetbrains.kotlin.gradle.dsl.JsModuleKind.MODULE_ES)
             sourceMap.set(true)
-            target = "es2015"
+            target.set("es2015")
+            freeCompilerArgs.add("-Xes-long-as-bigint")
         }
         browser {
             commonWebpackConfig {
                 cssSupport { enabled.set(true) }
-                output?.libraryTarget = "umd"
+//                output?.libraryTarget = "umd"
             }
         }
         nodejs()
@@ -108,6 +109,12 @@ kotlin {
         jsMain {
             dependencies {
                 implementation(kotlin("stdlib-js"))
+            }
+        }
+
+        nativeMain {
+            dependencies {
+                implementation(libs.ktor.network)
             }
         }
 
