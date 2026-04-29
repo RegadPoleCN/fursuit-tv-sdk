@@ -19,7 +19,7 @@ public final class com/furrist/rp/furtv/sdk/FursuitTvSdk$Companion {
 }
 
 public final class com/furrist/rp/furtv/sdk/FursuitTvSdkKt {
-	public static final fun fursuitTvSdk (Lkotlin/jvm/functions/Function1;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
+	public static final fun fursuitTvSdk (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class com/furrist/rp/furtv/sdk/JvmFursuitTvSdkFactory {
@@ -49,6 +49,19 @@ public final class com/furrist/rp/furtv/sdk/auth/AuthManager {
 	public final fun refreshTokenIfNeeded (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun setOAuthCallbackHandler (Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackHandler;)V
 	public final fun setTokenInfo (Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;)V
+}
+
+public final class com/furrist/rp/furtv/sdk/auth/AuthManager$PkceParameters {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/AuthManager$PkceParameters;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager$PkceParameters;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/AuthManager$PkceParameters;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCodeChallenge ()Ljava/lang/String;
+	public final fun getCodeVerifier ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
 }
 
 public final class com/furrist/rp/furtv/sdk/auth/AuthModelsKt {
@@ -103,25 +116,49 @@ public final class com/furrist/rp/furtv/sdk/auth/OAuthAuthorizeParams$Companion 
 
 public abstract interface class com/furrist/rp/furtv/sdk/auth/OAuthCallbackHandler {
 	public abstract fun getCallbackUrl ()Ljava/lang/String;
-	public abstract fun startAndGetCallback (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public fun startAndGetCallback (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun startListening (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public abstract fun stop (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public abstract fun waitForCallback (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+}
+
+public final class com/furrist/rp/furtv/sdk/auth/OAuthCallbackHandler$DefaultImpls {
+	public static fun startAndGetCallback (Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackHandler;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public abstract class com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult {
 }
 
 public final class com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error : com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult {
-	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/Throwable;
-	public final fun copy (Ljava/lang/String;Ljava/lang/Throwable;)Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/Throwable;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCause ()Ljava/lang/Throwable;
+	public final fun getErrorCode ()Ljava/lang/String;
 	public final fun getMessage ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Error$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult$Success : com/furrist/rp/furtv/sdk/auth/OAuthCallbackResult {
@@ -356,21 +393,52 @@ public final class com/furrist/rp/furtv/sdk/auth/StateManager {
 	public final fun validateState (Ljava/lang/String;Ljava/lang/String;)Z
 }
 
+public final class com/furrist/rp/furtv/sdk/auth/StateManager$StateEntry {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry$Companion;
+	public fun <init> (J)V
+	public final fun component1 ()J
+	public final fun copy (J)Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry;JILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getExpiresAtEpochMs ()J
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/auth/StateManager$StateEntry$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/auth/StateManager$StateEntry;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/auth/StateManager$StateEntry$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/auth/TokenData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/TokenData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()I
 	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;)Lcom/furrist/rp/furtv/sdk/auth/TokenData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/TokenData;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/TokenData;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/util/List;
+	public final fun component7 ()Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;)Lcom/furrist/rp/furtv/sdk/auth/TokenData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/TokenData;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/TokenData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAccessToken ()Ljava/lang/String;
 	public final fun getApiKey ()Ljava/lang/String;
+	public final fun getAppId ()Ljava/lang/String;
 	public final fun getExpiresIn ()I
+	public final fun getGrants ()Ljava/util/List;
 	public final fun getRefresh ()Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;
 	public final fun getTokenType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -515,35 +583,6 @@ public final class com/furrist/rp/furtv/sdk/auth/TokenRefreshInfo$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/auth/TokenRefreshRequest {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest$Companion;
-	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDummy ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/auth/TokenRefreshRequest$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshRequest;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/auth/TokenRefreshRequest$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public final class com/furrist/rp/furtv/sdk/auth/TokenRefreshResponse {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshResponse$Companion;
 	public fun <init> (ZLcom/furrist/rp/furtv/sdk/auth/TokenData;Ljava/lang/String;Lcom/furrist/rp/furtv/sdk/auth/TokenRefreshInfo;)V
@@ -580,9 +619,10 @@ public final class com/furrist/rp/furtv/sdk/auth/TokenRefreshResponse$Companion 
 
 public final class com/furrist/rp/furtv/sdk/auth/UserInfoData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/auth/UserInfoData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
+	public final fun component10 ()Ljava/lang/Long;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
@@ -590,11 +630,14 @@ public final class com/furrist/rp/furtv/sdk/auth/UserInfoData {
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ljava/lang/Long;
 	public final fun component8 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;)Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Long;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAud ()Ljava/lang/Long;
 	public final fun getAvatarUrl ()Ljava/lang/String;
 	public final fun getEmail ()Ljava/lang/String;
+	public final fun getIss ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getNickname ()Ljava/lang/String;
 	public final fun getPhoneNumber ()Ljava/lang/String;
@@ -1043,6 +1086,12 @@ public final class com/furrist/rp/furtv/sdk/exception/NotFoundException : com/fu
 	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
 
+public final class com/furrist/rp/furtv/sdk/exception/OAuthException : com/furrist/rp/furtv/sdk/exception/FursuitTvSdkException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getErrorCode ()Ljava/lang/String;
+}
+
 public final class com/furrist/rp/furtv/sdk/exception/TokenExpiredException : com/furrist/rp/furtv/sdk/exception/FursuitTvSdkException {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
@@ -1066,7 +1115,7 @@ public final class com/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder {
 	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public static final fun create ()Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun enableRetry (Z)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
-	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
+	public final fun logLevel (Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
@@ -1109,6 +1158,76 @@ public final class com/furrist/rp/furtv/sdk/gathering/AgendaItem$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/gathering/CoOrganizer {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvatar ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getUserId ()Ljava/lang/Integer;
+	public final fun getUsername ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/gathering/CoOrganizer$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/CoOrganizer;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/gathering/CoOrganizer$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/gathering/DataSource {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/DataSource$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/DataSource;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/DataSource;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/DataSource;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLogoUrl ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSourceCode ()Ljava/lang/String;
+	public final fun getSourceUrl ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/gathering/DataSource$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/DataSource$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/DataSource;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/DataSource;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/gathering/DataSource$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringApi {
 	public final fun getGatheringDetail (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getMonthly (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -1116,9 +1235,9 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringApi {
 	public final fun getMonthlyDistance (IILjava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getMonthlyDistance (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getMonthlyDistance$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;IILjava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getNearby (DDLjava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getNearby (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun getNearby$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;DDLjava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun getNearby (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun getNearby$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getNearbyMode (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getRegistrations (Lcom/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getRegistrations (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -1126,40 +1245,111 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringApi {
 	public final fun getYearStats (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
+public final class com/furrist/rp/furtv/sdk/gathering/GatheringBadge {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCode ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/gathering/GatheringBadge$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/GatheringBadge;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/gathering/GatheringBadge$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringDetailData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;Ljava/lang/String;Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;Ljava/lang/String;Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component10 ()Ljava/util/List;
-	public final fun component11 ()Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;Ljava/lang/Integer;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;Ljava/lang/Integer;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
 	public final fun component12 ()Ljava/lang/String;
-	public final fun component13 ()Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component14 ()Ljava/lang/Double;
+	public final fun component15 ()Ljava/lang/Double;
+	public final fun component16 ()Ljava/lang/String;
+	public final fun component17 ()Ljava/lang/String;
+	public final fun component18 ()Ljava/lang/Integer;
+	public final fun component19 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
+	public final fun component20 ()Ljava/lang/String;
+	public final fun component21 ()Ljava/lang/String;
+	public final fun component22 ()Ljava/util/List;
+	public final fun component23 ()Ljava/util/List;
+	public final fun component24 ()Ljava/util/List;
+	public final fun component25 ()Ljava/lang/Integer;
+	public final fun component26 ()Ljava/util/List;
+	public final fun component27 ()Ljava/util/List;
+	public final fun component28 ()Ljava/lang/Boolean;
+	public final fun component29 ()Ljava/lang/Integer;
 	public final fun component3 ()Ljava/lang/String;
+	public final fun component30 ()Ljava/lang/Boolean;
+	public final fun component31 ()Ljava/lang/Integer;
+	public final fun component32 ()Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;
+	public final fun component33 ()Ljava/lang/Integer;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
-	public final fun component7 ()Ljava/lang/Double;
-	public final fun component8 ()Ljava/lang/Double;
-	public final fun component9 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;Ljava/lang/String;Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;Ljava/lang/String;Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/util/List;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;Ljava/lang/Integer;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAgenda ()Ljava/util/List;
+	public final fun getBadges ()Ljava/util/List;
+	public final fun getBannerUrl ()Ljava/lang/String;
+	public final fun getCoOrganizers ()Ljava/util/List;
+	public final fun getDataSources ()Ljava/util/List;
 	public final fun getDescription ()Ljava/lang/String;
 	public final fun getEndDate ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getLat ()Ljava/lang/Double;
-	public final fun getLng ()Ljava/lang/Double;
-	public final fun getLocation ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getOrganizer ()Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;
-	public final fun getRegistrationStats ()Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;
-	public final fun getStartDate ()Ljava/lang/String;
+	public final fun getEndTime ()Ljava/lang/String;
+	public final fun getEventDate ()Ljava/lang/String;
+	public final fun getEventTime ()Ljava/lang/String;
+	public final fun getGoingFriendsCount ()Ljava/lang/Integer;
+	public final fun getId ()I
+	public final fun getInterestedCount ()Ljava/lang/Integer;
+	public final fun getLocationCity ()Ljava/lang/String;
+	public final fun getLocationLat ()Ljava/lang/Double;
+	public final fun getLocationLng ()Ljava/lang/Double;
+	public final fun getLocationPublic ()Ljava/lang/String;
+	public final fun getLogoUrl ()Ljava/lang/String;
+	public final fun getOrganizerAvatar ()Ljava/lang/String;
+	public final fun getOrganizerId ()Ljava/lang/Integer;
+	public final fun getOrganizerNickname ()Ljava/lang/String;
+	public final fun getOrganizerUsername ()Ljava/lang/String;
+	public final fun getRegistrationStats ()Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;
+	public final fun getSourceCount ()Ljava/lang/Integer;
 	public final fun getStatus ()Ljava/lang/String;
 	public final fun getTags ()Ljava/util/List;
+	public final fun getTitle ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public final fun getTypeClass ()Ljava/lang/String;
+	public final fun getTypeDisplay ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
+	public final fun isFurtvCoopDriven ()Ljava/lang/Boolean;
+	public final fun isInterested ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1211,25 +1401,15 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringDetailResponse$Co
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/String;
-	public final fun component7 ()Ljava/lang/Double;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;
+	public fun <init> (ILjava/lang/Double;)V
+	public synthetic fun <init> (ILjava/lang/Double;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/Double;
+	public final fun copy (ILjava/lang/Double;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;ILjava/lang/Double;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceItem;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDistance ()Ljava/lang/Double;
-	public final fun getEndDate ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getLocation ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getStartDate ()Ljava/lang/String;
-	public final fun getStatus ()Ljava/lang/String;
+	public final fun getDistanceMeters ()Ljava/lang/Double;
+	public final fun getId ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1282,24 +1462,64 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringMonthlyDistanceRe
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component14 ()Ljava/lang/String;
+	public final fun component15 ()Ljava/lang/String;
+	public final fun component16 ()Ljava/util/List;
+	public final fun component17 ()Ljava/lang/Boolean;
+	public final fun component18 ()Ljava/lang/Integer;
+	public final fun component19 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
+	public final fun component20 ()Ljava/util/List;
+	public final fun component21 ()Ljava/lang/String;
+	public final fun component22 ()Ljava/lang/String;
+	public final fun component23 ()Ljava/lang/String;
+	public final fun component24 ()Ljava/lang/String;
+	public final fun component25 ()Ljava/lang/String;
+	public final fun component26 ()Ljava/lang/Boolean;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Boolean;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringMonthlyItem;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getEndDate ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
+	public final fun getBadges ()Ljava/util/List;
+	public final fun getContentSource ()Ljava/lang/String;
+	public final fun getDataSources ()Ljava/util/List;
+	public final fun getDay ()Ljava/lang/String;
+	public final fun getDescription ()Ljava/lang/String;
+	public final fun getEndTime ()Ljava/lang/String;
+	public final fun getFeeAmount ()Ljava/lang/String;
+	public final fun getFeeType ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getInitialSource ()Ljava/lang/String;
 	public final fun getLocation ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getStartDate ()Ljava/lang/String;
+	public final fun getLocationPublic ()Ljava/lang/String;
+	public final fun getLogo ()Ljava/lang/String;
+	public final fun getOrganizer ()Ljava/lang/String;
+	public final fun getOrganizerAvatar ()Ljava/lang/String;
+	public final fun getParticipants ()Ljava/lang/String;
+	public final fun getRegistrationStatus ()Ljava/lang/String;
+	public final fun getRequiresApproval ()Ljava/lang/Boolean;
+	public final fun getSourceCount ()Ljava/lang/Integer;
 	public final fun getStatus ()Ljava/lang/String;
+	public final fun getTime ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public final fun getType ()Ljava/lang/String;
+	public final fun getTypeClass ()Ljava/lang/String;
+	public final fun getWeekday ()Ljava/lang/String;
 	public fun hashCode ()I
+	public final fun isFurtvCoopDriven ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1351,30 +1571,32 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringMonthlyResponse$C
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/Boolean;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()D
-	public final fun component5 ()D
-	public final fun component6 ()D
-	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Ljava/lang/String;
-	public final fun component9 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/Double;
+	public final fun component8 ()Ljava/lang/Double;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Boolean;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;Ljava/util/List;Ljava/lang/Boolean;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDistance ()D
+	public final fun getAddress ()Ljava/lang/String;
+	public final fun getBadges ()Ljava/util/List;
+	public final fun getCity ()Ljava/lang/String;
 	public final fun getEndDate ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getLat ()D
-	public final fun getLng ()D
-	public final fun getLocation ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getStartDate ()Ljava/lang/String;
-	public final fun getStatus ()Ljava/lang/String;
+	public final fun getEventDate ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getLat ()Ljava/lang/Double;
+	public final fun getLng ()Ljava/lang/Double;
+	public final fun getTitle ()Ljava/lang/String;
 	public fun hashCode ()I
+	public final fun isFurtvCoopDriven ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -1395,14 +1617,14 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringNearbyItem$Compan
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (Ljava/util/List;Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;
+	public final fun copy (Ljava/util/List;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;Ljava/util/List;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGatherings ()Ljava/util/List;
 	public final fun getIntentGatheringIds ()Ljava/util/List;
-	public final fun getMode ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1484,18 +1706,47 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringNearbyResponse$Co
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApprovedCount ()Ljava/lang/Integer;
+	public final fun getPendingCount ()Ljava/lang/Integer;
+	public final fun getTotalRegistrations ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/gathering/GatheringRegistrationStats$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;I)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/util/List;I)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;Ljava/lang/String;Ljava/util/List;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getGatheringId ()Ljava/lang/String;
 	public final fun getRegistrations ()Ljava/util/List;
-	public final fun getTotalCount ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1548,20 +1799,12 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsResp
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData$Companion;
-	public fun <init> (IIIII)V
+	public fun <init> (I)V
 	public final fun component1 ()I
-	public final fun component2 ()I
-	public final fun component3 ()I
-	public final fun component4 ()I
-	public final fun component5 ()I
-	public final fun copy (IIIII)Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;IIIIIILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;
+	public final fun copy (I)Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCompleted ()I
-	public final fun getOngoing ()I
 	public final fun getTotal ()I
-	public final fun getUpcoming ()I
-	public final fun getYear ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -1612,115 +1855,47 @@ public final class com/furrist/rp/furtv/sdk/gathering/GatheringYearStatsResponse
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/gathering/OrganizerData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getUserId ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/gathering/OrganizerData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/OrganizerData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/gathering/OrganizerData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/gathering/RegistrationData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/String;
-	public final fun component7 ()Z
-	public final fun component8 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getCheckedIn ()Z
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getRegisteredAt ()Ljava/lang/String;
-	public final fun getStatus ()Ljava/lang/String;
-	public final fun getUserId ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/gathering/RegistrationData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationData;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/gathering/RegistrationData$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/gathering/RegistrationStatsData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData$Companion;
-	public fun <init> (IIIILjava/lang/Integer;)V
-	public synthetic fun <init> (IIIILjava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+public final class com/furrist/rp/furtv/sdk/gathering/RegistrationItem {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()I
-	public final fun component2 ()I
-	public final fun component3 ()I
-	public final fun component4 ()I
-	public final fun component5 ()Ljava/lang/Integer;
-	public final fun copy (IIIILjava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;IIIILjava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun component5 ()I
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem;ILjava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getApproved ()I
-	public final fun getCapacity ()Ljava/lang/Integer;
-	public final fun getCheckedIn ()I
-	public final fun getPending ()I
-	public final fun getTotal ()I
+	public final fun getAvatarUrl ()Ljava/lang/String;
+	public final fun getCheckedIn ()Ljava/lang/Integer;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getRegistrationTime ()Ljava/lang/String;
+	public final fun getStatus ()Ljava/lang/String;
+	public final fun getUserId ()I
+	public final fun getUsername ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final synthetic class com/furrist/rp/furtv/sdk/gathering/RegistrationStatsData$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData$$serializer;
+public final synthetic class com/furrist/rp/furtv/sdk/gathering/RegistrationItem$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationStatsData;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/gathering/RegistrationItem;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/gathering/RegistrationStatsData$Companion {
+public final class com/furrist/rp/furtv/sdk/gathering/RegistrationItem$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -1797,16 +1972,17 @@ public final class com/furrist/rp/furtv/sdk/model/GatheringMonthlyParams$Compani
 
 public final class com/furrist/rp/furtv/sdk/model/GatheringNearbyParams {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams$Companion;
-	public fun <init> (DDLjava/lang/Integer;)V
-	public synthetic fun <init> (DDLjava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()D
-	public final fun component2 ()D
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Double;
+	public final fun component2 ()Ljava/lang/Double;
 	public final fun component3 ()Ljava/lang/Integer;
-	public final fun copy (DDLjava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;DDLjava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;
+	public final fun copy (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getLat ()D
-	public final fun getLng ()D
+	public final fun getLat ()Ljava/lang/Double;
+	public final fun getLng ()Ljava/lang/Double;
 	public final fun getRadius ()Ljava/lang/Integer;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -1936,12 +2112,12 @@ public final class com/furrist/rp/furtv/sdk/model/MutableSdkConfig {
 	public final fun getClientSecret ()Ljava/lang/String;
 	public final fun getConnectTimeout ()J
 	public final fun getEnableRetry ()Z
-	public final fun getLogLevel ()Lio/ktor/client/plugins/logging/LogLevel;
+	public final fun getLogLevel ()Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
 	public final fun getMaxRetries ()I
 	public final fun getRequestTimeout ()J
 	public final fun getRetryInterval ()J
 	public final fun getSocketTimeout ()J
-	public final fun logLevel (Lio/ktor/client/plugins/logging/LogLevel;)Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
+	public final fun logLevel (Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;)Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
 	public final fun maxRetries (I)Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
 	public final fun requestTimeout (J)Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
 	public final fun retryInterval (J)Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
@@ -1951,7 +2127,7 @@ public final class com/furrist/rp/furtv/sdk/model/MutableSdkConfig {
 	public final fun setClientSecret (Ljava/lang/String;)V
 	public final fun setConnectTimeout (J)V
 	public final fun setEnableRetry (Z)V
-	public final fun setLogLevel (Lio/ktor/client/plugins/logging/LogLevel;)V
+	public final fun setLogLevel (Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;)V
 	public final fun setMaxRetries (I)V
 	public final fun setRequestTimeout (J)V
 	public final fun setRetryInterval (J)V
@@ -2088,8 +2264,8 @@ public final class com/furrist/rp/furtv/sdk/model/SchoolSearchParams$Companion {
 public final class com/furrist/rp/furtv/sdk/model/SdkConfig {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/SdkConfig$Companion;
 	public fun <init> ()V
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJLio/ktor/client/plugins/logging/LogLevel;ZIJ)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJLio/ktor/client/plugins/logging/LogLevel;ZIJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJLcom/furrist/rp/furtv/sdk/model/SdkLogLevel;ZIJ)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;JJJLcom/furrist/rp/furtv/sdk/model/SdkLogLevel;ZIJILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public static final fun builder ()Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;
 	public static final fun forTokenExchange (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/model/SdkConfig;
 	public final fun getApiKey ()Ljava/lang/String;
@@ -2098,7 +2274,7 @@ public final class com/furrist/rp/furtv/sdk/model/SdkConfig {
 	public final fun getClientSecret ()Ljava/lang/String;
 	public final fun getConnectTimeout ()J
 	public final fun getEnableRetry ()Z
-	public final fun getLogLevel ()Lio/ktor/client/plugins/logging/LogLevel;
+	public final fun getLogLevel ()Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
 	public final fun getMaxRetries ()I
 	public final fun getRequestTimeout ()J
 	public final fun getRetryInterval ()J
@@ -2119,19 +2295,33 @@ public final class com/furrist/rp/furtv/sdk/model/SdkConfigKt {
 	public static final fun sdkConfig (Lkotlin/jvm/functions/Function1;)Lcom/furrist/rp/furtv/sdk/model/SdkConfig;
 }
 
+public final class com/furrist/rp/furtv/sdk/model/SdkLogLevel : java/lang/Enum {
+	public static final field ALL Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static final field DEBUG Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static final field ERROR Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static final field INFO Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static final field OFF Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static final field WARNING Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+	public static fun values ()[Lcom/furrist/rp/furtv/sdk/model/SdkLogLevel;
+}
+
 public final class com/furrist/rp/furtv/sdk/model/SearchParams {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/model/SearchParams$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/Integer;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/model/SearchParams;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/SearchParams;
+	public final fun component5 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/model/SearchParams;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/model/SearchParams;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCursor ()Ljava/lang/String;
 	public final fun getLimit ()Ljava/lang/Integer;
+	public final fun getPage ()Ljava/lang/Integer;
 	public final fun getQuery ()Ljava/lang/String;
 	public final fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
@@ -2184,30 +2374,22 @@ public final class com/furrist/rp/furtv/sdk/model/TimeRange$Companion {
 
 public final class com/furrist/rp/furtv/sdk/school/CharacterInfo {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/CharacterInfo$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/String;
-	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Z
-	public final fun component9 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/CharacterInfo;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getCreatedAt ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
 	public final fun getGender ()Ljava/lang/String;
 	public final fun getId ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
 	public final fun getSpecies ()Ljava/lang/String;
-	public final fun getSpeciesId ()Ljava/lang/String;
+	public final fun getWorldview ()Ljava/lang/String;
 	public fun hashCode ()I
-	public final fun isPrimary ()Z
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -2237,31 +2419,25 @@ public final class com/furrist/rp/furtv/sdk/school/SchoolApi {
 
 public final class com/furrist/rp/furtv/sdk/school/SchoolDetail {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/SchoolDetail$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;ILjava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;ILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component10 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/Double;
-	public final fun component7 ()Ljava/lang/Double;
-	public final fun component8 ()I
-	public final fun component9 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;ILjava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/Double;ILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/Integer;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCreatedAt ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getLat ()Ljava/lang/Double;
-	public final fun getLng ()Ljava/lang/Double;
+	public final fun getId ()I
 	public final fun getLocation ()Ljava/lang/String;
 	public final fun getLogoUrl ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
-	public final fun getStudentCount ()I
-	public final fun getUpdatedAt ()Ljava/lang/String;
+	public final fun getShortName ()Ljava/lang/String;
+	public final fun getStudentCount ()Ljava/lang/Integer;
+	public final fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2290,8 +2466,8 @@ public final class com/furrist/rp/furtv/sdk/school/SchoolDetailResponse {
 	public final fun copy (ZLcom/furrist/rp/furtv/sdk/school/SchoolDetail;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetailResponse;
 	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolDetailResponse;ZLcom/furrist/rp/furtv/sdk/school/SchoolDetail;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetailResponse;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
 	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getSchool ()Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
 	public final fun getSuccess ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -2314,23 +2490,25 @@ public final class com/furrist/rp/furtv/sdk/school/SchoolDetailResponse$Companio
 
 public final class com/furrist/rp/furtv/sdk/school/SchoolInfo {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/SchoolInfo$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/Integer;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/Integer;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolInfo;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
+	public final fun getId ()I
 	public final fun getLocation ()Ljava/lang/String;
 	public final fun getLogoUrl ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
+	public final fun getShortName ()Ljava/lang/String;
 	public final fun getStudentCount ()Ljava/lang/Integer;
+	public final fun getType ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2352,17 +2530,12 @@ public final class com/furrist/rp/furtv/sdk/school/SchoolInfo$Companion {
 
 public final class com/furrist/rp/furtv/sdk/school/SchoolSearchData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData$Companion;
-	public fun <init> (Ljava/util/List;ILjava/lang/String;)V
-	public synthetic fun <init> (Ljava/util/List;ILjava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/List;)V
 	public final fun component1 ()Ljava/util/List;
-	public final fun component2 ()I
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (Ljava/util/List;ILjava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;Ljava/util/List;ILjava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
+	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCursor ()Ljava/lang/String;
 	public final fun getSchools ()Ljava/util/List;
-	public final fun getTotalCount ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2479,26 +2652,38 @@ public final class com/furrist/rp/furtv/sdk/school/UserCharactersResponse$Compan
 
 public final class com/furrist/rp/furtv/sdk/school/UserSchoolInfo {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Z)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/Integer;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/lang/Integer;
 	public final fun component5 ()Ljava/lang/Integer;
 	public final fun component6 ()Ljava/lang/Integer;
-	public final fun component7 ()Z
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Z)Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;
+	public final fun component7 ()I
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolInfo;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getClassName ()Ljava/lang/String;
 	public final fun getEnrollmentYear ()Ljava/lang/Integer;
 	public final fun getGraduationYear ()Ljava/lang/Integer;
+	public final fun getLocation ()Ljava/lang/String;
 	public final fun getLogoUrl ()Ljava/lang/String;
-	public final fun getSchoolId ()Ljava/lang/String;
+	public final fun getSchoolId ()I
 	public final fun getSchoolName ()Ljava/lang/String;
+	public final fun getShortName ()Ljava/lang/String;
+	public final fun getStudentCount ()Ljava/lang/Integer;
+	public final fun getType ()Ljava/lang/String;
+	public final fun getUserSchoolId ()Ljava/lang/Integer;
 	public fun hashCode ()I
-	public final fun isVerified ()Z
+	public final fun isCurrent ()Ljava/lang/Integer;
+	public final fun isPublic ()Ljava/lang/Integer;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -2519,16 +2704,12 @@ public final class com/furrist/rp/furtv/sdk/school/UserSchoolInfo$Companion {
 
 public final class com/furrist/rp/furtv/sdk/school/UserSchoolsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getSchools ()Ljava/util/List;
-	public final fun getUserId ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2579,15 +2760,14 @@ public final class com/furrist/rp/furtv/sdk/school/UserSchoolsResponse$Companion
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/search/LocationInfo {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/LocationInfo$Companion;
+public final class com/furrist/rp/furtv/sdk/search/CityInfo {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/CityInfo$Companion;
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;I)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/LocationInfo;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/LocationInfo;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/LocationInfo;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/CityInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/CityInfo;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/CityInfo;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCity ()Ljava/lang/String;
 	public final fun getCount ()I
@@ -2596,18 +2776,18 @@ public final class com/furrist/rp/furtv/sdk/search/LocationInfo {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final synthetic class com/furrist/rp/furtv/sdk/search/LocationInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/LocationInfo$$serializer;
+public final synthetic class com/furrist/rp/furtv/sdk/search/CityInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/CityInfo$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/LocationInfo;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/CityInfo;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/LocationInfo;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/CityInfo;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/search/LocationInfo$Companion {
+public final class com/furrist/rp/furtv/sdk/search/CityInfo$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -2640,12 +2820,17 @@ public final class com/furrist/rp/furtv/sdk/search/PopularData$Companion {
 
 public final class com/furrist/rp/furtv/sdk/search/PopularLocationsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData$Companion;
-	public fun <init> (Ljava/util/List;)V
+	public fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
-	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;
+	public final fun component2 ()Ljava/util/List;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getLocations ()Ljava/util/List;
+	public final fun getPopularCities ()Ljava/util/List;
+	public final fun getPopularProvinces ()Ljava/util/List;
+	public final fun getTotalUsers ()Ljava/lang/Integer;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2729,20 +2914,42 @@ public final class com/furrist/rp/furtv/sdk/search/PopularResponse$Companion {
 
 public final class com/furrist/rp/furtv/sdk/search/PopularUser {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/PopularUser$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/Boolean;
+	public final fun component11 ()Ljava/lang/Integer;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component14 ()Ljava/lang/String;
+	public final fun component15 ()Ljava/lang/Integer;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()I
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/PopularUser;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/PopularUser;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/PopularUser;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/Integer;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/search/PopularUser;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/PopularUser;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/PopularUser;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getPopularity ()I
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getDestination ()Ljava/lang/String;
+	public final fun getDestinationExpiresAt ()Ljava/lang/String;
+	public final fun getFursuitMaker ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getIntroduction ()Ljava/lang/String;
+	public final fun getLikeCount ()Ljava/lang/Integer;
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getPopularityScore ()Ljava/lang/Integer;
+	public final fun getShowcasePortrait ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
+	public final fun isVerified ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -2761,22 +2968,98 @@ public final class com/furrist/rp/furtv/sdk/search/PopularUser$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/search/ProvinceInfo {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo$Companion;
+	public fun <init> (Ljava/lang/String;I)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()I
+	public final fun copy (Ljava/lang/String;I)Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCount ()I
+	public final fun getProvince ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/search/ProvinceInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/ProvinceInfo;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/ProvinceInfo$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/RandomDebugInfo {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Integer;)V
+	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Boolean;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCacheHitCount ()Ljava/lang/Integer;
+	public final fun getResponseMs ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public final fun isPersonalized ()Ljava/lang/Boolean;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/search/RandomDebugInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/RandomDebugInfo$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/search/RandomFursuit {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/RandomFursuit$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/Integer;
+	public final fun component11 ()Ljava/lang/Boolean;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getSpecies ()Ljava/lang/String;
+	public final fun getDestination ()Ljava/lang/String;
+	public final fun getFursuitMaker ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getIntroduction ()Ljava/lang/String;
+	public final fun getLocation ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
+	public final fun isVerified ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -2797,15 +3080,24 @@ public final class com/furrist/rp/furtv/sdk/search/RandomFursuit$Companion {
 
 public final class com/furrist/rp/furtv/sdk/search/RandomFursuitResponse {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse$Companion;
-	public fun <init> (ZLjava/util/List;Ljava/lang/String;)V
+	public fun <init> (ZLcom/furrist/rp/furtv/sdk/search/RandomFursuit;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;Ljava/lang/String;)V
+	public synthetic fun <init> (ZLcom/furrist/rp/furtv/sdk/search/RandomFursuit;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Z
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (ZLjava/util/List;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;ZLjava/util/List;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;
+	public final fun component2 ()Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun component5 ()Ljava/lang/Integer;
+	public final fun component6 ()Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (ZLcom/furrist/rp/furtv/sdk/search/RandomFursuit;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;ZLcom/furrist/rp/furtv/sdk/search/RandomFursuit;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Integer;Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/RandomFursuitResponse;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getData ()Ljava/util/List;
+	public final fun getCount ()Ljava/lang/Integer;
+	public final fun getDebugInfo ()Lcom/furrist/rp/furtv/sdk/search/RandomDebugInfo;
+	public final fun getFursuit ()Lcom/furrist/rp/furtv/sdk/search/RandomFursuit;
+	public final fun getFursuits ()Ljava/util/List;
 	public final fun getRequestId ()Ljava/lang/String;
+	public final fun getRequestedCount ()Ljava/lang/Integer;
 	public final fun getSuccess ()Z
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -2827,7 +3119,8 @@ public final class com/furrist/rp/furtv/sdk/search/RandomFursuitResponse$Compani
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchApi {
-	public final fun getPopular (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getPopular (Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun getPopular$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public final fun getPopularLocations (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getRandomFursuit (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getRandomFursuit (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -2835,24 +3128,33 @@ public final class com/furrist/rp/furtv/sdk/search/SearchApi {
 	public final fun getSearchSuggestions (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getSpeciesList (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun search (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun search (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public static synthetic fun search$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun searchBySpecies (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun search (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun search$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun searchBySpecies (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun searchBySpecies$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SearchData$Companion;
-	public fun <init> (Ljava/util/List;Ljava/lang/String;Z)V
-	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;ZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/util/List;
 	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Z
-	public final fun copy (Ljava/util/List;Ljava/lang/String;Z)Lcom/furrist/rp/furtv/sdk/search/SearchData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SearchData;Ljava/util/List;Ljava/lang/String;ZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public final fun component5 ()Z
+	public final fun component6 ()Ljava/lang/Integer;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (Ljava/util/List;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SearchData;Ljava/util/List;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getHasMore ()Z
 	public final fun getNextCursor ()Ljava/lang/String;
-	public final fun getResults ()Ljava/util/List;
+	public final fun getPagination ()Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public final fun getSearchKeywords ()Ljava/util/List;
+	public final fun getSearchType ()Ljava/lang/String;
+	public final fun getTotal ()Ljava/lang/Integer;
+	public final fun getUsers ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -2869,6 +3171,43 @@ public final synthetic class com/furrist/rp/furtv/sdk/search/SearchData$$seriali
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchData$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/SearchPagination {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SearchPagination$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component2 ()Ljava/lang/Integer;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SearchPagination;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getLimit ()Ljava/lang/Integer;
+	public final fun getNextCursor ()Ljava/lang/String;
+	public final fun getPage ()Ljava/lang/Integer;
+	public final fun getTotal ()Ljava/lang/Integer;
+	public final fun getTotalPages ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/search/SearchPagination$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/SearchPagination$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/SearchPagination$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -2900,42 +3239,6 @@ public final synthetic class com/furrist/rp/furtv/sdk/search/SearchResponse$$ser
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchResponse$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/SearchResult {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SearchResult$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SearchResult;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SearchResult;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchResult;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getType ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/search/SearchResult$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/SearchResult$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/SearchResult;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/SearchResult;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/search/SearchResult$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -2997,6 +3300,63 @@ public final class com/furrist/rp/furtv/sdk/search/SearchSuggestionsResponse$Com
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/search/SearchUser {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SearchUser$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/lang/String;
+	public final fun component13 ()Ljava/lang/Integer;
+	public final fun component14 ()Ljava/lang/Boolean;
+	public final fun component15 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/util/List;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SearchUser;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SearchUser;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchUser;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAvatarUrl ()Ljava/lang/String;
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getDestination ()Ljava/lang/String;
+	public final fun getDestinationExpiresAt ()Ljava/lang/String;
+	public final fun getDestinations ()Ljava/util/List;
+	public final fun getFursuitMaker ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()Ljava/lang/Integer;
+	public final fun getIntroduction ()Ljava/lang/String;
+	public final fun getLocation ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getShowcasePortrait ()Ljava/lang/String;
+	public final fun getUsername ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
+	public fun hashCode ()I
+	public final fun isVerified ()Ljava/lang/Boolean;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/search/SearchUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/SearchUser$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/SearchUser;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/SearchUser;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/search/SearchUser$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/search/SpeciesInfo {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SpeciesInfo$Companion;
 	public fun <init> (Ljava/lang/String;I)V
@@ -3006,7 +3366,7 @@ public final class com/furrist/rp/furtv/sdk/search/SpeciesInfo {
 	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesInfo;Ljava/lang/String;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesInfo;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCount ()I
-	public final fun getName ()Ljava/lang/String;
+	public final fun getSpecies ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -3035,7 +3395,7 @@ public final class com/furrist/rp/furtv/sdk/search/SpeciesListData {
 	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesListData;Ljava/util/List;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesListData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getSpecies ()Ljava/util/List;
-	public final fun getTotalCount ()I
+	public final fun getTotal ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -3088,15 +3448,22 @@ public final class com/furrist/rp/furtv/sdk/search/SpeciesListResponse$Companion
 
 public final class com/furrist/rp/furtv/sdk/search/SpeciesSearchData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;I)V
+	public fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/util/List;I)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;Ljava/lang/String;Ljava/util/List;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
+	public final fun component3 ()Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
+	public final fun component4 ()Z
+	public final fun component5 ()Ljava/lang/Integer;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/search/SearchPagination;ZLjava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
 	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHasMore ()Z
+	public final fun getNextCursor ()Ljava/lang/String;
+	public final fun getPagination ()Lcom/furrist/rp/furtv/sdk/search/SearchPagination;
 	public final fun getSpecies ()Ljava/lang/String;
-	public final fun getTotalCount ()I
+	public final fun getTotal ()Ljava/lang/Integer;
 	public final fun getUsers ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -3148,48 +3515,68 @@ public final class com/furrist/rp/furtv/sdk/search/SpeciesSearchResponse$Compani
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/search/SpeciesUser {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SpeciesUser$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+public final class com/furrist/rp/furtv/sdk/search/SpeciesSearchUser {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Integer;
+	public final fun component10 ()Ljava/lang/Boolean;
+	public final fun component11 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SpeciesUser;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesUser;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesUser;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/Integer;
+	public final fun copy (Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getFursuitMaker ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()Ljava/lang/Integer;
+	public final fun getIntroduction ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getShowcasePortrait ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
+	public final fun isVerified ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
-public final synthetic class com/furrist/rp/furtv/sdk/search/SpeciesUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/SpeciesUser$$serializer;
+public final synthetic class com/furrist/rp/furtv/sdk/search/SpeciesSearchUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/SpeciesUser;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/SpeciesUser;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchUser;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/search/SpeciesUser$Companion {
+public final class com/furrist/rp/furtv/sdk/search/SpeciesSearchUser$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/furrist/rp/furtv/sdk/user/LikeStatusData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/LikeStatusData$Companion;
-	public fun <init> (ZZI)V
-	public final fun component1 ()Z
+	public fun <init> (IZZLjava/lang/Integer;)V
+	public synthetic fun <init> (IZZLjava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Z
-	public final fun component3 ()I
-	public final fun copy (ZZI)Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;ZZIILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;
+	public final fun component3 ()Z
+	public final fun component4 ()Ljava/lang/Integer;
+	public final fun copy (IZZLjava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;IZZLjava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getCanLike ()Z
+	public final fun getDaysUntilCanLike ()Ljava/lang/Integer;
 	public final fun getLikeCount ()I
 	public fun hashCode ()I
 	public final fun isLiked ()Z
@@ -3242,61 +3629,69 @@ public final class com/furrist/rp/furtv/sdk/user/LikeStatusResponse$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/RelationshipPartner {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+public final class com/furrist/rp/furtv/sdk/user/RelationshipInfo {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
+	public final fun component4 ()I
 	public final fun component5 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo;ILjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getPartnerAvatar ()Ljava/lang/String;
+	public final fun getPartnerId ()I
+	public final fun getPartnerNickname ()Ljava/lang/String;
+	public final fun getPartnerSpecies ()Ljava/lang/String;
+	public final fun getPartnerUsername ()Ljava/lang/String;
 	public final fun getRelationshipType ()Ljava/lang/String;
-	public final fun getUserId ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
 
-public final synthetic class com/furrist/rp/furtv/sdk/user/RelationshipPartner$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner$$serializer;
+public final synthetic class com/furrist/rp/furtv/sdk/user/RelationshipInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo$$serializer;
 	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo;
 	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
 	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/RelationshipPartner;)V
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/RelationshipInfo;)V
 	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
 	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/RelationshipPartner$Companion {
+public final class com/furrist/rp/furtv/sdk/user/RelationshipInfo$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
 public final class com/furrist/rp/furtv/sdk/user/SocialBadge {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadge$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
+	public fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadge;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadge;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadge;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadge;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadge;IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadge;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAwardedAt ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
+	public final fun getBadgeId ()I
+	public final fun getDetailText ()Ljava/lang/String;
+	public final fun getExpiresAt ()Ljava/lang/String;
 	public final fun getGlbUrl ()Ljava/lang/String;
-	public final fun getIconUrl ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public final fun getUserBadgeId ()I
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -3316,30 +3711,60 @@ public final class com/furrist/rp/furtv/sdk/user/SocialBadge$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/SocialBadgeDetailData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
+public final class com/furrist/rp/furtv/sdk/user/SocialBadgeDetail {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail$Companion;
+	public fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()I
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;
+	public final fun copy (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAwardedAt ()Ljava/lang/String;
-	public final fun getAwardedBy ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
+	public final fun getBadgeId ()I
+	public final fun getDetailText ()Ljava/lang/String;
+	public final fun getExpiresAt ()Ljava/lang/String;
 	public final fun getGlbUrl ()Ljava/lang/String;
-	public final fun getIconUrl ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
-	public final fun getName ()Ljava/lang/String;
-	public final fun getUserBadgeId ()Ljava/lang/String;
+	public final fun getTitle ()Ljava/lang/String;
+	public final fun getUserBadgeId ()I
 	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/SocialBadgeDetail$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/SocialBadgeDetail$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/SocialBadgeDetailData {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData$Companion;
+	public fun <init> (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;)V
+	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public final fun component2 ()Ljava/lang/Boolean;
+	public final fun component3 ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;
+	public final fun copy (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBadge ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetail;
+	public final fun getUser ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public fun hashCode ()I
+	public final fun isOwner ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -3389,17 +3814,54 @@ public final class com/furrist/rp/furtv/sdk/user/SocialBadgeDetailResponse$Compa
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/user/SocialBadgeUser {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;ILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()I
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getUsername ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/SocialBadgeUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/SocialBadgeUser$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/user/SocialBadgesData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;Ljava/lang/String;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;
+	public fun <init> (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
+	public final fun component2 ()Ljava/lang/Boolean;
+	public final fun component3 ()Ljava/lang/Integer;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;Ljava/lang/Boolean;Ljava/lang/Integer;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBadges ()Ljava/util/List;
-	public final fun getUserId ()Ljava/lang/String;
+	public final fun getTotalCount ()Ljava/lang/Integer;
+	public final fun getUser ()Lcom/furrist/rp/furtv/sdk/user/SocialBadgeUser;
 	public fun hashCode ()I
+	public final fun isOwner ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -3451,25 +3913,27 @@ public final class com/furrist/rp/furtv/sdk/user/SocialBadgesResponse$Companion 
 
 public final class com/furrist/rp/furtv/sdk/user/StoreProduct {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/StoreProduct$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/Double;
+	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
-	public final fun component6 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/Integer;
 	public final fun component7 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/StoreProduct;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/StoreProduct;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Double;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/StoreProduct;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/StoreProduct;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/StoreProduct;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/StoreProduct;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getCurrency ()Ljava/lang/String;
-	public final fun getDescription ()Ljava/lang/String;
+	public final fun getCreatedAt ()Ljava/lang/String;
 	public final fun getExternalUrl ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
+	public final fun getId ()I
 	public final fun getImageUrl ()Ljava/lang/String;
 	public final fun getName ()Ljava/lang/String;
-	public final fun getPrice ()Ljava/lang/Double;
+	public final fun getPrice ()Ljava/lang/String;
+	public final fun getSortOrder ()Ljava/lang/Integer;
+	public final fun getUpdatedAt ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -3491,17 +3955,20 @@ public final class com/furrist/rp/furtv/sdk/user/StoreProduct$Companion {
 
 public final class com/furrist/rp/furtv/sdk/user/StoreProductsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/StoreProductsData$Companion;
-	public fun <init> (Ljava/lang/String;ZLjava/util/List;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Z
-	public final fun component3 ()Ljava/util/List;
-	public final fun copy (Ljava/lang/String;ZLjava/util/List;)Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;Ljava/lang/String;ZLjava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;
+	public fun <init> (Lcom/furrist/rp/furtv/sdk/user/StoreUser;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;)V
+	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/user/StoreUser;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Lcom/furrist/rp/furtv/sdk/user/StoreUser;
+	public final fun component2 ()Ljava/lang/Boolean;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun component4 ()Ljava/util/List;
+	public final fun copy (Lcom/furrist/rp/furtv/sdk/user/StoreUser;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;Lcom/furrist/rp/furtv/sdk/user/StoreUser;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getProducts ()Ljava/util/List;
-	public final fun getUserId ()Ljava/lang/String;
+	public final fun getUser ()Lcom/furrist/rp/furtv/sdk/user/StoreUser;
 	public fun hashCode ()I
-	public final fun isMerchant ()Z
+	public final fun isMerchantVerified ()Ljava/lang/Boolean;
+	public final fun isOwner ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -3551,6 +4018,38 @@ public final class com/furrist/rp/furtv/sdk/user/StoreProductsResponse$Companion
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
+public final class com/furrist/rp/furtv/sdk/user/StoreUser {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/StoreUser$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/StoreUser;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/StoreUser;ILjava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/StoreUser;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getId ()I
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getUsername ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/StoreUser$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/StoreUser$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/StoreUser;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/StoreUser;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/StoreUser$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
 public final class com/furrist/rp/furtv/sdk/user/UserApi {
 	public final fun getLikeStatus (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public final fun getSocialBadgeDetail (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
@@ -3562,20 +4061,60 @@ public final class com/furrist/rp/furtv/sdk/user/UserApi {
 	public final fun getUserVisitors (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/UserIdData {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserIdData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+public final class com/furrist/rp/furtv/sdk/user/UserDestination {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserDestination$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserIdData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserIdData;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserIdData;
+	public final fun component5 ()Ljava/lang/Integer;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/user/UserDestination;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserDestination;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserDestination;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getEndDate ()Ljava/lang/String;
+	public final fun getGatheringId ()Ljava/lang/Integer;
+	public final fun getId ()I
+	public final fun getName ()Ljava/lang/String;
+	public final fun getStartDate ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/UserDestination$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/UserDestination$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/UserDestination;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/UserDestination;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserDestination$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserIdData {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserIdData$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserIdData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserIdData;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserIdData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getLocation ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
 	public final fun getUsername ()Ljava/lang/String;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
@@ -3627,61 +4166,62 @@ public final class com/furrist/rp/furtv/sdk/user/UserIdResponse$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/UserPrivacySettings {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings$Companion;
-	public fun <init> (ZZ)V
-	public final fun component1 ()Z
-	public final fun component2 ()Z
-	public final fun copy (ZZ)Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;ZZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getShowRelationships ()Z
-	public final fun getShowVisitorDetails ()Z
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/user/UserPrivacySettings$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/user/UserPrivacySettings$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public final class com/furrist/rp/furtv/sdk/user/UserProfile {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserProfile$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component10 ()Ljava/lang/String;
+	public final fun component11 ()Ljava/lang/String;
+	public final fun component12 ()Ljava/util/List;
+	public final fun component13 ()Ljava/lang/String;
+	public final fun component14 ()Ljava/util/Map;
+	public final fun component15 ()Ljava/util/Map;
+	public final fun component16 ()Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;
+	public final fun component17 ()Ljava/util/List;
+	public final fun component18 ()Ljava/util/List;
+	public final fun component19 ()Ljava/lang/Integer;
 	public final fun component2 ()Ljava/lang/String;
+	public final fun component20 ()Ljava/lang/Boolean;
+	public final fun component21 ()Ljava/lang/String;
+	public final fun component22 ()Ljava/util/List;
+	public final fun component23 ()Ljava/lang/String;
+	public final fun component24 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
 	public final fun component4 ()Ljava/lang/String;
 	public final fun component5 ()Ljava/lang/String;
 	public final fun component6 ()Ljava/lang/String;
 	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Ljava/util/List;
-	public final fun component9 ()Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;)Lcom/furrist/rp/furtv/sdk/user/UserProfile;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserProfile;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserProfile;
+	public final fun component8 ()Ljava/lang/String;
+	public final fun component9 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserProfile;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserProfile;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/util/Map;Ljava/util/Map;Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;Ljava/util/List;Ljava/util/List;Ljava/lang/Integer;Ljava/lang/Boolean;Ljava/lang/String;Ljava/util/List;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserProfile;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getBio ()Ljava/lang/String;
+	public final fun getCharacters ()Ljava/util/List;
+	public final fun getContactInfo ()Ljava/util/Map;
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getDestination ()Ljava/lang/String;
+	public final fun getDestinationExpiresAt ()Ljava/lang/String;
 	public final fun getDestinations ()Ljava/util/List;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getId ()Ljava/lang/String;
+	public final fun getFursuitBirthday ()Ljava/lang/String;
+	public final fun getFursuitMaker ()Ljava/lang/String;
+	public final fun getFursuitSpecies ()Ljava/lang/String;
+	public final fun getId ()I
+	public final fun getInterests ()Ljava/util/List;
+	public final fun getIntroduction ()Ljava/lang/String;
 	public final fun getLocation ()Ljava/lang/String;
-	public final fun getPrivacy ()Lcom/furrist/rp/furtv/sdk/user/UserPrivacySettings;
-	public final fun getSpecies ()Ljava/lang/String;
+	public final fun getNickname ()Ljava/lang/String;
+	public final fun getOtherVerifiedTypes ()Ljava/util/List;
+	public final fun getPrivacySettings ()Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;
+	public final fun getShowcaseLandscape ()Ljava/lang/String;
+	public final fun getShowcaseOther ()Ljava/lang/String;
+	public final fun getShowcasePortrait ()Ljava/lang/String;
+	public final fun getSocialLinks ()Ljava/util/Map;
 	public final fun getUsername ()Ljava/lang/String;
+	public final fun getViewCount ()Ljava/lang/Integer;
 	public fun hashCode ()I
+	public final fun isVerified ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -3697,6 +4237,83 @@ public final synthetic class com/furrist/rp/furtv/sdk/user/UserProfile$$serializ
 }
 
 public final class com/furrist/rp/furtv/sdk/user/UserProfile$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserProfileCharacter {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter$Companion;
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getGender ()Ljava/lang/String;
+	public final fun getId ()Ljava/lang/String;
+	public final fun getName ()Ljava/lang/String;
+	public final fun getSpecies ()Ljava/lang/String;
+	public final fun getWorldview ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/UserProfileCharacter$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/UserProfileCharacter;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserProfileCharacter$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings$Companion;
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;)V
+	public synthetic fun <init> (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/Boolean;
+	public final fun component2 ()Ljava/lang/Boolean;
+	public final fun component3 ()Ljava/lang/Boolean;
+	public final fun component4 ()Ljava/lang/Boolean;
+	public final fun component5 ()Ljava/lang/Boolean;
+	public final fun component6 ()Ljava/lang/Boolean;
+	public final fun component7 ()Ljava/lang/Boolean;
+	public final fun copy (Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;)Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;Ljava/lang/Boolean;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllowContact ()Ljava/lang/Boolean;
+	public final fun getAllowMessages ()Ljava/lang/Boolean;
+	public final fun getAllowReturnImages ()Ljava/lang/Boolean;
+	public final fun getProfilePublic ()Ljava/lang/Boolean;
+	public final fun getShowEmail ()Ljava/lang/Boolean;
+	public final fun getShowLocation ()Ljava/lang/Boolean;
+	public final fun getShowVisitorDetails ()Ljava/lang/Boolean;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/UserProfilePrivacySettings$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
@@ -3733,16 +4350,12 @@ public final class com/furrist/rp/furtv/sdk/user/UserProfileResponse$Companion {
 
 public final class com/furrist/rp/furtv/sdk/user/UserRelationshipsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;I)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()I
-	public final fun copy (Ljava/lang/String;Ljava/util/List;I)Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;Ljava/lang/String;Ljava/util/List;IILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;
+	public fun <init> (Ljava/util/List;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun copy (Ljava/util/List;)Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;Ljava/util/List;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getPartners ()Ljava/util/List;
-	public final fun getTotalCount ()I
-	public final fun getUserId ()Ljava/lang/String;
+	public final fun getRelationships ()Ljava/util/List;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -3793,57 +4406,20 @@ public final class com/furrist/rp/furtv/sdk/user/UserRelationshipsResponse$Compa
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 
-public final class com/furrist/rp/furtv/sdk/user/UserVisitor {
-	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserVisitor$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
-	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/lang/String;
-	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Ljava/lang/String;
-	public final fun component5 ()Ljava/lang/String;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserVisitor;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserVisitor;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserVisitor;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAvatarUrl ()Ljava/lang/String;
-	public final fun getDisplayName ()Ljava/lang/String;
-	public final fun getUserId ()Ljava/lang/String;
-	public final fun getUsername ()Ljava/lang/String;
-	public final fun getVisitedAt ()Ljava/lang/String;
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final synthetic class com/furrist/rp/furtv/sdk/user/UserVisitor$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
-	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/UserVisitor$$serializer;
-	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
-	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/UserVisitor;
-	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
-	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
-	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/UserVisitor;)V
-	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
-	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
-}
-
-public final class com/furrist/rp/furtv/sdk/user/UserVisitor$Companion {
-	public final fun serializer ()Lkotlinx/serialization/KSerializer;
-}
-
 public final class com/furrist/rp/furtv/sdk/user/UserVisitorsData {
 	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData$Companion;
-	public fun <init> (Ljava/lang/String;Ljava/util/List;IZ)V
-	public final fun component1 ()Ljava/lang/String;
-	public final fun component2 ()Ljava/util/List;
-	public final fun component3 ()I
-	public final fun component4 ()Z
-	public final fun copy (Ljava/lang/String;Ljava/util/List;IZ)Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;
-	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;Ljava/lang/String;Ljava/util/List;IZILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;
+	public fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/util/List;
+	public final fun component2 ()Ljava/lang/Boolean;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun copy (Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;Ljava/util/List;Ljava/lang/Boolean;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun getShowVisitorDetails ()Z
-	public final fun getTotalCount ()I
-	public final fun getUserId ()Ljava/lang/String;
+	public final fun getMessage ()Ljava/lang/String;
 	public final fun getVisitors ()Ljava/util/List;
 	public fun hashCode ()I
+	public final fun isOwner ()Ljava/lang/Boolean;
 	public fun toString ()Ljava/lang/String;
 }
 
@@ -3890,6 +4466,42 @@ public final synthetic class com/furrist/rp/furtv/sdk/user/UserVisitorsResponse$
 }
 
 public final class com/furrist/rp/furtv/sdk/user/UserVisitorsResponse$Companion {
+	public final fun serializer ()Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/VisitorInfo {
+	public static final field Companion Lcom/furrist/rp/furtv/sdk/user/VisitorInfo$Companion;
+	public fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()Ljava/lang/String;
+	public final fun component5 ()Ljava/lang/String;
+	public final fun copy (ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/VisitorInfo;
+	public static synthetic fun copy$default (Lcom/furrist/rp/furtv/sdk/user/VisitorInfo;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/user/VisitorInfo;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getCreatedAt ()Ljava/lang/String;
+	public final fun getVisitorAvatar ()Ljava/lang/String;
+	public final fun getVisitorId ()I
+	public final fun getVisitorNickname ()Ljava/lang/String;
+	public final fun getVisitorUsername ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final synthetic class com/furrist/rp/furtv/sdk/user/VisitorInfo$$serializer : kotlinx/serialization/internal/GeneratedSerializer {
+	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/user/VisitorInfo$$serializer;
+	public final fun childSerializers ()[Lkotlinx/serialization/KSerializer;
+	public final fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Lcom/furrist/rp/furtv/sdk/user/VisitorInfo;
+	public synthetic fun deserialize (Lkotlinx/serialization/encoding/Decoder;)Ljava/lang/Object;
+	public final fun getDescriptor ()Lkotlinx/serialization/descriptors/SerialDescriptor;
+	public final fun serialize (Lkotlinx/serialization/encoding/Encoder;Lcom/furrist/rp/furtv/sdk/user/VisitorInfo;)V
+	public synthetic fun serialize (Lkotlinx/serialization/encoding/Encoder;Ljava/lang/Object;)V
+	public fun typeParametersSerializers ()[Lkotlinx/serialization/KSerializer;
+}
+
+public final class com/furrist/rp/furtv/sdk/user/VisitorInfo$Companion {
 	public final fun serializer ()Lkotlinx/serialization/KSerializer;
 }
 

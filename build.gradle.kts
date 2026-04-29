@@ -39,6 +39,7 @@ kotlin {
     js {
         generateTypeScriptDefinitions()
         compilerOptions {
+            useEsClasses.set(true)
             moduleKind.set(org.jetbrains.kotlin.gradle.dsl.JsModuleKind.MODULE_ES)
             sourceMap.set(true)
             target.set("es2015")
@@ -117,7 +118,6 @@ kotlin {
                 implementation(libs.ktor.network)
             }
         }
-
     }
 }
 
