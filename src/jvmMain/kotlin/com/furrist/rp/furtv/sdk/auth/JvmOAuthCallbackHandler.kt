@@ -54,8 +54,9 @@ internal class JvmOAuthCallbackHandler(
 
         return try {
             val timeoutDuration = config.timeoutSeconds.seconds
-            withTimeoutOrNull(timeoutDuration) { deferred.await() }
-                ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
+            withTimeoutOrNull(timeoutDuration) {
+                deferred.await()
+            } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
         } finally {
             mutex.withLock {
                 pendingDeferred = null

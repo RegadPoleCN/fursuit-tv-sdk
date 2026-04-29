@@ -36,6 +36,7 @@ public class FursuitTvSdk internal constructor(
     /**
      * 认证管理器
      */
+    @JsName("auth")
     public val auth: AuthManager =
         AuthManager(config).apply {
             tokenInfo?.let { setTokenInfo(it) }

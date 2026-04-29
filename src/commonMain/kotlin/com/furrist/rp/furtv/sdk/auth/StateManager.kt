@@ -11,6 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.serialization.Serializable
 
 /**
  * State 管理器
@@ -143,7 +144,9 @@ public object StateManager {
         cleanupRunning = false
     }
 
-    private data class StateEntry(
-        val expiresAtEpochMs: Long,
+    @JsName("StateEntry")
+    @Serializable
+    public data class StateEntry(
+        public val expiresAtEpochMs: Long,
     )
 }

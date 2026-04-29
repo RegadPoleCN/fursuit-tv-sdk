@@ -51,6 +51,7 @@ public object Sha256 {
      * @return SHA256 哈希结果（32 字节）
      */
     @Suppress("LongMethod")
+    @JsName("hash")
     public fun hash(input: ByteArray): ByteArray {
         val messageLengthBits = input.size.toULong() * 8u
 

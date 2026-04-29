@@ -4,10 +4,13 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmStatic
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 /**
  * OAuth 回调结果。
  */
+@JsExport
+@JsName("OAuthCallbackResult")
 public sealed class OAuthCallbackResult {
     /**
      * 授权成功，携带授权码和 state。
@@ -27,9 +30,11 @@ public sealed class OAuthCallbackResult {
      * @param cause 根本原因，可能为 null
      */
     @JsName("OAuthCallbackError")
+    @Serializable
     public data class Error(
         val message: String,
         val errorCode: String? = null,
+        @Transient
         val cause: Throwable? = null,
     ) : OAuthCallbackResult()
 }
@@ -50,6 +55,7 @@ public interface OAuthCallbackHandler {
     /**
      * 回调接收地址，格式为 `http://localhost:{port}{path}`。
      */
+    @JsName("callbackUrl")
     public val callbackUrl: String
 
     /**
@@ -59,6 +65,7 @@ public interface OAuthCallbackHandler {
      *
      * @throws IllegalStateException 如果服务器启动失败
      */
+    @JsName("startListening")
     public suspend fun startListening()
 
     /**
@@ -68,6 +75,7 @@ public interface OAuthCallbackHandler {
      *
      * @return 回调结果
      */
+    @JsName("waitForCallback")
     public suspend fun waitForCallback(): OAuthCallbackResult
 
     /**
@@ -79,6 +87,7 @@ public interface OAuthCallbackHandler {
      * @param authorizeUrl 授权端点 URL
      * @return 回调结果
      */
+    @JsName("startAndGetCallback")
     public suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
         startListening()
         return waitForCallback()
@@ -87,6 +96,7 @@ public interface OAuthCallbackHandler {
     /**
      * 停止回调监听并释放资源。
      */
+    @JsName("stop")
     public suspend fun stop()
 }
 

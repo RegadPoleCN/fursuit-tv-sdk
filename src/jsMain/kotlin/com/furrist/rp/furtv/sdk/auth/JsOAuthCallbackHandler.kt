@@ -21,6 +21,10 @@ public class JsOAuthCallbackHandler(
     private var deferredResult: CompletableDeferred<OAuthCallbackResult>? = null
     private var messageListener: EventListener? = null
 
+    private companion object {
+        private const val NODE_POLL_INTERVAL_MS = 500L
+    }
+
     override suspend fun startListening() {
         if (isBrowser) {
             startBrowserListening()
@@ -117,7 +121,7 @@ public class JsOAuthCallbackHandler(
         val timeoutMillis = config.timeoutSeconds * 1000L
         return withTimeoutOrNull(timeoutMillis) {
             while (this.asDynamic()._nodeResult == null) {
-                delay(500L)
+                delay(NODE_POLL_INTERVAL_MS)
             }
             val result: dynamic = this.asDynamic()._nodeResult
             if (result.code != null) {

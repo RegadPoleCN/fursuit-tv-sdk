@@ -27,9 +27,9 @@ public open class FursuitTvSdkException(
 @JsExport
 @JsName("ApiException")
 public class ApiException(
-    public val statusCode: Int,
+    @JsName("statusCode") public val statusCode: Int,
     message: String,
-    public val errorCode: String? = null,
+    @JsName("errorCode") public val errorCode: String? = null,
     cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 
@@ -109,6 +109,6 @@ public class NotFoundException(
 @JsName("OAuthException")
 public class OAuthException(
     message: String,
-    public val errorCode: String? = null,
+    @JsName("errorCode") public val errorCode: String? = null,
     cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)

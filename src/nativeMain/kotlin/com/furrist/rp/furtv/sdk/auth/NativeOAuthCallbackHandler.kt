@@ -58,6 +58,7 @@ public class NativeOAuthCallbackHandler(
         }
     }
 
+    @Suppress("ReturnCount")
     private suspend fun handleConnection(
         socket: io.ktor.network.sockets.Socket,
         deferred: CompletableDeferred<OAuthCallbackResult>,
@@ -82,8 +83,9 @@ public class NativeOAuthCallbackHandler(
                 deferred.complete(
                     OAuthCallbackResult.Error(message = errorDescription, errorCode = error),
                 )
+                val body = "Authorization failed: $error"
                 output.writeString(
-                    "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\nAuthorization failed: $error",
+                    "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n$body",
                 )
                 output.flush()
                 return
@@ -94,7 +96,8 @@ public class NativeOAuthCallbackHandler(
 
             if (code == null || state == null) {
                 output.writeString(
-                    "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\nMissing code or state",
+                    "HTTP/1.1 400 Bad Request\r\n" +
+                        "Content-Type: text/html\r\nConnection: close\r\n\r\nMissing code or state",
                 )
                 output.flush()
                 return
@@ -102,7 +105,8 @@ public class NativeOAuthCallbackHandler(
 
             deferred.complete(OAuthCallbackResult.Success(code, state))
             output.writeString(
-                "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n\r\nSuccess! You can close this window.",
+                "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n" +
+                    "\r\nSuccess! You can close this window.",
             )
             output.flush()
         } finally {
@@ -113,8 +117,9 @@ public class NativeOAuthCallbackHandler(
     override suspend fun waitForCallback(): OAuthCallbackResult {
         val deferred = pendingCallback
             ?: throw IllegalStateException("Not listening. Call startListening() first.")
-        return withTimeoutOrNull(config.timeoutSeconds.seconds) { deferred.await() }
-            ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
+        return withTimeoutOrNull(config.timeoutSeconds.seconds) {
+            deferred.await()
+        } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
     }
 
     override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {

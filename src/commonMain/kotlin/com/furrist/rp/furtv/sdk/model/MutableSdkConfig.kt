@@ -29,16 +29,37 @@ private const val DEFAULT_RETRY_INTERVAL = 1000L
 @JsExport
 @JsName("MutableSdkConfig")
 public class MutableSdkConfig {
+    @JsName("baseUrl")
     public var baseUrl: String = DEFAULT_BASE_URL
+
+    @JsName("apiKey")
     public var apiKey: String? = null
+
+    @JsName("clientId")
     public var clientId: String? = null
+
+    @JsName("clientSecret")
     public var clientSecret: String? = null
+
+    @JsName("requestTimeout")
     public var requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT
+
+    @JsName("connectTimeout")
     public var connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT
+
+    @JsName("socketTimeout")
     public var socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT
+
+    @JsName("logLevel")
     public var logLevel: SdkLogLevel = SdkLogLevel.INFO
+
+    @JsName("enableRetry")
     public var enableRetry: Boolean = true
+
+    @JsName("maxRetries")
     public var maxRetries: Int = DEFAULT_MAX_RETRIES
+
+    @JsName("retryInterval")
     public var retryInterval: Long = DEFAULT_RETRY_INTERVAL
 
     /**

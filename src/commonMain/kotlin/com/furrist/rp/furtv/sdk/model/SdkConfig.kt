@@ -30,21 +30,22 @@ public enum class SdkLogLevel {
     WARNING,
     INFO,
     DEBUG,
-    ALL;
+    ALL, ;
 
     /**
      * 将 SDK 日志级别转换为 Ktor 客户端的 [LogLevel]。
      *
      * @return 对应的 Ktor 日志级别
      */
-    internal fun toKtorLogLevel(): LogLevel = when (this) {
-        OFF -> LogLevel.NONE
-        ERROR -> LogLevel.INFO
-        WARNING -> LogLevel.INFO
-        INFO -> LogLevel.INFO
-        DEBUG -> LogLevel.BODY
-        ALL -> LogLevel.ALL
-    }
+    internal fun toKtorLogLevel(): LogLevel =
+        when (this) {
+            OFF -> LogLevel.NONE
+            ERROR -> LogLevel.INFO
+            WARNING -> LogLevel.INFO
+            INFO -> LogLevel.INFO
+            DEBUG -> LogLevel.BODY
+            ALL -> LogLevel.ALL
+        }
 }
 
 /**
@@ -65,17 +66,17 @@ public enum class SdkLogLevel {
 @JsExport
 @JsName("SdkConfig")
 public class SdkConfig(
-    public val baseUrl: String = DEFAULT_BASE_URL,
-    public val apiKey: String? = null,
-    public val clientId: String? = null,
-    public val clientSecret: String? = null,
-    public val requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT,
-    public val connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT,
-    public val socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT,
-    public val logLevel: SdkLogLevel = SdkLogLevel.INFO,
-    public val enableRetry: Boolean = true,
-    public val maxRetries: Int = DEFAULT_MAX_RETRIES,
-    public val retryInterval: Long = DEFAULT_RETRY_INTERVAL,
+    @JsName("baseUrl") public val baseUrl: String = DEFAULT_BASE_URL,
+    @JsName("apiKey") public val apiKey: String? = null,
+    @JsName("clientId") public val clientId: String? = null,
+    @JsName("clientSecret") public val clientSecret: String? = null,
+    @JsName("requestTimeout") public val requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT,
+    @JsName("connectTimeout") public val connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT,
+    @JsName("socketTimeout") public val socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT,
+    @JsName("logLevel") public val logLevel: SdkLogLevel = SdkLogLevel.INFO,
+    @JsName("enableRetry") public val enableRetry: Boolean = true,
+    @JsName("maxRetries") public val maxRetries: Int = DEFAULT_MAX_RETRIES,
+    @JsName("retryInterval") public val retryInterval: Long = DEFAULT_RETRY_INTERVAL,
 ) {
     public companion object {
         /**

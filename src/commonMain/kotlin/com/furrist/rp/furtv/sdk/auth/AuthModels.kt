@@ -170,12 +170,16 @@ public data class OAuthConfig(
     public companion object {
         /** 默认回调地址主机名 */
         public const val DEFAULT_CALLBACK_HOST: String = "localhost"
+
         /** 默认回调端口 */
         public const val DEFAULT_CALLBACK_PORT: Int = 8080
+
         /** 默认回调路径 */
         public const val DEFAULT_CALLBACK_PATH: String = "/callback"
+
         /** 默认 state 超时时间（分钟） */
         public const val DEFAULT_STATE_TIMEOUT_MINUTES: Int = 5
+
         private const val MAX_PORT_NUMBER = 65535
     }
 }
@@ -330,6 +334,7 @@ public data class TokenInfo(
      *
      * @return 如果令牌已过期或即将过期（<= 300 秒）返回 true
      */
+    @JsName("isExpired")
     public fun isExpired(): Boolean {
         val now = Clock.System.now().toEpochMilliseconds()
         val remainingTime = expiresAt - now
