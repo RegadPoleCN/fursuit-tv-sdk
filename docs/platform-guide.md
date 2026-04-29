@@ -29,6 +29,8 @@ dependencies {
 
 ### 快速开始
 
+> `fursuitTvSdk` 是 `suspend` 函数，提供 `clientId` + `clientSecret` 时自动完成令牌交换。`clientId` 即 VDS 文档中的 `appId`。
+
 ```kotlin
 import com.furrist.rp.furtv.sdk.fursuitTvSdk
 import kotlinx.coroutines.runBlocking
@@ -68,11 +70,55 @@ fun main() = runBlocking {
 </configuration>
 ```
 
+### OAuth 支持
+
+JVM 平台通过 `JvmOAuthCallbackHandler` 提供 OAuth 支持：
+
+- 自动启动本地 HTTP 服务器（基于 Ktor CIO）监听回调
+- 自动打开系统默认浏览器引导用户授权
+- 支持 `loginWithOAuth()` 一站式 OAuth 流程
+
+```kotlin
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
+}
+
+// loginWithOAuth() 默认使用 JvmOAuthCallbackHandler
+val tokenInfo = sdk.auth.loginWithOAuth()
+val userInfo = sdk.auth.getUserInfo()
+sdk.close()
+```
+
+### Java 用户：JvmFursuitTvSdkBuilder
+
+Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置：
+
+```java
+import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
+
+// 使用 apiKey 模式（同步）
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .apiKey("your-api-key")
+    .logLevel(SdkLogLevel.INFO)
+    .build();
+
+// 使用签名交换模式（异步，需在协程中调用）
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .clientId("vap_xxx")
+    .clientSecret("your-secret")
+    .logLevel(SdkLogLevel.INFO)
+    .buildAsync();
+```
+
+> 💡 也可使用 `JvmFursuitTvSdkFactory.createDsl()` 通过 `Consumer<MutableSdkConfig>` 配置。
+
 ## JavaScript 平台
 
 ### 环境要求
 
-- **Node.js**: 16.0 或更高
+- **Node.js**: 16.0 或更高（Node.js 环境）
 - **包管理器**: npm 8+ 或 yarn 1.22+
 - **Kotlin/JS**: 2.1.20+
 
@@ -147,6 +193,25 @@ val sdk = fursuitTvSdk {
 }
 ```
 
+### OAuth 支持
+
+JS 平台通过 `JsOAuthCallbackHandler` 提供 OAuth 支持，根据运行环境自动选择实现：
+
+- **浏览器环境**：使用 `postMessage` 机制监听回调
+- **Node.js 环境**：使用 Node.js `http` 模块创建本地服务器
+
+```kotlin
+// Node.js 环境 OAuth 示例
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
+}
+
+val tokenInfo = sdk.auth.loginWithOAuth()
+val userInfo = sdk.auth.getUserInfo()
+sdk.close()
+```
+
 ## Native 平台
 
 ### 环境要求
@@ -206,12 +271,33 @@ kotlin {
 }
 ```
 
+### OAuth 支持
+
+Native 平台通过 `NativeOAuthCallbackHandler` 提供完整的 OAuth 支持：
+
+- 基于 Ktor CIO 启动本地 HTTP 服务器接收回调
+- 适用于 iOS、macOS、Linux、Windows 等 Kotlin/Native 平台
+- 支持 `loginWithOAuth()` 一站式 OAuth 流程
+
+```kotlin
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
+}
+
+val tokenInfo = sdk.auth.loginWithOAuth()
+val userInfo = sdk.auth.getUserInfo()
+sdk.close()
+```
+
+> 💡 iOS 平台建议使用 `ASWebAuthenticationSession` 实现自定义 `OAuthCallbackHandler`，提供更好的用户体验。详见 [iOS 示例](../examples/ios/README.md)。
+
 ## Android 平台
 
 ### 环境要求
 
 - **Android API**: 21 或更高
-- **Kotlin**: 1.9.0 或更高
+- **Kotlin**: 2.1.20 或更高
 - **Gradle**: 8.0+
 
 ### 添加依赖
@@ -307,6 +393,8 @@ kotlin {
 
 ### 使用示例（Swift）
 
+> ⚠️ `FursuitTvSdk` 构造函数为 `internal`，Swift 代码应使用工厂方法创建实例。
+
 ```swift
 import FursuitTvSdk
 import Combine
@@ -314,8 +402,9 @@ import Combine
 class UserService: ObservableObject {
     private let sdk: FursuitTvSdk
     
-    init() {
-        sdk = FursuitTvSdk(
+    init() async throws {
+        // 使用工厂方法创建（构造函数为 internal）
+        sdk = try await FursuitTvSdk.Companion().createForTokenExchange(
             clientId: "vap_xxx",
             clientSecret: "your-secret"
         )
@@ -357,6 +446,24 @@ struct ContentView: View {
 }
 ```
 
+### OAuth 支持（iOS）
+
+iOS 平台支持通过 `NativeOAuthCallbackHandler` 进行 OAuth 授权，也可使用 `ASWebAuthenticationSession` 实现自定义 `OAuthCallbackHandler`：
+
+```swift
+// 使用 ASWebAuthenticationSession 实现自定义回调处理器
+class iOSOAuthHandler: OAuthCallbackHandler {
+    func startListening() { /* ... */ }
+    func waitForCallback() -> OAuthCallbackResult { /* ... */ }
+    func startAndGetCallback(authorizeUrl: String) -> OAuthCallbackResult { /* ... */ }
+    func stop() { /* ... */ }
+}
+
+// 设置自定义处理器
+sdk.auth.setOAuthCallbackHandler(iOSOAuthHandler())
+let tokenInfo = try await sdk.auth.loginWithOAuth()
+```
+
 ## 跨平台开发
 
 ### 共享代码
@@ -387,19 +494,38 @@ actual class PlatformUserService {
 ### 平台检测
 
 ```kotlin
-// 使用 Kotlin 平台检测
-val platform = when {
-    org.khronos.webgl.Int8Array != null -> "JS"
-    else -> "Native"
-}
+// 使用 expect/actual 进行平台检测
+// commonMain
+expect val currentPlatform: String
+
+// jvmMain
+actual val currentPlatform: String = "JVM"
+
+// jsMain
+actual val currentPlatform: String = "JS"
+
+// nativeMain
+actual val currentPlatform: String = "Native"
 
 val sdk = fursuitTvSdk {
     // 根据平台调整配置
-    connectTimeout = if (platform == "JS") 15000 else 10000
+    connectTimeout = if (currentPlatform == "JS") 15000 else 10000
 }
 ```
+
+## OAuth 支持总览
+
+| 平台 | OAuth 实现 | 回调方式 | loginWithOAuth() 支持 |
+|------|-----------|---------|---------------------|
+| **JVM** | `JvmOAuthCallbackHandler` | 本地 HTTP 服务器 + 浏览器 | ✅ 完整支持 |
+| **JS (浏览器)** | `JsOAuthCallbackHandler` | postMessage 机制 | ✅ 完整支持 |
+| **JS (Node.js)** | `JsOAuthCallbackHandler` | Node.js http 服务器 | ✅ 完整支持 |
+| **Native** | `NativeOAuthCallbackHandler` | Ktor CIO 本地服务器 | ✅ 完整支持 |
+| **iOS** | `NativeOAuthCallbackHandler` / 自定义 | 本地服务器 / ASWebAuthenticationSession | ✅ 完整支持 |
+| **Android** | JVM 实现 | 本地 HTTP 服务器 + 浏览器 | ✅ 完整支持 |
 
 ## 相关文档
 
 - [配置选项](configuration.md) - 各平台配置详解
 - [最佳实践](best-practices.md) - 跨平台最佳实践
+- [OAuth 指南](oauth-guide.md) - OAuth 回调处理器详解

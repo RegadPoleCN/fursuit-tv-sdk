@@ -25,22 +25,26 @@ val sdk = fursuitTvSdk {
 
 ### 2. 单例模式管理 SDK 实例
 
+`fursuitTvSdk` 是 `suspend` 函数，提供 `clientId` + `clientSecret` 时自动完成令牌交换。
+
 ```kotlin
 object FursuitSdkProvider {
-    val sdk: FursuitTvSdk by lazy {
-        fursuitTvSdk {
+    private var _sdk: FursuitTvSdk? = null
+
+    suspend fun sdk(): FursuitTvSdk {
+        return _sdk ?: fursuitTvSdk {
             clientId = System.getenv("FURSUIT_CLIENT_ID")
             clientSecret = System.getenv("FURSUIT_CLIENT_SECRET")
-            logLevel = LogLevel.INFO
+            logLevel = SdkLogLevel.INFO
             enableRetry = true
-        }
+        }.also { _sdk = it }
     }
-    
-    fun close() = sdk.close()
+
+    fun close() = _sdk?.close()
 }
 
 // 使用
-val profile = FursuitSdkProvider.sdk.user.getUserProfile("username")
+val profile = FursuitSdkProvider.sdk().user.getUserProfile("username")
 
 // 应用退出时关闭
 Runtime.getRuntime().addShutdownHook(Thread { FursuitSdkProvider.close() })
@@ -59,8 +63,8 @@ val sdk = fursuitTvSdk {
     }
     
     logLevel = when (environment) {
-        PRODUCTION -> LogLevel.WARNING
-        else -> LogLevel.DEBUG
+        PRODUCTION -> SdkLogLevel.WARNING
+        else -> SdkLogLevel.DEBUG
     }
 }
 ```
@@ -104,7 +108,7 @@ suspend fun <T> runCatchingApi(operation: String, block: suspend () -> T): ApiRe
 
 // 使用
 when (val result = runCatchingApi("获取用户") { sdk.user.getUserProfile("username") }) {
-    is ApiResult.Success -> println("用户：${result.data.displayName}")
+    is ApiResult.Success -> println("用户：${result.data.nickname}")
     is ApiResult.Error -> println("错误：${result.message}")
 }
 ```
@@ -312,7 +316,7 @@ object TestConfig {
             clientId = System.getenv("TEST_CLIENT_ID") ?: "vap_test"
             clientSecret = System.getenv("TEST_CLIENT_SECRET") ?: "test-secret"
             baseUrl = "https://test-api.vdsentnet.com"
-            logLevel = LogLevel.OFF
+            logLevel = SdkLogLevel.OFF
             enableRetry = false
         }
     }

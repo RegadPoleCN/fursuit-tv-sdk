@@ -185,7 +185,7 @@ if (receivedState != loadState()) {
 
 ```kotlin
 val sdk = fursuitTvSdk {
-    logLevel = LogLevel.DEBUG  // 或 LogLevel.ALL
+    logLevel = SdkLogLevel.DEBUG  // 或 SdkLogLevel.ALL
 }
 ```
 

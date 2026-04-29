@@ -64,7 +64,7 @@ val tokenInfo = sdk.auth.exchangeOAuthToken(code, redirectUri)
 val sdk = fursuitTvSdk {
     clientId = "vap_xxx"
     clientSecret = "secret"
-    logLevel = LogLevel.INFO
+    logLevel = SdkLogLevel.INFO
     enableRetry = true
 }
 ```
@@ -74,11 +74,11 @@ val sdk = fursuitTvSdk {
 ## 数据模型
 
 各模块的数据模型定义在对应的 `Models.kt` 文件中：
-- `auth/AuthModels.kt` - `TokenInfo`, `UserInfo`
-- `user/UserModels.kt` - `UserProfile`, `LikeStatus`
-- `search/SearchModels.kt` - `SearchResponse`, `Popular`
-- `gathering/GatheringModels.kt` - `Gathering`, `GatheringDetail`
-- `school/SchoolModels.kt` - `School`, `CharacterInfo`
+- `auth/AuthModels.kt` - `TokenInfo`, `UserInfoData`
+- `user/UserModels.kt` - `UserProfile`, `LikeStatusData`, `UserIdData`
+- `search/SearchModels.kt` - `PopularUser`, `SearchData`, `SpeciesSearchData`
+- `gathering/GatheringModels.kt` - `GatheringDetailData`, `GatheringMonthlyItem`
+- `school/SchoolModels.kt` - `SchoolDetail`, `SchoolInfo`, `CharacterInfo`
 
 ## 平台支持
 

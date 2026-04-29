@@ -11,6 +11,7 @@ Exception
     ├── NetworkException
     ├── TokenExpiredException
     ├── AuthenticationException
+    ├── OAuthException
     ├── ValidationException
     └── NotFoundException
 ```
@@ -106,7 +107,7 @@ try {
 
 ```kotlin
 public class TokenExpiredException(
-    message: String = "Token has expired",
+    message: String = "Access token has expired",
     cause: Throwable? = null,
 ) : FursuitTvSdkException(message, cause)
 ```
@@ -139,6 +140,61 @@ public class AuthenticationException(
 - clientId/clientSecret 错误
 - apiKey 无效
 - 签名错误
+- OAuth 前置条件未满足（未完成签名交换就调用 OAuth）
+
+### OAuthException
+
+OAuth 流程异常，包含 OAuth 错误代码。
+
+```kotlin
+public class OAuthException(
+    message: String,
+    public val errorCode: String? = null,
+    cause: Throwable? = null,
+) : FursuitTvSdkException(message, cause)
+```
+
+**常见触发场景**:
+- 用户拒绝授权
+- 授权码无效或过期
+- State 参数验证失败（CSRF 防护）
+- OAuth 回调超时
+- 回调处理器未设置
+
+**OAuth 错误码**:
+
+| errorCode | 含义 | 处理建议 |
+|-----------|------|---------|
+| `access_denied` | 用户拒绝授权 | 提示用户重新授权 |
+| `invalid_grant` | 授权码无效或过期 | 重新发起 OAuth 流程 |
+| `state_mismatch` | State 参数不匹配 | 检查代码逻辑 |
+| `unauthorized_client` | 客户端未授权 | 检查 clientId 配置 |
+| `unsupported_response_type` | 不支持的响应类型 | 检查 OAuth 配置 |
+| `invalid_scope` | 无效的权限范围 | 检查 scope 参数 |
+| `server_error` | 服务器内部错误 | 稍后重试 |
+| `temporarily_unavailable` | 服务暂时不可用 | 稍后重试 |
+
+**示例**:
+
+```kotlin
+try {
+    val tokenInfo = sdk.auth.loginWithOAuth()
+} catch (e: OAuthException) {
+    when (e.errorCode) {
+        "access_denied" -> showAccessDeniedDialog()
+        "invalid_grant" -> restartOAuthFlow()
+        "state_mismatch" -> logger.error("CSRF 验证失败")
+        null -> {
+            // 无 errorCode，根据消息判断
+            if (e.message?.contains("timeout") == true) {
+                showTimeoutDialog()
+            } else {
+                showError(e.message ?: "未知 OAuth 错误")
+            }
+        }
+    }
+}
+```
 
 ### ValidationException
 
@@ -248,8 +304,10 @@ suspend fun <T> withRetry(
 3. **友好的错误提示**：向用户显示易懂的消息
 4. **适当的错误恢复**：自动重试、降级处理
 5. **清理资源**：在 finally 块中关闭连接
+6. **OAuth 错误使用 errorCode**：`OAuthException` 提供了 `errorCode` 字段，优先使用它来判断错误类型
 
 ## 相关文档
 
-- [故障排除](troubleshooting.md) - 常见问题诊断
+- [故障排除](TROUBLESHOOTING.md) - 常见问题诊断
 - [最佳实践](best-practices.md) - 错误处理最佳实践
+- [OAuth 指南](oauth-guide.md) - OAuth 错误处理详解

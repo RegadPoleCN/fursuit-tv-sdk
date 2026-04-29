@@ -6,9 +6,10 @@
 
 1. [快速开始](#快速开始)
 2. [配置说明](#配置说明)
-3. [令牌管理](#令牌管理)
-4. [安全最佳实践](#安全最佳实践)
-5. [错误处理](#错误处理)
+3. [回调处理器](#回调处理器)
+4. [令牌管理](#令牌管理)
+5. [安全最佳实践](#安全最佳实践)
+6. [错误处理](#错误处理)
 
 ## 快速开始
 
@@ -21,41 +22,62 @@ val sdk = fursuitTvSdk {
 }
 
 try {
-    val tokenInfo = sdk.auth.initOAuth(OAuthConfig())
+    val tokenInfo = sdk.auth.loginWithOAuth()
     println("授权成功！")
-} catch (e: OAuthCallbackException) {
-    println("失败: ${e.message}")
+} catch (e: OAuthException) {
+    println("失败: ${e.message}, errorCode: ${e.errorCode}")
 } finally {
     sdk.close()
 }
 ```
 
-### 自定义配置
+### 自定义回调配置
 
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `callbackHost` | `"localhost"` | 回调地址 |
-| `callbackPort` | `8080` | 端口 (1-65535) |
-| `stateTimeoutMinutes` | `5` | 超时时间（分钟） |
-| `enablePkce` | `false` | 启用 PKCE（移动端推荐） |
+通过 `setOAuthCallbackHandler()` 设置自定义回调处理器：
 
 ```kotlin
-val config = OAuthConfig(
-    callbackPort = 9000,
-    enablePkce = true
+val handler = createDefaultOAuthHandler(
+    OAuthCallbackServerConfig(
+        callbackHost = "localhost",
+        callbackPort = 9000,
+        callbackPath = "/callback",
+        timeoutSeconds = 300
+    )
 )
-val tokenInfo = sdk.auth.initOAuth(config, scope = "user.profile")
+sdk.auth.setOAuthCallbackHandler(handler)
+
+val tokenInfo = sdk.auth.loginWithOAuth(scope = "user.profile")
 ```
 
 ### ⚠️ 使用要点
 
+- **前置条件**：必须先完成签名交换（通过 DSL 初始化 SDK 即可自动完成）。`clientId` 即 VDS 文档中的 `appId`
 - **阻塞调用**：挂起函数，等待用户完成授权或超时
-- **自动管理**：本地服务器自动启动/关闭，无需手动处理
+- **自动管理**：回调处理器自动启动/关闭，无需手动处理
 - **资源释放**：务必在 `finally` 中调用 `sdk.close()`
 
 ---
 
 ## 配置说明
+
+### OAuthCallbackServerConfig 参数
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `callbackHost` | `String` | `"localhost"` | 回调地址 |
+| `callbackPort` | `Int` | `8080` | 端口 (1-65535) |
+| `callbackPath` | `String` | `"/callback"` | 回调路径（必须以 "/" 开头） |
+| `timeoutSeconds` | `Long` | `300` | 超时时间（秒） |
+
+### OAuthConfig 参数
+
+| 参数 | 类型 | 默认值 | 说明 |
+|------|------|--------|------|
+| `callbackHost` | `String` | `"localhost"` | 回调地址 |
+| `callbackPort` | `Int` | `8080` | 端口 (1-65535) |
+| `callbackPath` | `String` | `"/callback"` | 回调路径（必须以 "/" 开头） |
+| `stateTimeoutMinutes` | `Int` | `5` | 超时时间（分钟） |
+| `enablePkce` | `Boolean` | `false` | 启用 PKCE（移动端推荐）。注意：`loginWithOAuth()` 内部始终创建 `OAuthConfig(enablePkce = true)`，即自动启用 PKCE |
 
 ### 参数验证规则
 
@@ -76,10 +98,88 @@ OAuthConfig(callbackHost = "")          // 地址不能为空
 
 | 类名 | 用途 | 主要参数 |
 |------|------|---------|
-| `OAuthConfig` | 用户配置 | callbackHost/Port/Path, timeoutMinutes, enablePkce |
-| `OAuthCallbackServerConfig` | 内部服务器配置 | callbackHost/Port/Path, timeoutSeconds |
+| `OAuthConfig` | OAuth 流程配置 | callbackHost/Port/Path, timeoutMinutes, enablePkce |
+| `OAuthCallbackServerConfig` | 回调服务器配置 | callbackHost/Port/Path, timeoutSeconds |
 
-> 💡 通常只需使用 `OAuthConfig`，内部会自动转换为 `OAuthCallbackServerConfig`。
+> 💡 `OAuthCallbackServerConfig` 用于 `createDefaultOAuthHandler()`，`OAuthConfig` 为内部流程配置。
+
+---
+
+## 回调处理器
+
+### OAuthCallbackHandler 接口
+
+`OAuthCallbackHandler` 定义了 OAuth 授权回调的监听与处理流程：
+
+```kotlin
+public interface OAuthCallbackHandler {
+    public val callbackUrl: String
+    public suspend fun startListening()
+    public suspend fun waitForCallback(): OAuthCallbackResult
+    public suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult
+    public suspend fun stop()
+}
+```
+
+### 典型使用流程
+
+1. 调用 `startListening()` 启动回调服务器
+2. 通过 `callbackUrl` 构建授权 URL 并引导用户访问
+3. 调用 `waitForCallback()` 等待回调结果
+4. 调用 `stop()` 释放资源
+
+也可使用便捷方法 `startAndGetCallback(authorizeUrl)` 一次性完成上述步骤。
+
+### OAuthCallbackResult
+
+回调结果为密封类：
+
+```kotlin
+sealed class OAuthCallbackResult {
+    data class Success(val code: String, val state: String) : OAuthCallbackResult()
+    data class Error(val message: String, val errorCode: String? = null, val cause: Throwable? = null) : OAuthCallbackResult()
+}
+```
+
+### 平台默认实现
+
+`createDefaultOAuthHandler()` 根据运行平台自动选择实现：
+
+| 平台 | 实现 | 说明 |
+|------|------|------|
+| **JVM** | `JvmOAuthCallbackHandler` | 本地 HTTP 服务器 + 自动打开浏览器 |
+| **JS (浏览器)** | `JsOAuthCallbackHandler` | postMessage 机制监听回调 |
+| **JS (Node.js)** | `JsOAuthCallbackHandler` | Node.js http 模块创建本地服务器 |
+| **Native** | `NativeOAuthCallbackHandler` | Ktor CIO 本地 HTTP 服务器 |
+
+### 自定义回调处理器
+
+```kotlin
+class CustomOAuthHandler : OAuthCallbackHandler {
+    override val callbackUrl = "https://myapp.com/oauth/callback"
+
+    override suspend fun startListening() {
+        // 启动你的回调监听逻辑
+    }
+
+    override suspend fun waitForCallback(): OAuthCallbackResult {
+        // 等待并返回回调结果
+    }
+
+    override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
+        startListening()
+        // 引导用户到 authorizeUrl
+        return waitForCallback()
+    }
+
+    override suspend fun stop() {
+        // 释放资源
+    }
+}
+
+sdk.auth.setOAuthCallbackHandler(CustomOAuthHandler())
+val tokenInfo = sdk.auth.loginWithOAuth()
+```
 
 ---
 
@@ -122,7 +222,7 @@ println("UID：${userInfo.sub}")
 
 ## 安全最佳实践
 
-1. **移动端启用 PKCE** (`enablePkce = true`)
+1. **移动端启用 PKCE** (`enablePkce = true`)，`loginWithOAuth()` 默认启用 PKCE
 2. **生产环境使用 HTTPS**
 3. **加密存储 Token**（不使用明文）
 4. **定期轮换密钥**（clientSecret）
@@ -135,8 +235,21 @@ println("UID：${userInfo.sub}")
 
 | 异常类型 | 场景 | 处理建议 |
 |---------|------|---------|
-| `IllegalStateException` | 缺少 clientId/clientSecret | 检查 SDK 初始化配置 |
-| `OAuthCallbackException` | 授权失败 | 查看消息内容定位原因 |
+| `IllegalStateException` | 缺少 clientId/clientSecret 或回调处理器 | 检查 SDK 初始化配置 |
+| `OAuthException` | OAuth 授权失败 | 查看 `errorCode` 和消息内容定位原因 |
+
+### OAuth 错误码
+
+| errorCode | 含义 | 处理建议 |
+|-----------|------|---------|
+| `access_denied` | 用户拒绝授权 | 提示用户重新授权 |
+| `invalid_grant` | 授权码无效或过期 | 重新发起 OAuth 流程 |
+| `state_mismatch` | State 参数不匹配 | 检查代码逻辑（理论上不应发生） |
+| `unauthorized_client` | 客户端未授权 | 检查 clientId 配置 |
+| `unsupported_response_type` | 不支持的响应类型 | 检查 OAuth 配置 |
+| `invalid_scope` | 无效的权限范围 | 检查 scope 参数 |
+| `server_error` | 服务器内部错误 | 稍后重试 |
+| `temporarily_unavailable` | 服务暂时不可用 | 稍后重试 |
 
 ### 授权失败场景
 
@@ -151,16 +264,22 @@ println("UID：${userInfo.sub}")
 
 ```kotlin
 try {
-    val tokenInfo = sdk.auth.initOAuth(config)
+    val tokenInfo = sdk.auth.loginWithOAuth()
 } catch (e: IllegalStateException) {
-    // 配置错误
+    // 配置错误或回调处理器未设置
     logger.error("初始化错误: ${e.message}")
-} catch (e: OAuthCallbackException) {
-    // 授权失败
-    when {
-        e.message?.contains("timeout") == true -> showTimeoutDialog()
-        e.message?.contains("port") == true -> changePortAndRetry()
-        else -> showError(e.message ?: "未知错误")
+} catch (e: OAuthException) {
+    // OAuth 授权失败
+    when (e.errorCode) {
+        "access_denied" -> showAccessDeniedDialog()
+        "state_mismatch" -> logger.error("State 验证失败")
+        else -> {
+            when {
+                e.message?.contains("timeout") == true -> showTimeoutDialog()
+                e.message?.contains("port") == true -> changePortAndRetry()
+                else -> showError(e.message ?: "未知错误")
+            }
+        }
     }
 } finally {
     sdk.close()

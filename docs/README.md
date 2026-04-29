@@ -27,7 +27,7 @@
 ### 进阶指南
 
 - **[最佳实践](best-practices.md)** - API 使用技巧和性能优化
-- **[故障排除](troubleshooting.md)** - 常见问题和解决方案
+- **[故障排除](TROUBLESHOOTING.md)** - 常见问题和解决方案
 - **[平台指南](platform-guide.md)** - JVM/JS/Native 平台特定配置
 
 ### API 参考文档
@@ -67,6 +67,7 @@ val sdk = fursuitTvSdk {
     clientSecret = "your-secret"
 }
 
+// fursuitTvSdk 是 suspend 函数，提供 clientId + clientSecret 时自动完成令牌交换
 // 直接调用 API
 val profile = sdk.user.getUserProfile("username")
 ```
@@ -105,7 +106,7 @@ val userInfo = sdk.auth.getUserInfo()
 
 ## 术语说明
 
-- **`clientId`** - 应用 ID，格式为 `vap_xxxx`，用于标识应用身份
+- **`clientId`** - 应用 ID（即 VDS 文档中的 `appId`），格式为 `vap_xxxx`，用于标识应用身份
 - **`clientSecret`** - 应用密钥，与 `clientId` 配对使用，需妥善保管
 - **`apiKey`** - VDS 颁发的 API 密钥，用于签名交换后的 API 认证
 - **`accessToken`** - 访问令牌，用于 `Authorization: Bearer` 认证头
@@ -123,7 +124,7 @@ val userInfo = sdk.auth.getUserInfo()
 
 如遇到问题，请查看：
 
-1. [故障排除](troubleshooting.md) - 常见问题解答
+1. [故障排除](TROUBLESHOOTING.md) - 常见问题解答
 2. [最佳实践](best-practices.md) - API 使用技巧
 3. GitHub Issues - 提交问题或查看已知问题
 
