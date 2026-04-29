@@ -1,6 +1,7 @@
 package com.furrist.rp.furtv.sdk.model
 
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,6 +11,7 @@ import kotlinx.serialization.Serializable
  * @param type 搜索类型（可选）
  */
 @JsExport
+@JsName("SearchParams")
 @Serializable
 public data class SearchParams(
     public val query: String,
@@ -26,6 +28,7 @@ public data class SearchParams(
  * @param personalized 是否个性化推荐（可选）
  */
 @JsExport
+@JsName("RandomFursuitParams")
 @Serializable
 public data class RandomFursuitParams(
     public val count: Int? = null,
@@ -41,6 +44,7 @@ public data class RandomFursuitParams(
  * @param lng 经度（可选，用于计算距离）
  */
 @JsExport
+@JsName("GatheringMonthlyParams")
 @Serializable
 public data class GatheringMonthlyParams(
     public val year: Int,
@@ -57,6 +61,7 @@ public data class GatheringMonthlyParams(
  * @param radius 搜索半径（米，可选）
  */
 @JsExport
+@JsName("GatheringNearbyParams")
 @Serializable
 public data class GatheringNearbyParams(
     public val lat: Double? = null,
@@ -71,6 +76,7 @@ public data class GatheringNearbyParams(
  * @param status 报名状态筛选（可选）
  */
 @JsExport
+@JsName("GatheringRegistrationsParams")
 @Serializable
 public data class GatheringRegistrationsParams(
     public val gatheringId: String,
@@ -85,6 +91,7 @@ public data class GatheringRegistrationsParams(
  * @param query 搜索关键词
  */
 @JsExport
+@JsName("SchoolSearchParams")
 @Serializable
 public data class SchoolSearchParams(
     public val query: String,

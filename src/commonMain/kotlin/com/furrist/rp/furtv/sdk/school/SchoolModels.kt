@@ -1,6 +1,7 @@
 package com.furrist.rp.furtv.sdk.school
 
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,6 +15,7 @@ import kotlinx.serialization.Serializable
  * @property requestId 请求唯一标识
  */
 @JsExport
+@JsName("SchoolSearchResponse")
 @Serializable
 public data class SchoolSearchResponse(
     @SerialName("success")
@@ -30,6 +32,7 @@ public data class SchoolSearchResponse(
  * @property schools 匹配的学校列表
  */
 @JsExport
+@JsName("SchoolSearchData")
 @Serializable
 public data class SchoolSearchData(
     @SerialName("schools")
@@ -48,6 +51,7 @@ public data class SchoolSearchData(
  * @property studentCount 学生数量
  */
 @JsExport
+@JsName("SchoolInfo")
 @Serializable
 public data class SchoolInfo(
     @SerialName("id")
@@ -76,6 +80,7 @@ public data class SchoolInfo(
  * @property requestId 请求唯一标识
  */
 @JsExport
+@JsName("SchoolDetailResponse")
 @Serializable
 public data class SchoolDetailResponse(
     @SerialName("success")
@@ -98,6 +103,7 @@ public data class SchoolDetailResponse(
  * @property studentCount 学生数量
  */
 @JsExport
+@JsName("SchoolDetail")
 @Serializable
 public data class SchoolDetail(
     @SerialName("id")
@@ -126,6 +132,7 @@ public data class SchoolDetail(
  * @property requestId 请求唯一标识
  */
 @JsExport
+@JsName("UserSchoolsResponse")
 @Serializable
 public data class UserSchoolsResponse(
     @SerialName("success")
@@ -142,6 +149,7 @@ public data class UserSchoolsResponse(
  * @property schools 用户关联的学校列表
  */
 @JsExport
+@JsName("UserSchoolsData")
 @Serializable
 public data class UserSchoolsData(
     @SerialName("schools")
@@ -166,6 +174,7 @@ public data class UserSchoolsData(
  * @property studentCount 学生数量
  */
 @JsExport
+@JsName("UserSchoolInfo")
 @Serializable
 public data class UserSchoolInfo(
     @SerialName("user_school_id")
@@ -206,6 +215,7 @@ public data class UserSchoolInfo(
  * @property requestId 请求唯一标识
  */
 @JsExport
+@JsName("UserCharactersResponse")
 @Serializable
 public data class UserCharactersResponse(
     @SerialName("success")
@@ -225,6 +235,7 @@ public data class UserCharactersResponse(
  * @property totalCount 角色总数
  */
 @JsExport
+@JsName("UserCharactersData")
 @Serializable
 public data class UserCharactersData(
     @SerialName("userId")
@@ -247,6 +258,7 @@ public data class UserCharactersData(
  * @property worldview 世界观
  */
 @JsExport
+@JsName("CharacterInfo")
 @Serializable
 public data class CharacterInfo(
     @SerialName("id")

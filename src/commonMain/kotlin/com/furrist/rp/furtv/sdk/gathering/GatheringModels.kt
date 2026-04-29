@@ -1,6 +1,7 @@
 package com.furrist.rp.furtv.sdk.gathering
 
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,6 +15,7 @@ import kotlinx.serialization.Serializable
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringYearStatsResponse")
 @Serializable
 public data class GatheringYearStatsResponse(
     @SerialName("success")
@@ -30,6 +32,7 @@ public data class GatheringYearStatsResponse(
  * @property total 聚会总数
  */
 @JsExport
+@JsName("GatheringYearStatsData")
 @Serializable
 public data class GatheringYearStatsData(
     @SerialName("total")
@@ -46,6 +49,7 @@ public data class GatheringYearStatsData(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringMonthlyResponse")
 @Serializable
 public data class GatheringMonthlyResponse(
     @SerialName("success")
@@ -87,6 +91,7 @@ public data class GatheringMonthlyResponse(
  * @property requiresApproval 是否需要审核
  */
 @JsExport
+@JsName("GatheringMonthlyItem")
 @Serializable
 public data class GatheringMonthlyItem(
     @SerialName("id")
@@ -150,6 +155,7 @@ public data class GatheringMonthlyItem(
  * @property title 徽章标题
  */
 @JsExport
+@JsName("GatheringBadge")
 @Serializable
 public data class GatheringBadge(
     @SerialName("code")
@@ -167,6 +173,7 @@ public data class GatheringBadge(
  * @property logoUrl 来源 Logo URL
  */
 @JsExport
+@JsName("DataSource")
 @Serializable
 public data class DataSource(
     @SerialName("source_code")
@@ -189,6 +196,7 @@ public data class DataSource(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringMonthlyDistanceResponse")
 @Serializable
 public data class GatheringMonthlyDistanceResponse(
     @SerialName("success")
@@ -206,6 +214,7 @@ public data class GatheringMonthlyDistanceResponse(
  * @property distanceMeters 距离（米）
  */
 @JsExport
+@JsName("GatheringMonthlyDistanceItem")
 @Serializable
 public data class GatheringMonthlyDistanceItem(
     @SerialName("id")
@@ -224,6 +233,7 @@ public data class GatheringMonthlyDistanceItem(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringNearbyResponse")
 @Serializable
 public data class GatheringNearbyResponse(
     @SerialName("success")
@@ -249,6 +259,7 @@ public data class GatheringNearbyResponse(
  * @property isFurtvCoopDriven 是否为 Fursuit.TV 合作驱动
  */
 @JsExport
+@JsName("GatheringNearbyItem")
 @Serializable
 public data class GatheringNearbyItem(
     @SerialName("id")
@@ -283,6 +294,7 @@ public data class GatheringNearbyItem(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringNearbyModeResponse")
 @Serializable
 public data class GatheringNearbyModeResponse(
     @SerialName("success")
@@ -300,6 +312,7 @@ public data class GatheringNearbyModeResponse(
  * @property intentGatheringIds 意图聚会 ID 列表
  */
 @JsExport
+@JsName("GatheringNearbyModeData")
 @Serializable
 public data class GatheringNearbyModeData(
     @SerialName("gatherings")
@@ -318,6 +331,7 @@ public data class GatheringNearbyModeData(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringDetailResponse")
 @Serializable
 public data class GatheringDetailResponse(
     @SerialName("success")
@@ -366,6 +380,7 @@ public data class GatheringDetailResponse(
  * @property viewCount 浏览次数
  */
 @JsExport
+@JsName("GatheringDetailData")
 @Serializable
 public data class GatheringDetailData(
     @SerialName("id")
@@ -444,6 +459,7 @@ public data class GatheringDetailData(
  * @property description 描述
  */
 @JsExport
+@JsName("AgendaItem")
 @Serializable
 public data class AgendaItem(
     @SerialName("time")
@@ -463,6 +479,7 @@ public data class AgendaItem(
  * @property avatar 头像 URL
  */
 @JsExport
+@JsName("CoOrganizer")
 @Serializable
 public data class CoOrganizer(
     @SerialName("user_id")
@@ -483,6 +500,7 @@ public data class CoOrganizer(
  * @property pendingCount 待审核人数
  */
 @JsExport
+@JsName("GatheringRegistrationStats")
 @Serializable
 public data class GatheringRegistrationStats(
     @SerialName("total_registrations")
@@ -503,6 +521,7 @@ public data class GatheringRegistrationStats(
  * @property requestId 请求 ID
  */
 @JsExport
+@JsName("GatheringRegistrationsResponse")
 @Serializable
 public data class GatheringRegistrationsResponse(
     @SerialName("success")
@@ -519,6 +538,7 @@ public data class GatheringRegistrationsResponse(
  * @property registrations 分组报名列表（二维数组）
  */
 @JsExport
+@JsName("GatheringRegistrationsData")
 @Serializable
 public data class GatheringRegistrationsData(
     @SerialName("registrations")
@@ -539,6 +559,7 @@ public data class GatheringRegistrationsData(
  * @property fursuitSpecies 兽装物种
  */
 @JsExport
+@JsName("RegistrationItem")
 @Serializable
 public data class RegistrationItem(
     @SerialName("id")

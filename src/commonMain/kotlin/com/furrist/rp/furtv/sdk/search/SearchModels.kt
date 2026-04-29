@@ -1,10 +1,12 @@
 package com.furrist.rp.furtv.sdk.search
 
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @JsExport
+@JsName("PopularResponse")
 @Serializable
 public data class PopularResponse(
     @SerialName("success")
@@ -17,6 +19,7 @@ public data class PopularResponse(
 
 /** Popular users data containing a list of trending users. */
 @JsExport
+@JsName("PopularData")
 @Serializable
 public data class PopularData(
     @SerialName("users")
@@ -25,6 +28,7 @@ public data class PopularData(
 
 /** A popular user with full profile information from VDS. */
 @JsExport
+@JsName("PopularUser")
 @Serializable
 public data class PopularUser(
     @SerialName("id")
@@ -61,6 +65,7 @@ public data class PopularUser(
 
 /** Response for random fursuit recommendation supporting single and multiple results. */
 @JsExport
+@JsName("RandomFursuitResponse")
 @Serializable
 public data class RandomFursuitResponse(
     @SerialName("success")
@@ -81,6 +86,7 @@ public data class RandomFursuitResponse(
 
 /** A randomly recommended fursuit user. */
 @JsExport
+@JsName("RandomFursuit")
 @Serializable
 public data class RandomFursuit(
     @SerialName("id")
@@ -109,6 +115,7 @@ public data class RandomFursuit(
 
 /** Debug information returned by the random fursuit endpoint. */
 @JsExport
+@JsName("RandomDebugInfo")
 @Serializable
 public data class RandomDebugInfo(
     @SerialName("is_personalized")
@@ -120,6 +127,7 @@ public data class RandomDebugInfo(
 )
 
 @JsExport
+@JsName("SearchResponse")
 @Serializable
 public data class SearchResponse(
     @SerialName("success")
@@ -132,6 +140,7 @@ public data class SearchResponse(
 
 /** Search results with pagination and metadata from VDS. */
 @JsExport
+@JsName("SearchData")
 @Serializable
 public data class SearchData(
     @SerialName("users")
@@ -152,6 +161,7 @@ public data class SearchData(
 
 /** Pagination metadata for search results. */
 @JsExport
+@JsName("SearchPagination")
 @Serializable
 public data class SearchPagination(
     @SerialName("page")
@@ -168,6 +178,7 @@ public data class SearchPagination(
 
 /** A user returned in search results. */
 @JsExport
+@JsName("SearchUser")
 @Serializable
 public data class SearchUser(
     @SerialName("id")
@@ -203,6 +214,7 @@ public data class SearchUser(
 )
 
 @JsExport
+@JsName("SearchSuggestionsResponse")
 @Serializable
 public data class SearchSuggestionsResponse(
     @SerialName("success")
@@ -215,6 +227,7 @@ public data class SearchSuggestionsResponse(
 
 /** Search suggestions data containing a list of suggestion strings. */
 @JsExport
+@JsName("SearchSuggestionsData")
 @Serializable
 public data class SearchSuggestionsData(
     @SerialName("suggestions")
@@ -222,6 +235,7 @@ public data class SearchSuggestionsData(
 )
 
 @JsExport
+@JsName("SpeciesSearchResponse")
 @Serializable
 public data class SpeciesSearchResponse(
     @SerialName("success")
@@ -234,6 +248,7 @@ public data class SpeciesSearchResponse(
 
 /** Species search results with pagination from VDS. */
 @JsExport
+@JsName("SpeciesSearchData")
 @Serializable
 public data class SpeciesSearchData(
     @SerialName("species")
@@ -252,6 +267,7 @@ public data class SpeciesSearchData(
 
 /** A user returned in species search results. */
 @JsExport
+@JsName("SpeciesSearchUser")
 @Serializable
 public data class SpeciesSearchUser(
     @SerialName("id")
@@ -279,6 +295,7 @@ public data class SpeciesSearchUser(
 )
 
 @JsExport
+@JsName("SpeciesListResponse")
 @Serializable
 public data class SpeciesListResponse(
     @SerialName("success")
@@ -291,6 +308,7 @@ public data class SpeciesListResponse(
 
 /** Species list data with statistics. */
 @JsExport
+@JsName("SpeciesListData")
 @Serializable
 public data class SpeciesListData(
     @SerialName("species")
@@ -301,6 +319,7 @@ public data class SpeciesListData(
 
 /** A species entry with its user count. */
 @JsExport
+@JsName("SpeciesInfo")
 @Serializable
 public data class SpeciesInfo(
     @SerialName("species")
@@ -310,6 +329,7 @@ public data class SpeciesInfo(
 )
 
 @JsExport
+@JsName("PopularLocationsResponse")
 @Serializable
 public data class PopularLocationsResponse(
     @SerialName("success")
@@ -322,6 +342,7 @@ public data class PopularLocationsResponse(
 
 /** Popular locations data structured by provinces and cities. */
 @JsExport
+@JsName("PopularLocationsData")
 @Serializable
 public data class PopularLocationsData(
     @SerialName("popular_provinces")
@@ -334,6 +355,7 @@ public data class PopularLocationsData(
 
 /** A province with its user count. */
 @JsExport
+@JsName("ProvinceInfo")
 @Serializable
 public data class ProvinceInfo(
     @SerialName("province")
@@ -344,6 +366,7 @@ public data class ProvinceInfo(
 
 /** A city with its province and user count. */
 @JsExport
+@JsName("CityInfo")
 @Serializable
 public data class CityInfo(
     @SerialName("province")

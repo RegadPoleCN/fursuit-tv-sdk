@@ -1,6 +1,7 @@
 package com.furrist.rp.furtv.sdk.user
 
 import kotlin.js.JsExport
+import kotlin.js.JsName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,6 +13,7 @@ import kotlinx.serialization.Serializable
  * 端点：GET /api/proxy/furtv/users/profile
  */
 @JsExport
+@JsName("UserProfileResponse")
 @Serializable
 public data class UserProfileResponse(
     @SerialName("success")
@@ -51,6 +53,7 @@ public data class UserProfileResponse(
  * @param destinationExpiresAt 当前目的地过期时间
  */
 @JsExport
+@JsName("UserProfile")
 @Serializable
 public data class UserProfile(
     @SerialName("id")
@@ -115,6 +118,7 @@ public data class UserProfile(
  * @param showVisitorDetails 是否显示访客详情
  */
 @JsExport
+@JsName("UserProfilePrivacySettings")
 @Serializable
 public data class UserProfilePrivacySettings(
     @SerialName("showEmail")
@@ -143,6 +147,7 @@ public data class UserProfilePrivacySettings(
  * @param worldview 世界观
  */
 @JsExport
+@JsName("UserProfileCharacter")
 @Serializable
 public data class UserProfileCharacter(
     @SerialName("id")
@@ -167,6 +172,7 @@ public data class UserProfileCharacter(
  * @param gatheringId 关联聚会 ID
  */
 @JsExport
+@JsName("UserDestination")
 @Serializable
 public data class UserDestination(
     @SerialName("id")
@@ -189,6 +195,7 @@ public data class UserDestination(
  * 端点：GET /api/proxy/furtv/users/id
  */
 @JsExport
+@JsName("UserIdResponse")
 @Serializable
 public data class UserIdResponse(
     @SerialName("success")
@@ -210,6 +217,7 @@ public data class UserIdResponse(
  * @param location 地理位置
  */
 @JsExport
+@JsName("UserIdData")
 @Serializable
 public data class UserIdData(
     @SerialName("id")
@@ -234,6 +242,7 @@ public data class UserIdData(
  * 端点：GET /api/proxy/furtv/fursuit/likestatus
  */
 @JsExport
+@JsName("LikeStatusResponse")
 @Serializable
 public data class LikeStatusResponse(
     @SerialName("success")
@@ -253,6 +262,7 @@ public data class LikeStatusResponse(
  * @param daysUntilCanLike 距离可点赞的天数
  */
 @JsExport
+@JsName("LikeStatusData")
 @Serializable
 public data class LikeStatusData(
     @SerialName("like_count")
@@ -273,6 +283,7 @@ public data class LikeStatusData(
  * 端点：GET /api/proxy/furtv/relationships/user
  */
 @JsExport
+@JsName("UserRelationshipsResponse")
 @Serializable
 public data class UserRelationshipsResponse(
     @SerialName("success")
@@ -289,6 +300,7 @@ public data class UserRelationshipsResponse(
  * @param relationships 关系列表
  */
 @JsExport
+@JsName("UserRelationshipsData")
 @Serializable
 public data class UserRelationshipsData(
     @SerialName("relationships")
@@ -308,6 +320,7 @@ public data class UserRelationshipsData(
  * @param partnerSpecies 伴侣物种
  */
 @JsExport
+@JsName("RelationshipInfo")
 @Serializable
 public data class RelationshipInfo(
     @SerialName("id")
@@ -336,6 +349,7 @@ public data class RelationshipInfo(
  * 端点：GET /api/proxy/furtv/users/visitors
  */
 @JsExport
+@JsName("UserVisitorsResponse")
 @Serializable
 public data class UserVisitorsResponse(
     @SerialName("success")
@@ -354,6 +368,7 @@ public data class UserVisitorsResponse(
  * @param message 条件性提示消息
  */
 @JsExport
+@JsName("UserVisitorsData")
 @Serializable
 public data class UserVisitorsData(
     @SerialName("visitors")
@@ -374,6 +389,7 @@ public data class UserVisitorsData(
  * @param createdAt 访问时间
  */
 @JsExport
+@JsName("VisitorInfo")
 @Serializable
 public data class VisitorInfo(
     @SerialName("visitor_id")
@@ -396,6 +412,7 @@ public data class VisitorInfo(
  * 端点：GET /api/proxy/furtv/users/socialbadges
  */
 @JsExport
+@JsName("SocialBadgesResponse")
 @Serializable
 public data class SocialBadgesResponse(
     @SerialName("success")
@@ -415,6 +432,7 @@ public data class SocialBadgesResponse(
  * @param badges 徽章列表
  */
 @JsExport
+@JsName("SocialBadgesData")
 @Serializable
 public data class SocialBadgesData(
     @SerialName("user")
@@ -435,6 +453,7 @@ public data class SocialBadgesData(
  * @param nickname 昵称
  */
 @JsExport
+@JsName("SocialBadgeUser")
 @Serializable
 public data class SocialBadgeUser(
     @SerialName("id")
@@ -457,6 +476,7 @@ public data class SocialBadgeUser(
  * @param detailText 详情文本
  */
 @JsExport
+@JsName("SocialBadge")
 @Serializable
 public data class SocialBadge(
     @SerialName("user_badge_id")
@@ -481,6 +501,7 @@ public data class SocialBadge(
  * 端点：GET /api/proxy/furtv/users/socialbadges/detail
  */
 @JsExport
+@JsName("SocialBadgeDetailResponse")
 @Serializable
 public data class SocialBadgeDetailResponse(
     @SerialName("success")
@@ -499,6 +520,7 @@ public data class SocialBadgeDetailResponse(
  * @param badge 徽章详情
  */
 @JsExport
+@JsName("SocialBadgeDetailData")
 @Serializable
 public data class SocialBadgeDetailData(
     @SerialName("user")
@@ -521,6 +543,7 @@ public data class SocialBadgeDetailData(
  * @param detailText 详情文本
  */
 @JsExport
+@JsName("SocialBadgeDetail")
 @Serializable
 public data class SocialBadgeDetail(
     @SerialName("user_badge_id")
@@ -547,6 +570,7 @@ public data class SocialBadgeDetail(
  * 端点：GET /api/proxy/furtv/users/storeproducts
  */
 @JsExport
+@JsName("StoreProductsResponse")
 @Serializable
 public data class StoreProductsResponse(
     @SerialName("success")
@@ -566,6 +590,7 @@ public data class StoreProductsResponse(
  * @param products 商品列表
  */
 @JsExport
+@JsName("StoreProductsData")
 @Serializable
 public data class StoreProductsData(
     @SerialName("user")
@@ -586,6 +611,7 @@ public data class StoreProductsData(
  * @param nickname 昵称
  */
 @JsExport
+@JsName("StoreUser")
 @Serializable
 public data class StoreUser(
     @SerialName("id")
@@ -609,6 +635,7 @@ public data class StoreUser(
  * @param updatedAt 更新时间
  */
 @JsExport
+@JsName("StoreProduct")
 @Serializable
 public data class StoreProduct(
     @SerialName("id")
