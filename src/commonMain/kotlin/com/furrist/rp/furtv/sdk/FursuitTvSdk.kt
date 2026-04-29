@@ -15,7 +15,7 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 
 /**
- * Fursuit.TV SDK 主客户端，提供对平台所有 API 的访问接口。
+ * Fursuit.TV SDK 主客户端，提供 base、user、search、gathering、school 等 API 模块的访问接口。
  *
  * @param config SDK 配置
  * @param tokenInfo 可选的令牌信息
@@ -30,7 +30,6 @@ public class FursuitTvSdk internal constructor(
     private var httpClient: HttpClient =
         HttpClientConfig.createClient(
             config,
-            // 优先使用 apiKey（X-Api-Key 头，服务端优先处理），回退到 accessToken
             tokenInfo?.takeIf { it.apiKey.isNotEmpty() }?.apiKey ?: tokenInfo?.accessToken,
         )
 
@@ -62,16 +61,18 @@ public class FursuitTvSdk internal constructor(
     @JsName("school")
     public val school: SchoolApi = SchoolApi(httpClient, config.baseUrl)
 
-    @JsName("getConfig")
     /**
-     * 获取当前配置
+     * 获取当前配置。
+     *
      * @return SDK 配置对象
      */
+    @JsName("getConfig")
     public fun getConfig(): SdkConfig = config
 
     /**
      * 关闭 SDK 客户端并释放资源
      */
+    @JsName("close")
     public fun close() {
         httpClient.close()
         auth.close()
@@ -84,16 +85,15 @@ public class FursuitTvSdk internal constructor(
 
     public companion object {
         /**
-         * 为签名交换创建 SDK（自动获取令牌）。
+         * 为签名交换创建 SDK，自动获取令牌。
          *
-         * @param clientId 应用 ID（格式 vap_xxxx）
-         * @param clientSecret 应用密钥
+         * @param clientId 客户端 ID（即 VDS 文档中的 appId，格式 vap_xxxx）
+         * @param clientSecret 客户端密钥
          * @return FursuitTvSdk 实例
          */
         @JsName("createForTokenExchange")
         public suspend fun createForTokenExchange(clientId: String, clientSecret: String): FursuitTvSdk {
             val config = SdkConfig.forTokenExchange(clientId, clientSecret)
-            // 自动调用签名交换获取令牌
             val authManager = AuthManager(config)
             val tokenInfo = authManager.exchangeToken(clientId, clientSecret)
             return FursuitTvSdk(config, tokenInfo)
@@ -121,7 +121,7 @@ public class FursuitTvSdk internal constructor(
             FursuitTvSdk(config, tokenInfo)
 
         /**
-         * 使用 DSL 方式创建 SDK（如配置中包含 clientId + clientSecret，自动获取令牌）。
+         * 使用 DSL 方式创建 SDK，如配置中包含 clientId + clientSecret 则自动交换令牌。
          *
          * @param block 配置块
          * @return FursuitTvSdk 实例
@@ -132,7 +132,6 @@ public class FursuitTvSdk internal constructor(
             mutableConfig.block()
             val config = mutableConfig.toImmutable()
 
-            // 如果配置中包含 clientId 和 clientSecret，自动调用签名交换
             if (config.clientId != null && config.clientSecret != null && config.apiKey == null) {
                 val authManager = AuthManager(config)
                 val tokenInfo = authManager.exchangeToken(config.clientId, config.clientSecret)
@@ -145,15 +144,23 @@ public class FursuitTvSdk internal constructor(
 }
 
 /**
- * 使用 DSL 方式创建 FursuitTvSdk。
+ * 使用 DSL 方式创建 FursuitTvSdk，为 suspend 函数，当 clientId + clientSecret 均提供时自动交换令牌。
  *
  * @param block 配置块
  * @return FursuitTvSdk 实例
  */
 @JsExport
 @JsName("fursuitTvSdk")
-public fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk {
+public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk {
     val mutableConfig = MutableSdkConfig()
     block(mutableConfig)
-    return FursuitTvSdk.create(mutableConfig.toImmutable())
+    val config = mutableConfig.toImmutable()
+
+    if (config.clientId != null && config.clientSecret != null && config.apiKey == null) {
+        val authManager = AuthManager(config)
+        val tokenInfo = authManager.exchangeToken(config.clientId, config.clientSecret)
+        return FursuitTvSdk(config, tokenInfo)
+    }
+
+    return FursuitTvSdk(config)
 }
