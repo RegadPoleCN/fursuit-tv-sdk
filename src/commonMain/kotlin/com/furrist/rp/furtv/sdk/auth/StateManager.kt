@@ -36,15 +36,14 @@ public object StateManager {
     @Volatile
     private var cleanupRunning = false
 
-    // 使用 SupervisorJob 确保子协程失败不会影响父协程
     private val cleanupJob = SupervisorJob()
     private val cleanupScope = CoroutineScope(Dispatchers.Default + cleanupJob)
 
     /**
      * 生成加密安全的随机 state
-     * 使用 Random 生成指定长度的随机字符串
      * @return 生成的 state 字符串
      */
+    @JsName("generateState")
     public fun generateState(): String {
         return (1..STATE_LENGTH)
             .map { CHARS.random(Random) }
@@ -57,6 +56,7 @@ public object StateManager {
      * @param actual 实际收到的 state 值
      * @return 如果匹配返回 true，否则返回 false
      */
+    @JsName("validateState")
     public fun validateState(expected: String, actual: String): Boolean {
         return expected == actual
     }
@@ -66,6 +66,7 @@ public object StateManager {
      * @param state 要存储的 state
      * @param timeoutMinutes 超时时间（分钟），默认为 10 分钟
      */
+    @JsName("storeState")
     public fun storeState(state: String, timeoutMinutes: Int = DEFAULT_TIMEOUT_MINUTES) {
         val expiresAtEpochMs = Clock.System.now().plus(timeoutMinutes.minutes).toEpochMilliseconds()
         stateStorage[state] = StateEntry(expiresAtEpochMs = expiresAtEpochMs)
@@ -77,10 +78,10 @@ public object StateManager {
 
     /**
      * 检查 state 是否有效
-     * 验证 state 是否存在且未过期
      * @param state 要检查的 state
      * @return 如果 state 有效返回 true，否则返回 false
      */
+    @JsName("isStateValid")
     public fun isStateValid(state: String): Boolean {
         val entry = stateStorage[state] ?: return false
 
@@ -96,10 +97,10 @@ public object StateManager {
 
     /**
      * 使用 state（验证后删除）
-     * State 使用后自动删除，确保一次有效
      * @param state 要使用的 state
      * @return 如果 state 有效且成功使用返回 true，否则返回 false
      */
+    @JsName("consumeState")
     public fun consumeState(state: String): Boolean {
         if (!isStateValid(state)) {
             return false
@@ -109,32 +110,21 @@ public object StateManager {
         return true
     }
 
-    /**
-     * 安排清理过期 state
-     * 使用协程延迟执行清理任务
-     */
     private fun scheduleCleanup() {
         cleanupRunning = true
 
-        // 使用独立的 Scope 启动后台清理任务
         cleanupScope.launch {
             @Suppress("SwallowedException", "TooGenericExceptionCaught")
             try {
                 delay(CLEANUP_DELAY_MILLIS)
                 cleanupExpiredStates()
-            } catch (e: Exception) {
-                // 忽略异常，避免影响主流程
-                // 注意：这里捕获通用 Exception 是因为清理任务是可选的
+            } catch (_: Exception) {
             } finally {
                 cleanupRunning = false
             }
         }
     }
 
-    /**
-     * 清理过期的 state
-     * 遍历存储并移除所有已过期的 state
-     */
     private fun cleanupExpiredStates() {
         val nowEpochMs = Clock.System.now().toEpochMilliseconds()
         val expiredStates = stateStorage.entries.filter { it.value.expiresAtEpochMs <= nowEpochMs }.map { it.key }
@@ -143,9 +133,9 @@ public object StateManager {
 
     /**
      * 清理资源
-     * 取消后台清理任务并清空存储
-     * 注意：此方法仅供测试使用，正常情况下不需要调用
+     * @suppress 仅供测试使用
      */
+    @JsName("cleanup")
     @Suppress("UnusedReceiverParameter")
     public fun cleanup() {
         cleanupJob.cancel()
@@ -153,10 +143,6 @@ public object StateManager {
         cleanupRunning = false
     }
 
-    /**
-     * State 存储条目
-     * @property expiresAtEpochMs 过期时间（epoch 毫秒值）
-     */
     private data class StateEntry(
         val expiresAtEpochMs: Long,
     )

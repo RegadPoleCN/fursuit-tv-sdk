@@ -10,23 +10,22 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
-import io.ktor.util.collections.ConcurrentMap
 import io.ktor.util.logging.KtorSimpleLogger
+import java.awt.Desktop
+import java.net.URI
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
-/**
- * Jvm 实现的 OAuth 回调处理器（基于 Ktor CIO）
- */
 internal class JvmOAuthCallbackHandler(
     private val config: OAuthCallbackServerConfig,
 ) : OAuthCallbackHandler {
     private val logger = KtorSimpleLogger("com.furrist.rp.furtv.sdk.auth.JvmOAuthCallbackHandler")
     private val mutex = Mutex()
-    private val pendingCallbacks = ConcurrentMap<String, CompletableDeferred<OAuthCallbackResult>>()
+    @Volatile
+    private var pendingDeferred: CompletableDeferred<OAuthCallbackResult>? = null
 
     override val callbackUrl: String get() = config.buildCallbackUrl()
 
@@ -42,33 +41,67 @@ internal class JvmOAuthCallbackHandler(
     private val shutdownGracePeriodMillis: Long = 1000L
     private val shutdownTimeoutMillis: Long = 2000L
 
-    override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
-        val deferred = CompletableDeferred<OAuthCallbackResult>()
-        val state = extractStateFromUrl(authorizeUrl)
+    override suspend fun startListening() {
+        mutex.withLock {
+            pendingDeferred = CompletableDeferred()
+            server.start(wait = false)
+        }
+    }
 
-        return mutex.withLock {
-            try {
-                server.start(wait = false)
-                if (state != null) pendingCallbacks[state] = deferred
+    override suspend fun waitForCallback(): OAuthCallbackResult {
+        val deferred = mutex.withLock { pendingDeferred }
+            ?: throw IllegalStateException("Not listening. Call startListening() first.")
 
-                val timeoutDuration = config.timeoutSeconds.seconds
-                val result = withTimeoutOrNull(timeoutDuration) { deferred.await() }
-
-                result ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
-            } finally {
-                pendingCallbacks.clear()
+        return try {
+            val timeoutDuration = config.timeoutSeconds.seconds
+            withTimeoutOrNull(timeoutDuration) { deferred.await() }
+                ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
+        } finally {
+            mutex.withLock {
+                pendingDeferred = null
                 server.stop(shutdownGracePeriodMillis, shutdownTimeoutMillis)
             }
         }
     }
 
+    override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
+        startListening()
+        openBrowser(authorizeUrl)
+        return waitForCallback()
+    }
+
     override suspend fun stop() {
         mutex.withLock {
+            pendingDeferred?.complete(OAuthCallbackResult.Error("Server stopped"))
+            pendingDeferred = null
             server.stop(shutdownGracePeriodMillis, shutdownTimeoutMillis)
         }
     }
 
+    private fun openBrowser(authorizeUrl: String) {
+        if (Desktop.isDesktopSupported()) {
+            val desktop = Desktop.getDesktop()
+            if (desktop.isSupported(Desktop.Action.BROWSE)) {
+                try {
+                    desktop.browse(URI(authorizeUrl))
+                    return
+                } catch (_: Exception) {
+                    // Fall through to stdout fallback
+                }
+            }
+        }
+        println("Please open this URL in your browser: $authorizeUrl")
+    }
+
     private suspend fun handleCallback(call: ApplicationCall) {
+        val error = call.request.queryParameters["error"]
+        if (error != null) {
+            val errorDescription = call.request.queryParameters["error_description"] ?: error
+            pendingDeferred?.complete(OAuthCallbackResult.Error(message = errorDescription, errorCode = error))
+            call.respondText("Authorization denied. You can close this window.")
+            return
+        }
+
         val code = call.request.queryParameters["code"]
         val state = call.request.queryParameters["state"]
 
@@ -77,12 +110,8 @@ internal class JvmOAuthCallbackHandler(
             return
         }
 
-        pendingCallbacks[state]?.complete(OAuthCallbackResult.Success(code, state))
+        pendingDeferred?.complete(OAuthCallbackResult.Success(code, state))
         call.respondText("Success! You can close this window.")
-    }
-
-    private fun extractStateFromUrl(url: String): String? {
-        return url.substringAfter("state=", "").substringBefore("&").takeIf { it.isNotEmpty() }
     }
 
     private fun OAuthCallbackServerConfig.buildCallbackUrl(): String {
