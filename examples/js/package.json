@@ -2,12 +2,8 @@
   "name": "fursuit-tv-sdk-js-example",
   "version": "1.0.0",
   "description": "Fursuit.TV SDK JS/Node.js 示例项目",
-  "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "build": "node --experimental-strip-types dist/index.js",
-    "start": "node dist/index.js",
-    "dev": "node --experimental-strip-types src/index.ts",
     "dev:node": "node --experimental-strip-types src/node/index.ts",
     "dev:browser": "npx serve src/browser"
   },

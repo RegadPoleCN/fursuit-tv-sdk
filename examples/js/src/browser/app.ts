@@ -26,7 +26,7 @@ async function main() {
         log(`User: ${profile.nickname}`);
 
         const popular = await sdk.search.getPopular();
-        log(`Popular users: ${popular.users.length}`);
+        log(`Popular users: ${popular.users.asJsReadonlyArrayView().length}`);
     } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : String(error);
         log(`Error: ${msg}`);

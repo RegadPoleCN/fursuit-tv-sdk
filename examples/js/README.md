@@ -2,6 +2,8 @@
 
 本示例项目演示如何在浏览器和 Node.js 环境中使用 Fursuit.TV SDK。
 
+> Kotlin/JS 示例已移至 [../kotlin-js/](../kotlin-js/README.md)
+
 ## 目录结构
 
 ```
@@ -9,7 +11,6 @@ examples/js/
 ├── package.json
 ├── README.md
 ├── src/
-│   ├── index.js              # Kotlin/JS 示例（Kotlin 语言）
 │   ├── browser/
 │   │   ├── index.html         # 浏览器 HTML 入口
 │   │   └── app.ts             # 浏览器 TypeScript 示例
@@ -39,12 +40,6 @@ npm install
 - `"your-client-secret-here"` — 替换为你的 clientSecret
 
 ### 3. 运行示例
-
-#### Kotlin/JS 示例（原有）
-
-```bash
-npm run build && npm start
-```
 
 #### Node.js TypeScript 示例
 
@@ -94,10 +89,6 @@ try {
 }
 ```
 
-## Kotlin/JS 示例
-
-原有的 Kotlin/JS 示例位于 `src/index.js`，使用 Kotlin 语言编写，通过 Kotlin/JS 编译为 JavaScript 运行。详见 [Kotlin/JS 示例说明](#kotlinjs-示例)。
-
 ## 注意事项
 
 ### 1. ESM 模块
@@ -116,9 +107,14 @@ SDK 以 ES Module (ESM) 格式发布，项目 `package.json` 中需设置 `"type
 
 浏览器示例需要通过打包工具（如 Vite、Webpack）处理 TypeScript 和 SDK 依赖。
 
+### 5. Kotlin List 访问
+
+SDK 返回的列表类型为 Kotlin `List`，在 Node.js 中需使用 `.asJsReadonlyArrayView()` 转换后访问 `.length` 等属性；浏览器中可直接使用 `.length`。
+
 ## 更多信息
 
 - [认证文档](../../docs/authentication.md)
+- [Kotlin/JS 示例](../kotlin-js/README.md)
 - [Java 示例](../java/README.md)
 - [JVM 示例](../jvm/README.md)
 - [平台指南](../../docs/platform-guide.md)
