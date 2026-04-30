@@ -30,6 +30,12 @@ dependencies {
 </dependency>
 ```
 
+### npm (JavaScript/TypeScript)
+
+```bash
+npm install @regadpole/fursuit-tv-sdk
+```
+
 ## 2. 初始化 SDK
 
 ### 方式 1：签名交换（推荐）
@@ -65,6 +71,46 @@ val sdk = fursuitTvSdk {
     enableRetry = true
     maxRetries = 3
 }
+```
+
+### Java 用户
+
+Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置：
+
+```java
+import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
+
+// 使用 apiKey 模式（同步）
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .apiKey("your-api-key")
+    .logLevel(SdkLogLevel.INFO)
+    .build();
+
+// 使用签名交换模式（异步，需通过 await 辅助方法调用）
+FursuitTvSdk sdk = await((scope, cont) ->
+    JvmFursuitTvSdkBuilder.create()
+        .clientId("vap_xxx")
+        .clientSecret("your-secret")
+        .logLevel(SdkLogLevel.INFO)
+        .buildAsync(cont)
+);
+```
+
+> 💡 Java 中调用 `suspend` 函数需使用 `BuildersKt.runBlocking`，详见 [平台指南 - Java 调用 suspend 函数](platform-guide.md#java-调用-suspend-函数)。
+
+### JavaScript/TypeScript 用户
+
+```typescript
+import { fursuitTvSdk, SdkLogLevel } from "@regadpole/fursuit-tv-sdk";
+
+const sdk = await fursuitTvSdk({
+    clientId: "vap_xxx",
+    clientSecret: "your-secret",
+    logLevel: SdkLogLevel.INFO,
+});
+
+const profile = sdk.user.getUserProfile("username");
 ```
 
 ## 3. 调用第一个 API
@@ -116,6 +162,63 @@ fun main() = runBlocking {
     } finally {
         sdk.close()
     }
+}
+```
+
+### Java 完整示例
+
+```java
+import com.furrist.rp.furtv.sdk.FursuitTvSdk;
+import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
+import kotlinx.coroutines.BuildersKt;
+import kotlinx.coroutines.CoroutineScope;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.EmptyCoroutineContext;
+import kotlin.Function2;
+
+public class Main {
+    @SuppressWarnings("unchecked")
+    private static <T> T await(Function2<CoroutineScope, Continuation<? super T>, Object> block) {
+        return (T) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, block);
+    }
+
+    public static void main(String[] args) {
+        FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+            .apiKey("your-api-key")
+            .logLevel(SdkLogLevel.INFO)
+            .build();
+
+        try {
+            var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+            System.out.println("用户：" + profile.getNickname());
+        } catch (Exception e) {
+            System.out.println("错误：" + e.getMessage());
+        } finally {
+            sdk.close();
+        }
+    }
+}
+```
+
+### JavaScript/TypeScript 完整示例
+
+```typescript
+import { fursuitTvSdk, SdkLogLevel } from "@regadpole/fursuit-tv-sdk";
+
+const sdk = await fursuitTvSdk({
+    clientId: "vap_xxx",
+    clientSecret: "your-secret",
+    logLevel: SdkLogLevel.INFO,
+});
+
+try {
+    const profile = sdk.user.getUserProfile("username");
+    console.log(`用户：${profile.displayName}`);
+} catch (e) {
+    console.error("错误：", e.message);
+} finally {
+    sdk.close();
 }
 ```
 

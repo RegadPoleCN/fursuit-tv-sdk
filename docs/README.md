@@ -104,6 +104,36 @@ val tokenInfo = sdk.auth.exchangeOAuthToken(
 val userInfo = sdk.auth.getUserInfo()
 ```
 
+### Java 示例
+
+```java
+import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+
+// API Key 模式（同步）
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .apiKey("your-api-key")
+    .build();
+
+// 签名交换模式（需通过 await 辅助方法）
+FursuitTvSdk sdk = await((scope, cont) ->
+    JvmFursuitTvSdkBuilder.create()
+        .clientId("vap_xxx")
+        .clientSecret("your-secret")
+        .buildAsync(cont)
+);
+```
+
+### JavaScript/TypeScript 示例
+
+```typescript
+import { fursuitTvSdk } from "@regadpole/fursuit-tv-sdk";
+
+const sdk = await fursuitTvSdk({
+    clientId: "vap_xxx",
+    clientSecret: "your-secret",
+});
+```
+
 ## 术语说明
 
 - **`clientId`** - 应用 ID（即 VDS 文档中的 `appId`），格式为 `vap_xxxx`，用于标识应用身份

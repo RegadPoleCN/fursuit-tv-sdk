@@ -104,15 +104,69 @@ FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
     .logLevel(SdkLogLevel.INFO)
     .build();
 
-// 使用签名交换模式（异步，需在协程中调用）
-FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
-    .clientId("vap_xxx")
-    .clientSecret("your-secret")
-    .logLevel(SdkLogLevel.INFO)
-    .buildAsync();
+// 使用签名交换模式（异步，需通过 await 辅助方法调用）
+FursuitTvSdk sdk = await((scope, cont) ->
+    JvmFursuitTvSdkBuilder.create()
+        .clientId("vap_xxx")
+        .clientSecret("your-secret")
+        .logLevel(SdkLogLevel.INFO)
+        .buildAsync(cont)
+);
 ```
 
-> 💡 也可使用 `JvmFursuitTvSdkFactory.createDsl()` 通过 `Consumer<MutableSdkConfig>` 配置。
+> 💡 也可使用 `JvmFursuitTvSdkFactory.createDsl()` 通过 `Consumer<MutableSdkConfig>` 配置（仅 API Key 模式）。
+
+#### Java 调用 suspend 函数
+
+SDK 的所有 API 方法均为 Kotlin `suspend` 函数。在 Java 中，`suspend` 函数会编译为带有额外 `Continuation` 参数的方法，不能直接调用。推荐使用 `await` 辅助方法封装 `BuildersKt.runBlocking`：
+
+```java
+import kotlinx.coroutines.BuildersKt;
+import kotlinx.coroutines.CoroutineScope;
+import kotlin.coroutines.Continuation;
+import kotlin.coroutines.EmptyCoroutineContext;
+import kotlin.Function2;
+
+@SuppressWarnings("unchecked")
+private static <T> T await(Function2<CoroutineScope, Continuation<? super T>, Object> block) {
+    return (T) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, block);
+}
+
+// API 调用示例
+var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
+var health  = await((scope, cont) -> sdk.base.health(cont));
+```
+
+> ⚠️ 带有默认参数的方法（如 `getPopular(limit: Int? = null)`），Java 中需显式传参（如 `null`）。
+
+#### Java 完整示例
+
+```java
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+        .apiKey("your-api-key")
+        .logLevel(SdkLogLevel.INFO)
+        .build();
+
+try {
+    var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+    System.out.println("Username: " + profile.getUsername());
+
+    var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
+    System.out.println("Popular users: " + popular.getUsers().size());
+
+    var health = await((scope, cont) -> sdk.base.health(cont));
+    System.out.println("Health: " + health.getMessage());
+} catch (NotFoundException e) {
+    System.err.println("Not found: " + e.getMessage());
+} catch (ApiException e) {
+    System.err.println("API error (HTTP " + e.getStatusCode() + "): " + e.getMessage());
+} catch (FursuitTvSdkException e) {
+    System.err.println("SDK error: " + e.getMessage());
+} finally {
+    sdk.close();
+}
+```
 
 ## JavaScript 平台
 
@@ -160,6 +214,47 @@ fun main() {
         val profile = sdk.user.getUserProfile("username")
         document.getElementById("output")?.textContent = "用户：${profile.displayName}"
     }
+}
+```
+
+### 纯 JavaScript/TypeScript 调用
+
+#### npm 安装
+
+```bash
+npm install @regadpole/fursuit-tv-sdk
+```
+
+#### 浏览器环境（ESM）
+
+```typescript
+import { fursuitTvSdk } from "@regadpole/fursuit-tv-sdk";
+
+const sdk = await fursuitTvSdk({
+    clientId: "vap_xxx",
+    clientSecret: "your-secret",
+});
+
+const profile = sdk.user.getUserProfile("username");
+console.log(`用户：${profile.displayName}`);
+sdk.close();
+```
+
+#### Node.js 环境（ESM）
+
+```typescript
+import { fursuitTvSdk } from "@regadpole/fursuit-tv-sdk";
+
+const sdk = await fursuitTvSdk({
+    clientId: "vap_xxx",
+    clientSecret: "your-secret",
+});
+
+try {
+    const profile = sdk.user.getUserProfile("username");
+    console.log(`用户：${profile.displayName}`);
+} finally {
+    sdk.close();
 }
 ```
 
