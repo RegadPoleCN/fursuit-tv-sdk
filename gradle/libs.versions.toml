@@ -20,6 +20,9 @@ detekt = "2.0.0-alpha.2"
 # Dokka
 dokka = "2.0.0"
 
+# Suspend Transform
+suspend-transform = "2.3.20-0.13.2"
+
 [libraries]
 # Ktor Core
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
@@ -46,3 +49,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlin-npm-publish = { id = "org.jetbrains.kotlin.npm-publish", version.ref = "kotlin-npm-publish" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+suspend-transform = { id = "love.forte.plugin.suspend-transform", version.ref = "suspend-transform" }

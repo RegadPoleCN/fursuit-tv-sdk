@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.npm.publish)
     alias(libs.plugins.detekt)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.suspend.transform)
     id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
     id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.17.0"
     id("com.vanniktech.maven.publish") version "0.36.0"
@@ -118,6 +119,15 @@ kotlin {
                 implementation(libs.ktor.network)
             }
         }
+    }
+}
+
+suspendTransformPlugin {
+    enabled = true
+    includeAnnotation = true
+    includeRuntime = true
+    transformers {
+        useDefault()
     }
 }
 
