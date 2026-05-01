@@ -75,29 +75,36 @@ val sdk = fursuitTvSdk {
 
 ### Java 用户
 
-Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置：
+Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置。SDK 通过 `kotlin-suspend-transform-compiler-plugin` 自动为 Java 用户生成了 `buildBlocking()` 和 `buildAsync()` 两种构建方式：
 
 ```java
 import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
 
-// 使用 apiKey 模式（同步）
+// 使用 apiKey 模式 — buildBlocking() 同步构建
 FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
     .apiKey("your-api-key")
     .logLevel(SdkLogLevel.INFO)
-    .build();
+    .buildBlocking();
 
-// 使用签名交换模式（异步，需通过 await 辅助方法调用）
-FursuitTvSdk sdk = await((scope, cont) ->
-    JvmFursuitTvSdkBuilder.create()
-        .clientId("vap_xxx")
-        .clientSecret("your-secret")
-        .logLevel(SdkLogLevel.INFO)
-        .buildAsync(cont)
-);
+// 使用签名交换模式 — buildBlocking() 同步构建
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .clientId("vap_xxx")
+    .clientSecret("your-secret")
+    .logLevel(SdkLogLevel.INFO)
+    .buildBlocking();
+
+// 使用签名交换模式 — buildAsync() 异步构建，返回 CompletableFuture
+CompletableFuture<FursuitTvSdk> future = JvmFursuitTvSdkBuilder.create()
+    .clientId("vap_xxx")
+    .clientSecret("your-secret")
+    .logLevel(SdkLogLevel.INFO)
+    .buildAsync();
+
+FursuitTvSdk sdk = future.get();
 ```
 
-> 💡 Java 中调用 `suspend` 函数需使用 `BuildersKt.runBlocking`，详见 [平台指南 - Java 调用 suspend 函数](platform-guide.md#java-调用-suspend-函数)。
+> 💡 Java 中调用 SDK 的 `suspend` 函数时，使用 `xxxBlocking()` 同步阻塞或 `xxxAsync()` 返回 `CompletableFuture`。详见 [平台指南 - Java 调用 suspend 函数](platform-guide.md#java-调用-suspend-函数)。
 
 ### JavaScript/TypeScript 用户
 
@@ -171,26 +178,16 @@ fun main() = runBlocking {
 import com.furrist.rp.furtv.sdk.FursuitTvSdk;
 import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
-import kotlinx.coroutines.BuildersKt;
-import kotlinx.coroutines.CoroutineScope;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.EmptyCoroutineContext;
-import kotlin.Function2;
 
 public class Main {
-    @SuppressWarnings("unchecked")
-    private static <T> T await(Function2<CoroutineScope, Continuation<? super T>, Object> block) {
-        return (T) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, block);
-    }
-
     public static void main(String[] args) {
         FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
             .apiKey("your-api-key")
             .logLevel(SdkLogLevel.INFO)
-            .build();
+            .buildBlocking();
 
         try {
-            var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+            var profile = sdk.user.getUserProfileBlocking("username");
             System.out.println("用户：" + profile.getNickname());
         } catch (Exception e) {
             System.out.println("错误：" + e.getMessage());

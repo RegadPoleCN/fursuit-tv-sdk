@@ -92,53 +92,60 @@ sdk.close()
 
 ### Java 用户：JvmFursuitTvSdkBuilder
 
-Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置：
+Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置。SDK 通过 `kotlin-suspend-transform-compiler-plugin` 自动为 Java 用户生成了 `buildBlocking()` 和 `buildAsync()` 两种构建方式：
 
 ```java
 import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
 
-// 使用 apiKey 模式（同步）
+// 使用 apiKey 模式 — buildBlocking() 同步构建
 FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
     .apiKey("your-api-key")
     .logLevel(SdkLogLevel.INFO)
-    .build();
+    .buildBlocking();
 
-// 使用签名交换模式（异步，需通过 await 辅助方法调用）
-FursuitTvSdk sdk = await((scope, cont) ->
-    JvmFursuitTvSdkBuilder.create()
-        .clientId("vap_xxx")
-        .clientSecret("your-secret")
-        .logLevel(SdkLogLevel.INFO)
-        .buildAsync(cont)
-);
+// 使用签名交换模式 — buildBlocking() 同步构建
+FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+    .clientId("vap_xxx")
+    .clientSecret("your-secret")
+    .logLevel(SdkLogLevel.INFO)
+    .buildBlocking();
+
+// 使用签名交换模式 — buildAsync() 异步构建，返回 CompletableFuture
+CompletableFuture<FursuitTvSdk> future = JvmFursuitTvSdkBuilder.create()
+    .clientId("vap_xxx")
+    .clientSecret("your-secret")
+    .logLevel(SdkLogLevel.INFO)
+    .buildAsync();
+
+FursuitTvSdk sdk = future.get();
 ```
 
 > 💡 也可使用 `JvmFursuitTvSdkFactory.createDsl()` 通过 `Consumer<MutableSdkConfig>` 配置（仅 API Key 模式）。
 
 #### Java 调用 suspend 函数
 
-SDK 的所有 API 方法均为 Kotlin `suspend` 函数。在 Java 中，`suspend` 函数会编译为带有额外 `Continuation` 参数的方法，不能直接调用。推荐使用 `await` 辅助方法封装 `BuildersKt.runBlocking`：
+SDK 的所有 API 方法均为 Kotlin `suspend` 函数。通过 `kotlin-suspend-transform-compiler-plugin`，SDK 自动为每个 `suspend` 函数生成了 Java 友好的变体：
+
+- **`xxxBlocking()`** — 同步阻塞调用，直接返回结果。适用于简单脚本或不关心线程阻塞的场景。
+- **`xxxAsync()`** — 异步调用，返回 `CompletableFuture<T>`。适用于需要非阻塞并发的场景。
 
 ```java
-import kotlinx.coroutines.BuildersKt;
-import kotlinx.coroutines.CoroutineScope;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.EmptyCoroutineContext;
-import kotlin.Function2;
+// 同步阻塞调用
+var profile = sdk.user.getUserProfileBlocking("username");
+var popular = sdk.search.getPopularBlocking(null);
+var health  = sdk.base.healthBlocking();
 
-@SuppressWarnings("unchecked")
-private static <T> T await(Function2<CoroutineScope, Continuation<? super T>, Object> block) {
-    return (T) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, block);
-}
+// 异步 CompletableFuture 调用
+CompletableFuture<UserProfile> profileFuture = sdk.user.getUserProfileAsync("username");
+CompletableFuture<PopularResult> popularFuture = sdk.search.getPopularAsync(null);
+CompletableFuture<HealthResult> healthFuture = sdk.base.healthAsync();
 
-// API 调用示例
-var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
-var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
-var health  = await((scope, cont) -> sdk.base.health(cont));
+// 组合多个异步调用
+profileFuture.thenAccept(p -> System.out.println("Username: " + p.getUsername()));
 ```
 
-> ⚠️ 带有默认参数的方法（如 `getPopular(limit: Int? = null)`），Java 中需显式传参（如 `null`）。
+> ⚠️ 带有默认参数的方法（如 `getPopular(limit: Int? = null)`），Java 中需显式传参（如 `null`）。`xxxBlocking()` 和 `xxxAsync()` 变体同样需要显式传参。
 
 #### Java 完整示例
 
@@ -146,16 +153,16 @@ var health  = await((scope, cont) -> sdk.base.health(cont));
 FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
         .apiKey("your-api-key")
         .logLevel(SdkLogLevel.INFO)
-        .build();
+        .buildBlocking();
 
 try {
-    var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+    var profile = sdk.user.getUserProfileBlocking("username");
     System.out.println("Username: " + profile.getUsername());
 
-    var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
+    var popular = sdk.search.getPopularBlocking(null);
     System.out.println("Popular users: " + popular.getUsers().size());
 
-    var health = await((scope, cont) -> sdk.base.health(cont));
+    var health = sdk.base.healthBlocking();
     System.out.println("Health: " + health.getMessage());
 } catch (NotFoundException e) {
     System.err.println("Not found: " + e.getMessage());
@@ -167,6 +174,21 @@ try {
     sdk.close();
 }
 ```
+
+### Kotlin 用户
+
+Kotlin 用户无需任何额外适配，直接使用 `suspend` 函数即可。SDK 的所有 API 方法均为 `suspend` 函数，可在协程中直接调用：
+
+```kotlin
+val sdk = fursuitTvSdk {
+    clientId = "vap_xxx"
+    clientSecret = "your-secret"
+}
+
+val profile = sdk.user.getUserProfile("username")
+```
+
+> 💡 Java 的 `xxxBlocking()` / `xxxAsync()` 和 JS 的 `xxxAsync()` 变体均由 `kotlin-suspend-transform-compiler-plugin` 自动生成，Kotlin 侧无需使用这些变体。
 
 ## JavaScript 平台
 
