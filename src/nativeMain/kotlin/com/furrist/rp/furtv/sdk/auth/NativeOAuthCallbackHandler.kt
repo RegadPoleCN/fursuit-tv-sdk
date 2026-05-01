@@ -22,7 +22,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
-public class NativeOAuthCallbackHandler(
+internal class NativeOAuthCallbackHandler(
     private val config: OAuthCallbackServerConfig = OAuthCallbackServerConfig.DEFAULT,
 ) : OAuthCallbackHandler {
     override val callbackUrl: String get() = config.buildCallbackUrl()
