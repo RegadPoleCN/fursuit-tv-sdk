@@ -6,18 +6,8 @@ import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
 import com.furrist.rp.furtv.sdk.exception.NotFoundException;
 import com.furrist.rp.furtv.sdk.exception.ApiException;
 import com.furrist.rp.furtv.sdk.exception.FursuitTvSdkException;
-import kotlinx.coroutines.BuildersKt;
-import kotlinx.coroutines.CoroutineScope;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.EmptyCoroutineContext;
-import kotlin.Function2;
 
 public class Main {
-
-    @SuppressWarnings("unchecked")
-    private static <T> T await(Function2<CoroutineScope, Continuation<? super T>, Object> block) {
-        return (T) BuildersKt.runBlocking(EmptyCoroutineContext.INSTANCE, block);
-    }
 
     public static void main(String[] args) {
         exampleApiKeyMode();
@@ -28,25 +18,22 @@ public class Main {
         FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
                 .apiKey("your-api-key")
                 .logLevel(SdkLogLevel.INFO)
-                .build();
+                .buildBlocking();
 
         try {
-            var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+            var profile = sdk.user.getUserProfileBlocking("username");
             System.out.println("Username: " + profile.getUsername());
             System.out.println("Nickname: " + profile.getNickname());
 
-            var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
+            var popular = sdk.search.getPopularBlocking();
             System.out.println("Popular users count: " + popular.getUsers().size());
 
-            var health = await((scope, cont) -> sdk.base.health(cont));
+            var health = sdk.base.healthBlocking();
             System.out.println("Health: " + health.getMessage());
         } catch (NotFoundException e) {
             System.err.println("Not found: " + e.getMessage());
         } catch (ApiException e) {
             System.err.println("API error (HTTP " + e.getStatusCode() + "): " + e.getMessage());
-            if (e.getErrorCode() != null) {
-                System.err.println("Error code: " + e.getErrorCode());
-            }
         } catch (FursuitTvSdkException e) {
             System.err.println("SDK error: " + e.getMessage());
         } finally {
@@ -55,31 +42,26 @@ public class Main {
     }
 
     private static void exampleTokenExchangeMode() {
-        FursuitTvSdk sdk = await((scope, cont) ->
-                JvmFursuitTvSdkBuilder.create()
-                        .clientId("vap_xxx")
-                        .clientSecret("your-secret")
-                        .logLevel(SdkLogLevel.INFO)
-                        .buildAsync(cont)
-        );
+        FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+                .clientId("vap_xxxxxxxxxxxxxxxx")
+                .clientSecret("your-client-secret-here")
+                .logLevel(SdkLogLevel.INFO)
+                .buildBlocking();
 
         try {
-            var profile = await((scope, cont) -> sdk.user.getUserProfile("username", cont));
+            var profile = sdk.user.getUserProfileBlocking("username");
             System.out.println("Username: " + profile.getUsername());
             System.out.println("Nickname: " + profile.getNickname());
 
-            var popular = await((scope, cont) -> sdk.search.getPopular(null, cont));
+            var popular = sdk.search.getPopularBlocking();
             System.out.println("Popular users count: " + popular.getUsers().size());
 
-            var health = await((scope, cont) -> sdk.base.health(cont));
+            var health = sdk.base.healthBlocking();
             System.out.println("Health: " + health.getMessage());
         } catch (NotFoundException e) {
             System.err.println("Not found: " + e.getMessage());
         } catch (ApiException e) {
             System.err.println("API error (HTTP " + e.getStatusCode() + "): " + e.getMessage());
-            if (e.getErrorCode() != null) {
-                System.err.println("Error code: " + e.getErrorCode());
-            }
         } catch (FursuitTvSdkException e) {
             System.err.println("SDK error: " + e.getMessage());
         } finally {
