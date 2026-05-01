@@ -23,7 +23,9 @@ internal class JvmOAuthCallbackHandler(
     private val config: OAuthCallbackServerConfig,
 ) : OAuthCallbackHandler {
     private val logger = KtorSimpleLogger("com.furrist.rp.furtv.sdk.auth.JvmOAuthCallbackHandler")
+
     private val mutex = Mutex()
+
     @Volatile
     private var pendingDeferred: CompletableDeferred<OAuthCallbackResult>? = null
 
@@ -49,8 +51,9 @@ internal class JvmOAuthCallbackHandler(
     }
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
-        val deferred = mutex.withLock { pendingDeferred }
-            ?: throw IllegalStateException("Not listening. Call startListening() first.")
+        val deferred =
+            mutex.withLock { pendingDeferred }
+                ?: throw IllegalStateException("Not listening. Call startListening() first.")
 
         return try {
             val timeoutDuration = config.timeoutSeconds.seconds

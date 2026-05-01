@@ -115,8 +115,9 @@ internal class NativeOAuthCallbackHandler(
     }
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
-        val deferred = pendingCallback
-            ?: throw IllegalStateException("Not listening. Call startListening() first.")
+        val deferred =
+            pendingCallback
+                ?: throw IllegalStateException("Not listening. Call startListening() first.")
         return withTimeoutOrNull(config.timeoutSeconds.seconds) {
             deferred.await()
         } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")

@@ -15,7 +15,6 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 public class JvmFursuitTvSdkBuilder private constructor(
     private val config: MutableSdkConfig,
 ) {
-
     public companion object {
         /**
          * 创建新的 Builder 实例。

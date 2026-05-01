@@ -62,16 +62,19 @@ public class JsOAuthCallbackHandler(
     }
 
     private fun startNodeJsListening() {
-        js("""
+        js(
+            """
             if (this._nodeServer) {
                 this._nodeServer.close();
                 this._nodeServer = null;
             }
-        """)
+            """,
+        )
         this.asDynamic()._nodeResult = null
         this.asDynamic()._callbackPort = config.callbackPort
         this.asDynamic()._callbackPath = config.callbackPath
-        js("""
+        js(
+            """
             var http = require('http');
             var urlModule = require('url');
             var self = this;
@@ -97,7 +100,8 @@ public class JsOAuthCallbackHandler(
                 console.log('OAuth callback server listening on http://localhost:' + port + path);
             });
             self._nodeServer = server;
-        """)
+            """,
+        )
     }
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
@@ -109,8 +113,9 @@ public class JsOAuthCallbackHandler(
     }
 
     private suspend fun waitForBrowserCallback(): OAuthCallbackResult {
-        val deferred = deferredResult
-            ?: return OAuthCallbackResult.Error("Not listening. Call startListening() first.")
+        val deferred =
+            deferredResult
+                ?: return OAuthCallbackResult.Error("Not listening. Call startListening() first.")
         val timeoutMillis = config.timeoutSeconds * 1000L
         return withTimeoutOrNull(timeoutMillis) {
             deferred.await()
@@ -167,13 +172,15 @@ public class JsOAuthCallbackHandler(
     }
 
     private fun stopNodeJs() {
-        js("""
+        js(
+            """
             if (this._nodeServer) {
                 this._nodeServer.close();
                 this._nodeServer = null;
             }
             this._nodeResult = null;
-        """)
+            """,
+        )
     }
 }
 
