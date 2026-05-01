@@ -13,9 +13,13 @@ public final class com/furrist/rp/furtv/sdk/FursuitTvSdk {
 public final class com/furrist/rp/furtv/sdk/FursuitTvSdk$Companion {
 	public final fun create (Lcom/furrist/rp/furtv/sdk/model/SdkConfig;Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public final fun create (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
-	public final fun create (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun create (Lkotlin/jvm/functions/Function1;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun create$default (Lcom/furrist/rp/furtv/sdk/FursuitTvSdk$Companion;Lcom/furrist/rp/furtv/sdk/model/SdkConfig;Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
-	public final fun createForTokenExchange (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createAsync (Lkotlin/jvm/functions/Function1;)Ljava/util/concurrent/CompletableFuture;
+	public final fun createBlocking (Lkotlin/jvm/functions/Function1;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
+	public final synthetic fun createForTokenExchange (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun createForTokenExchangeAsync (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun createForTokenExchangeBlocking (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 }
 
 public final class com/furrist/rp/furtv/sdk/FursuitTvSdkKt {
@@ -26,27 +30,49 @@ public final class com/furrist/rp/furtv/sdk/JvmFursuitTvSdkFactory {
 	public static final field INSTANCE Lcom/furrist/rp/furtv/sdk/JvmFursuitTvSdkFactory;
 	public static final fun create (Lcom/furrist/rp/furtv/sdk/model/SdkConfig;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public static final fun create (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
-	public static final fun createDsl (Ljava/util/function/Consumer;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
+	public static final synthetic fun createDsl (Ljava/util/function/Consumer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun createDslAsync (Ljava/util/function/Consumer;)Ljava/util/concurrent/CompletableFuture;
+	public static final fun createDslBlocking (Ljava/util/function/Consumer;)Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 }
 
 public final class com/furrist/rp/furtv/sdk/auth/AuthManager {
 	public final fun clearToken ()V
 	public final fun close ()V
-	public final fun exchangeOAuthToken (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun exchangeOAuthToken (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun exchangeOAuthToken$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun exchangeToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun exchangeOAuthTokenAsync (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun exchangeOAuthTokenAsync$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun exchangeOAuthTokenBlocking (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public static synthetic fun exchangeOAuthTokenBlocking$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public final synthetic fun exchangeToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun exchangeTokenAsync (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun exchangeTokenBlocking (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
 	public final fun getAccessToken ()Ljava/lang/String;
 	public final fun getApiKey ()Ljava/lang/String;
 	public final fun getOAuthAuthorizeUrl (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;)Ljava/lang/String;
 	public static synthetic fun getOAuthAuthorizeUrl$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;ZLjava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
-	public final fun getUserInfo (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getValidAccessToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getUserInfo (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserInfoAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserInfoBlocking ()Lcom/furrist/rp/furtv/sdk/auth/UserInfoData;
+	public final synthetic fun getValidAccessToken (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getValidAccessTokenAsync (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getValidAccessTokenBlocking (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
 	public final fun isAuthenticated ()Z
-	public final fun loginWithOAuth (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun loginWithOAuth (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun loginWithOAuth$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun refreshOAuthToken (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun refreshToken (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun refreshTokenIfNeeded (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun loginWithOAuthAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun loginWithOAuthAsync$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun loginWithOAuthBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public static synthetic fun loginWithOAuthBlocking$default (Lcom/furrist/rp/furtv/sdk/auth/AuthManager;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public final synthetic fun refreshOAuthToken (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun refreshOAuthTokenAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun refreshOAuthTokenBlocking ()Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public final synthetic fun refreshToken (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun refreshTokenAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun refreshTokenBlocking ()Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
+	public final synthetic fun refreshTokenIfNeeded (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun refreshTokenIfNeededAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun refreshTokenIfNeededBlocking ()Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;
 	public final fun setOAuthCallbackHandler (Lcom/furrist/rp/furtv/sdk/auth/OAuthCallbackHandler;)V
 	public final fun setTokenInfo (Lcom/furrist/rp/furtv/sdk/auth/TokenInfo;)V
 }
@@ -861,12 +887,24 @@ public final class com/furrist/rp/furtv/sdk/base/AndroidVersionResponse$Companio
 }
 
 public final class com/furrist/rp/furtv/sdk/base/BaseApi {
-	public final fun checkAndroidVersion (Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun checkAndroidVersion (Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun checkAndroidVersion$default (Lcom/furrist/rp/furtv/sdk/base/BaseApi;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getAndroidVersion (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getThemePacksManifest (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun health (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun helloWorld (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun checkAndroidVersionAsync (Ljava/lang/String;Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun checkAndroidVersionAsync$default (Lcom/furrist/rp/furtv/sdk/base/BaseApi;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun checkAndroidVersionBlocking (Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/base/AndroidVersionCheckData;
+	public static synthetic fun checkAndroidVersionBlocking$default (Lcom/furrist/rp/furtv/sdk/base/BaseApi;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/base/AndroidVersionCheckData;
+	public final synthetic fun getAndroidVersion (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getAndroidVersionAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getAndroidVersionBlocking ()Lcom/furrist/rp/furtv/sdk/base/AndroidVersionData;
+	public final synthetic fun getThemePacksManifest (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getThemePacksManifestAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getThemePacksManifestBlocking ()Lcom/furrist/rp/furtv/sdk/base/ThemePacksManifestData;
+	public final synthetic fun health (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun healthAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun healthBlocking ()Lcom/furrist/rp/furtv/sdk/base/HealthResponse;
+	public final synthetic fun helloWorld (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun helloWorldAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun helloWorldBlocking ()Lcom/furrist/rp/furtv/sdk/base/HelloWorldResponse;
 }
 
 public final class com/furrist/rp/furtv/sdk/base/HealthResponse {
@@ -1108,8 +1146,9 @@ public final class com/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder {
 	public synthetic fun <init> (Lcom/furrist/rp/furtv/sdk/model/MutableSdkConfig;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun apiKey (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun baseUrl (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
-	public final fun build ()Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
-	public final fun buildAsync (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun build (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun buildAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun buildBlocking ()Lcom/furrist/rp/furtv/sdk/FursuitTvSdk;
 	public final fun clientId (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun clientSecret (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
 	public final fun connectTimeout (J)Lcom/furrist/rp/furtv/sdk/factory/JvmFursuitTvSdkBuilder;
@@ -1229,20 +1268,48 @@ public final class com/furrist/rp/furtv/sdk/gathering/DataSource$Companion {
 }
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringApi {
-	public final fun getGatheringDetail (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getMonthly (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getMonthly (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getMonthlyDistance (IILjava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getMonthlyDistance (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getGatheringDetail (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getGatheringDetailAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getGatheringDetailBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringDetailData;
+	public final synthetic fun getMonthly (IILkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getMonthly (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getMonthlyAsync (II)Ljava/util/concurrent/CompletableFuture;
+	public final fun getMonthlyAsync (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getMonthlyBlocking (II)Ljava/util/List;
+	public final fun getMonthlyBlocking (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;)Ljava/util/List;
+	public final synthetic fun getMonthlyDistance (IILjava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getMonthlyDistance (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getMonthlyDistance$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;IILjava/lang/Double;Ljava/lang/Double;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getNearby (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getNearby (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getMonthlyDistanceAsync (IILjava/lang/Double;Ljava/lang/Double;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getMonthlyDistanceAsync (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun getMonthlyDistanceAsync$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;IILjava/lang/Double;Ljava/lang/Double;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getMonthlyDistanceBlocking (IILjava/lang/Double;Ljava/lang/Double;)Ljava/util/List;
+	public final fun getMonthlyDistanceBlocking (Lcom/furrist/rp/furtv/sdk/model/GatheringMonthlyParams;)Ljava/util/List;
+	public static synthetic fun getMonthlyDistanceBlocking$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;IILjava/lang/Double;Ljava/lang/Double;ILjava/lang/Object;)Ljava/util/List;
+	public final synthetic fun getNearby (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getNearby (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getNearby$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getNearbyMode (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getRegistrations (Lcom/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getRegistrations (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getNearbyAsync (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getNearbyAsync (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun getNearbyAsync$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getNearbyBlocking (Lcom/furrist/rp/furtv/sdk/model/GatheringNearbyParams;)Ljava/util/List;
+	public final fun getNearbyBlocking (Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;)Ljava/util/List;
+	public static synthetic fun getNearbyBlocking$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/Double;Ljava/lang/Double;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/List;
+	public final synthetic fun getNearbyMode (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getNearbyModeAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getNearbyModeBlocking ()Lcom/furrist/rp/furtv/sdk/gathering/GatheringNearbyModeData;
+	public final synthetic fun getRegistrations (Lcom/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getRegistrations (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getRegistrations$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getYearStats (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getRegistrationsAsync (Lcom/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getRegistrationsAsync (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun getRegistrationsAsync$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getRegistrationsBlocking (Lcom/furrist/rp/furtv/sdk/model/GatheringRegistrationsParams;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
+	public final fun getRegistrationsBlocking (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
+	public static synthetic fun getRegistrationsBlocking$default (Lcom/furrist/rp/furtv/sdk/gathering/GatheringApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/gathering/GatheringRegistrationsData;
+	public final synthetic fun getYearStats (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getYearStatsAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getYearStatsBlocking ()Lcom/furrist/rp/furtv/sdk/gathering/GatheringYearStatsData;
 }
 
 public final class com/furrist/rp/furtv/sdk/gathering/GatheringBadge {
@@ -2409,12 +2476,24 @@ public final class com/furrist/rp/furtv/sdk/school/CharacterInfo$Companion {
 }
 
 public final class com/furrist/rp/furtv/sdk/school/SchoolApi {
-	public final fun getSchoolDetail (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserCharacters (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserSchools (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun searchSchools (Lcom/furrist/rp/furtv/sdk/model/SchoolSearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun searchSchools (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getSchoolDetail (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getSchoolDetailAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getSchoolDetailBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/SchoolDetail;
+	public final synthetic fun getUserCharacters (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserCharactersAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserCharactersBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/UserCharactersData;
+	public final synthetic fun getUserSchools (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserSchoolsAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserSchoolsBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/school/UserSchoolsData;
+	public final synthetic fun searchSchools (Lcom/furrist/rp/furtv/sdk/model/SchoolSearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun searchSchools (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun searchSchools$default (Lcom/furrist/rp/furtv/sdk/school/SchoolApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun searchSchoolsAsync (Lcom/furrist/rp/furtv/sdk/model/SchoolSearchParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun searchSchoolsAsync (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun searchSchoolsAsync$default (Lcom/furrist/rp/furtv/sdk/school/SchoolApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun searchSchoolsBlocking (Lcom/furrist/rp/furtv/sdk/model/SchoolSearchParams;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
+	public final fun searchSchoolsBlocking (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
+	public static synthetic fun searchSchoolsBlocking$default (Lcom/furrist/rp/furtv/sdk/school/SchoolApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/school/SchoolSearchData;
 }
 
 public final class com/furrist/rp/furtv/sdk/school/SchoolDetail {
@@ -3119,19 +3198,45 @@ public final class com/furrist/rp/furtv/sdk/search/RandomFursuitResponse$Compani
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchApi {
-	public final fun getPopular (Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getPopular (Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getPopular$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getPopularLocations (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getRandomFursuit (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getRandomFursuit (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getPopularAsync (Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun getPopularAsync$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getPopularBlocking (Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/search/PopularData;
+	public static synthetic fun getPopularBlocking$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/PopularData;
+	public final synthetic fun getPopularLocations (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getPopularLocationsAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getPopularLocationsBlocking ()Lcom/furrist/rp/furtv/sdk/search/PopularLocationsData;
+	public final synthetic fun getRandomFursuit (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getRandomFursuit (Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun getRandomFursuit$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Ljava/lang/Boolean;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun getSearchSuggestions (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getSpeciesList (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun search (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun search (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getRandomFursuitAsync (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getRandomFursuitAsync (Ljava/lang/Integer;Ljava/lang/Boolean;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun getRandomFursuitAsync$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Ljava/lang/Boolean;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getRandomFursuitBlocking (Lcom/furrist/rp/furtv/sdk/model/RandomFursuitParams;)Ljava/util/List;
+	public final fun getRandomFursuitBlocking (Ljava/lang/Integer;Ljava/lang/Boolean;)Ljava/util/List;
+	public static synthetic fun getRandomFursuitBlocking$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/Integer;Ljava/lang/Boolean;ILjava/lang/Object;)Ljava/util/List;
+	public final synthetic fun getSearchSuggestions (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getSearchSuggestionsAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getSearchSuggestionsBlocking (Ljava/lang/String;)Ljava/util/List;
+	public final synthetic fun getSpeciesList (Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getSpeciesListAsync ()Ljava/util/concurrent/CompletableFuture;
+	public final fun getSpeciesListBlocking ()Lcom/furrist/rp/furtv/sdk/search/SpeciesListData;
+	public final synthetic fun search (Lcom/furrist/rp/furtv/sdk/model/SearchParams;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun search (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun search$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public final fun searchBySpecies (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun searchAsync (Lcom/furrist/rp/furtv/sdk/model/SearchParams;)Ljava/util/concurrent/CompletableFuture;
+	public final fun searchAsync (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun searchAsync$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun searchBlocking (Lcom/furrist/rp/furtv/sdk/model/SearchParams;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
+	public final fun searchBlocking (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
+	public static synthetic fun searchBlocking$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SearchData;
+	public final synthetic fun searchBySpecies (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun searchBySpecies$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public final fun searchBySpeciesAsync (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public static synthetic fun searchBySpeciesAsync$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Ljava/util/concurrent/CompletableFuture;
+	public final fun searchBySpeciesBlocking (Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
+	public static synthetic fun searchBySpeciesBlocking$default (Lcom/furrist/rp/furtv/sdk/search/SearchApi;Ljava/lang/String;Ljava/lang/Integer;Ljava/lang/Integer;Ljava/lang/String;ILjava/lang/Object;)Lcom/furrist/rp/furtv/sdk/search/SpeciesSearchData;
 }
 
 public final class com/furrist/rp/furtv/sdk/search/SearchData {
@@ -4051,14 +4156,30 @@ public final class com/furrist/rp/furtv/sdk/user/StoreUser$Companion {
 }
 
 public final class com/furrist/rp/furtv/sdk/user/UserApi {
-	public final fun getLikeStatus (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getSocialBadgeDetail (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getSocialBadges (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getStoreProducts (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserId (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserProfile (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserRelationships (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
-	public final fun getUserVisitors (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final synthetic fun getLikeStatus (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getLikeStatusAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getLikeStatusBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/LikeStatusData;
+	public final synthetic fun getSocialBadgeDetail (Ljava/lang/String;Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getSocialBadgeDetailAsync (Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getSocialBadgeDetailBlocking (Ljava/lang/String;Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgeDetailData;
+	public final synthetic fun getSocialBadges (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getSocialBadgesAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getSocialBadgesBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/SocialBadgesData;
+	public final synthetic fun getStoreProducts (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getStoreProductsAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getStoreProductsBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/StoreProductsData;
+	public final synthetic fun getUserId (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserIdAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserIdBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserIdData;
+	public final synthetic fun getUserProfile (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserProfileAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserProfileBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserProfile;
+	public final synthetic fun getUserRelationships (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserRelationshipsAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserRelationshipsBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserRelationshipsData;
+	public final synthetic fun getUserVisitors (Ljava/lang/String;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public final fun getUserVisitorsAsync (Ljava/lang/String;)Ljava/util/concurrent/CompletableFuture;
+	public final fun getUserVisitorsBlocking (Ljava/lang/String;)Lcom/furrist/rp/furtv/sdk/user/UserVisitorsData;
 }
 
 public final class com/furrist/rp/furtv/sdk/user/UserDestination {

@@ -3,7 +3,7 @@
 fursuit-tv-sdk = "0.2.1"
 
 # Kotlin
-kotlin = "2.3.20"
+kotlin = "2.3.21"
 kotlin-npm-publish = "3.6.0"
 
 # Ktor
@@ -13,12 +13,19 @@ ktor = "3.4.2"
 coroutines = "1.10.1"
 serialization = "1.8.0"
 datetime = "0.6.2"
+binary-compatibility-validator = "0.18.1"
 
 # Detekt
 detekt = "2.0.0-alpha.2"
 
+# ktlint
+ktlint = "14.2.0"
+
 # Dokka
-dokka = "2.0.0"
+dokka = "2.2.0"
+
+# maven
+maven-publish = "0.36.0"
 
 # Suspend Transform
 suspend-transform = "2.3.20-0.13.2"
@@ -47,6 +54,9 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-npm-publish = { id = "org.jetbrains.kotlin.npm-publish", version.ref = "kotlin-npm-publish" }
+binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binary-compatibility-validator" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
 suspend-transform = { id = "love.forte.plugin.suspend-transform", version.ref = "suspend-transform" }
