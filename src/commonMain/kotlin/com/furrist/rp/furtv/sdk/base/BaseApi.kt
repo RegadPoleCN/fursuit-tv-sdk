@@ -9,6 +9,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import kotlin.js.JsExport
 import kotlin.js.JsName
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * 基础接口 API，提供 helloWorld、health、version 和 theme-packs 端点。
@@ -16,6 +18,8 @@ import kotlin.js.JsName
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
+@JvmBlocking
+@JvmAsync
 @JsExport
 @JsName("BaseApi")
 public class BaseApi internal constructor(

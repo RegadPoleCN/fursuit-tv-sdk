@@ -20,6 +20,8 @@ import kotlin.js.JsName
 import kotlin.random.Random
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * 认证管理器
@@ -28,6 +30,8 @@ import kotlinx.coroutines.sync.withLock
  *
  * @property config SDK 配置
  */
+@JvmBlocking
+@JvmAsync
 @Suppress("TooManyFunctions")
 @JsExport
 @JsName("AuthManager")

@@ -13,6 +13,8 @@ import com.furrist.rp.furtv.sdk.user.UserApi
 import io.ktor.client.HttpClient
 import kotlin.js.JsExport
 import kotlin.js.JsName
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * Fursuit.TV SDK 主客户端，提供 base、user、search、gathering、school 等 API 模块的访问接口。
@@ -92,6 +94,8 @@ public class FursuitTvSdk internal constructor(
          * @param clientSecret 客户端密钥
          * @return FursuitTvSdk 实例
          */
+        @JvmBlocking
+        @JvmAsync
         @JsName("createForTokenExchange")
         public suspend fun createForTokenExchange(clientId: String, clientSecret: String): FursuitTvSdk {
             val config = SdkConfig.forTokenExchange(clientId, clientSecret)
@@ -127,6 +131,8 @@ public class FursuitTvSdk internal constructor(
          * @param block 配置块
          * @return FursuitTvSdk 实例
          */
+        @JvmBlocking
+        @JvmAsync
         @JsName("createWithDsl")
         public suspend fun create(block: MutableSdkConfig.() -> Unit): FursuitTvSdk {
             val mutableConfig = MutableSdkConfig()
@@ -150,6 +156,8 @@ public class FursuitTvSdk internal constructor(
  * @param block 配置块
  * @return FursuitTvSdk 实例
  */
+@JvmBlocking
+@JvmAsync
 @JsExport
 @JsName("fursuitTvSdk")
 public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk {

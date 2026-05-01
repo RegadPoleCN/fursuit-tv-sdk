@@ -7,6 +7,8 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import kotlin.js.JsExport
 import kotlin.js.JsName
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * 学校和角色相关 API。
@@ -16,6 +18,8 @@ import kotlin.js.JsName
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
+@JvmBlocking
+@JvmAsync
 @JsExport
 @JsName("SchoolApi")
 public class SchoolApi internal constructor(

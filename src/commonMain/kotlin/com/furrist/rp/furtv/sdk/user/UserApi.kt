@@ -5,6 +5,8 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import kotlin.js.JsExport
 import kotlin.js.JsName
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * 用户相关 API。
@@ -14,6 +16,8 @@ import kotlin.js.JsName
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
+@JvmBlocking
+@JvmAsync
 @JsExport
 @JsName("UserApi")
 public class UserApi internal constructor(

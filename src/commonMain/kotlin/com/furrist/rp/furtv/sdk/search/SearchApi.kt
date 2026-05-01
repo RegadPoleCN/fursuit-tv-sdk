@@ -8,8 +8,12 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import kotlin.js.JsExport
 import kotlin.js.JsName
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /** Search and discovery API for popular recommendations, random fursuits, keyword search, and species queries. */
+@JvmBlocking
+@JvmAsync
 @Suppress("TooManyFunctions")
 @JsExport
 @JsName("SearchApi")
