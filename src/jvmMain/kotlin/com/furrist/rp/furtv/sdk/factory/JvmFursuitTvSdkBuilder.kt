@@ -3,6 +3,8 @@ package com.furrist.rp.furtv.sdk.factory
 import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import com.furrist.rp.furtv.sdk.model.MutableSdkConfig
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
  * 纯 Java 风格的链式构建器。
@@ -13,7 +15,6 @@ import com.furrist.rp.furtv.sdk.model.SdkLogLevel
 public class JvmFursuitTvSdkBuilder private constructor(
     private val config: MutableSdkConfig,
 ) {
-    private var useTokenExchange: Boolean = false
 
     public companion object {
         /**
@@ -32,7 +33,6 @@ public class JvmFursuitTvSdkBuilder private constructor(
     public fun clientId(id: String): JvmFursuitTvSdkBuilder =
         apply {
             config.clientId = id
-            useTokenExchange = true
         }
 
     public fun clientSecret(secret: String): JvmFursuitTvSdkBuilder = apply { config.clientSecret = secret }
@@ -60,33 +60,12 @@ public class JvmFursuitTvSdkBuilder private constructor(
 
     public fun retryInterval(interval: Long): JvmFursuitTvSdkBuilder = apply { config.retryInterval = interval }
 
-    /**
-     * 同步构建（仅 API Key 模式）。
-     *
-     * @return FursuitTvSdk 实例
-     * @throws IllegalStateException 如果配置了令牌交换参数
-     */
-    public fun build(): FursuitTvSdk {
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun build(): FursuitTvSdk {
         validateConfiguration()
 
-        if (useTokenExchange) {
-            throw IllegalStateException(
-                "Cannot use synchronous build() with token exchange. Use buildAsync() instead.",
-            )
-        }
-
-        return FursuitTvSdk.create(config.toImmutable())
-    }
-
-    /**
-     * 异步构建（支持令牌交换）。
-     *
-     * @return FursuitTvSdk 实例
-     */
-    public suspend fun buildAsync(): FursuitTvSdk {
-        validateConfiguration()
-
-        return if (useTokenExchange && config.clientId != null && config.clientSecret != null) {
+        return if (config.clientId != null && config.clientSecret != null) {
             FursuitTvSdk.createForTokenExchange(config.clientId!!, config.clientSecret!!)
         } else {
             FursuitTvSdk.create(config.toImmutable())
