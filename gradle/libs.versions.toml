@@ -16,7 +16,7 @@ datetime = "0.6.2"
 binary-compatibility-validator = "0.18.1"
 
 # Detekt
-detekt = "2.0.0-alpha.2"
+detekt = "2.0.0-alpha.3"
 
 # ktlint
 ktlint = "14.2.0"
