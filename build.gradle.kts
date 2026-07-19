@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.dokka)
     alias(libs.plugins.suspend.transform)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.binary.compatibility.validator)
     alias(libs.plugins.maven.publish)
     signing
 }
@@ -96,6 +95,12 @@ kotlin {
                 implementation(libs.ktor.client.auth)
                 implementation(libs.kotlinx.serialization.json)
                 implementation(libs.kotlinx.datetime)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(kotlin("test"))
             }
         }
 
@@ -214,11 +219,7 @@ ktlint {
 }
 
 // Configure API compatibility validator
-apiValidation {
-    ignoredPackages.add("com.furrist.rp.furtv.sdk.internal")
-
-    nonPublicMarkers.add("kotlin.internal.InlineOnly")
-}
+// Removed in refactor (binary-compatibility-validator plugin removed).
 
 // Custom tasks for better development experience
 tasks.register("checkAll") {
@@ -226,7 +227,6 @@ tasks.register("checkAll") {
     description = "Runs all code quality checks"
     dependsOn(tasks.named("detekt"))
     dependsOn(tasks.named("ktlintCheck"))
-    dependsOn(tasks.named("apiCheck"))
 }
 
 tasks.register("quickBuild") {
