@@ -12,7 +12,7 @@
 ```kotlin
 // 1. 添加依赖
 dependencies {
-    implementation("com.furrist.rp:fursuit-tv-sdk:{version}")
+    implementation("com.furrist.rp:fursuit-tv-sdk:<version>")
 }
 
 // 2. 初始化（签名交换方式）
@@ -37,7 +37,7 @@ val profile = sdk.user.getUserProfile("username")
 | **Gathering** | 聚会活动 |
 | **School** | 学校角色 |
 
-完整 API 文档见 [docs/api/](docs/api/)。
+完整 API 文档见 [docs/api.md](docs/api.md)。
 
 ## 平台支持
 
@@ -51,12 +51,11 @@ JVM (Java 17+) / JS (Node.js 16+) / Native (iOS/macOS/Linux/Windows)
 
 ## 文档
 
-- **[快速开始](docs/getting-started.md)** - 5 分钟快速上手
-- **[认证详解](docs/authentication.md)** - 签名交换 vs OAuth
-- **[错误处理](docs/error-handling.md)** - 异常类型和处理
-- **[OAuth 指南](docs/oauth-guide.md)** - OAuth 2.0 完整流程
-- **[最佳实践](docs/best-practices.md)** - API 使用技巧
-- **[故障排除](docs/troubleshooting.md)** - 常见问题
+- **[快速开始](docs/getting-started.md)** — 5 分钟快速上手
+- **[认证详解](docs/authentication.md)** — 签名交换 vs OAuth
+- **[错误处理](docs/error-handling.md)** — 异常类型和处理
+- **[API 总览](docs/api.md)** — 所有模块的端点参考
+- **[迁移指南](docs/MIGRATION.md)** — 从 v1.x 升级到 v2.0
 
 ## 📄 许可证
 
