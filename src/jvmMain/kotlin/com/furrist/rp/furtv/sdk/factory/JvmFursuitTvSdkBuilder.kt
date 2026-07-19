@@ -1,8 +1,10 @@
 package com.furrist.rp.furtv.sdk.factory
 
 import com.furrist.rp.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.fursuitTvSdkBlocking
 import com.furrist.rp.furtv.sdk.model.MutableSdkConfig
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel
+import kotlinx.coroutines.runBlocking
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
@@ -63,11 +65,19 @@ public class JvmFursuitTvSdkBuilder private constructor(
     @JvmAsync
     public suspend fun build(): FursuitTvSdk {
         validateConfiguration()
-
-        return if (config.clientId != null && config.clientSecret != null) {
-            FursuitTvSdk.createForTokenExchange(config.clientId!!, config.clientSecret!!)
-        } else {
-            FursuitTvSdk.create(config.toImmutable())
+        // 直接复用 fursuitTvSdkBlocking DSL；传递 closure 让 mutableConfig 同步到 DSL 内部
+        return fursuitTvSdkBlocking { block ->
+            config.baseUrl.let { block.baseUrl = it }
+            config.apiKey?.let { block.apiKey = it }
+            config.clientId?.let { block.clientId = it }
+            config.clientSecret?.let { block.clientSecret = it }
+            config.requestTimeout.let { block.requestTimeout = it }
+            config.connectTimeout.let { block.connectTimeout = it }
+            config.socketTimeout.let { block.socketTimeout = it }
+            config.logLevel.let { block.logLevel = it }
+            config.enableRetry.let { block.enableRetry = it }
+            config.maxRetries.let { block.maxRetries = it }
+            config.retryInterval.let { block.retryInterval = it }
         }
     }
 
