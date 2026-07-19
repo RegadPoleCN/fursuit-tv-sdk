@@ -8,12 +8,13 @@ import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
 import com.furrist.rp.furtv.sdk.exception.ValidationException
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
@@ -24,9 +25,16 @@ import kotlinx.serialization.json.Json
 /**
  * HTTP 客户端配置，提供 Ktor 客户端的创建和配置功能。
  *
- * 认证头自动选择逻辑：apiKey 存在时使用 X-Api-Key 头；否则 accessToken 存在时使用
- * Authorization Bearer 头；两者均无时不设置认证头（用于签名交换等未认证场景）。
- * 同时传入 X-Api-Key 和 Authorization Bearer 时，服务端优先使用 X-Api-Key。
+ * 单例化：同 [SdkConfig] 共享一个 [HttpClient] 实例，通过 Ktor `defaultRequest { header(...) }`
+ * 在每个请求上决定认证头：
+ *
+ * 1. `config.apiKey` 非空 → `X-Api-Key: <config.apiKey>`
+ * 2. 否则当 AuthManager 当前 `TokenInfo.apiKey` 非空 → `X-Api-Key: <tokenInfo.apiKey>`
+ * 3. 否则当 `TokenInfo.accessToken` 非空 → `Authorization: Bearer <tokenInfo.accessToken>`
+ * 4. 全部为空 → 不发送认证头（用于 `/api/auth/token` 等未认证场景）
+ *
+ * 头 (2)(3) 由调用方在每个 API 请求间使用 [applyAuthHeaders] 显式注入；
+ * 调用方应使用 [FursuitTvSdk.auth] 的当前 TokenInfo 进行请求头注入。
  */
 @JsExport
 @JsName("HttpClientConfig")
@@ -48,21 +56,27 @@ public object HttpClientConfig {
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     /**
-     * 创建配置好的 HTTP 客户端，自动根据 [config] 和 [accessToken] 选择认证头。
+     * SdkConfig → HttpClient 单例映射。
+     */
+    private val instance: MutableMap<SdkConfig, HttpClient> = mutableMapOf()
+
+    /**
+     * 单例工厂：为同一 [SdkConfig] 始终返回同一个 [HttpClient] 实例。
+     *
+     * 第一次调用该方法创建新实例；后续调用直接返回缓存的客户端。
      *
      * @param config SDK 配置
-     * @param accessToken 可选的访问令牌，apiKey 为空时使用 Bearer 认证
-     * @param requestIdGenerator 请求 ID 生成器，默认随机生成
-     * @return 配置好的 HttpClient 实例
+     * @return 配置好的 HttpClient 单例
      */
-    @JsName("createClient")
+    @JsName("getClient")
     @Suppress("NON_EXPORTABLE_TYPE")
-    public fun createClient(
-        config: SdkConfig,
-        accessToken: String? = null,
-        requestIdGenerator: () -> String = { generateRequestId() },
-    ): HttpClient {
-        return HttpClient {
+    public fun getClient(config: SdkConfig): HttpClient {
+        return instance.getOrPut(config) { buildClient(config) }
+    }
+
+    @PublishedApi
+    internal fun buildClient(config: SdkConfig): HttpClient =
+        HttpClient {
             install(ContentNegotiation) {
                 json(
                     Json {
@@ -77,23 +91,13 @@ public object HttpClientConfig {
                 level = config.logLevel.toKtorLogLevel()
             }
 
-            install(DefaultRequest) {
-                headers {
-                    when {
-                        config.apiKey != null && config.apiKey.isNotEmpty() -> {
-                            append("X-Api-Key", config.apiKey)
-                        }
-                        accessToken != null -> {
-                            append("Authorization", "Bearer $accessToken")
-                        }
-                        else -> {
-                        }
-                    }
-
-                    append("X-Request-ID", requestIdGenerator())
-                    contentType(ContentType.Application.Json)
-                    append("Accept", "application/json")
-                    append("User-Agent", USER_AGENT_CHROME)
+            defaultRequest {
+                contentType(ContentType.Application.Json)
+                header("Accept", "application/json")
+                header("X-Request-ID", generateRequestId())
+                header("User-Agent", USER_AGENT_CHROME)
+                if (!config.apiKey.isNullOrEmpty()) {
+                    header("X-Api-Key", config.apiKey)
                 }
             }
 
@@ -123,13 +127,9 @@ public object HttpClientConfig {
                 }
             }
         }
-    }
 
     /**
-     * 验证 HTTP 状态码是否在成功范围内（200-299）。
-     *
-     * @param statusCode HTTP 响应状态码
-     * @throws ApiException 当状态码表示错误时
+     * 验证 HTTP 状态码是否在成功范围内（200-299），否则抛出对应异常。
      */
     private fun validateStatusCode(statusCode: Int) {
         if (statusCode !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
@@ -138,24 +138,8 @@ public object HttpClientConfig {
         }
     }
 
-    /**
-     * 获取错误响应体。
-     *
-     * @return 错误响应体内容，当前实现返回空字符串
-     */
     private fun getErrorBody(): String? = ERROR_BODY_EMPTY
 
-    /**
-     * 根据 HTTP 状态码抛出相应异常。
-     *
-     * @param statusCode HTTP 响应状态码
-     * @param errorBody 错误响应体内容
-     * @throws TokenExpiredException 当状态码为 401 时
-     * @throws AuthenticationException 当状态码为 403 时
-     * @throws NotFoundException 当状态码为 404 时
-     * @throws ValidationException 当状态码为 400 时
-     * @throws ApiException 当状态码为 5xx 或其他错误码时
-     */
     private fun throwExceptionForStatusCode(statusCode: Int, errorBody: String?) {
         val errorMessage = errorBody ?: "Unknown error"
         val exception =
@@ -178,12 +162,6 @@ public object HttpClientConfig {
         throw exception
     }
 
-    /**
-     * 处理响应异常，将 Ktor 底层异常转换为 SDK 定义的异常类型。
-     *
-     * @param cause 原始异常
-     * @throws NetworkException 当遇到未知异常时
-     */
     private fun handleResponseException(cause: Throwable): Nothing {
         when (cause) {
             is TokenExpiredException,
@@ -196,11 +174,6 @@ public object HttpClientConfig {
         }
     }
 
-    /**
-     * 生成 16 位随机字符串作为请求 ID。
-     *
-     * @return 随机生成的请求 ID，由大小写字母和数字组成
-     */
     private fun generateRequestId(): String {
         val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         return (1..REQUEST_ID_LENGTH)
