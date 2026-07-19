@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.auth
 
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
 import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
 import io.ktor.http.parseQueryString
@@ -11,6 +12,7 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.readAvailable
 import io.ktor.utils.io.writeString
+import kotlin.concurrent.Volatile
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -22,126 +24,146 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
-internal class NativeOAuthCallbackHandler(
-    private val config: OAuthCallbackServerConfig = OAuthCallbackServerConfig.DEFAULT,
+private class NativeOAuthCallbackHandler(
+    private val config: OAuthConfig,
 ) : OAuthCallbackHandler {
-    override val callbackUrl: String get() = config.buildCallbackUrl()
+    override val callbackUrl: String get() = buildCallbackUrl(config)
 
     private val mutex = Mutex()
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-    private var pendingCallback: CompletableDeferred<OAuthCallbackResult>? = null
-    private var selectorManager: SelectorManager? = null
+
+    @Volatile
+    private var pendingDeferred: CompletableDeferred<OAuthCallbackResult>? = null
+
+    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var serverSocket: ServerSocket? = null
+
+    private companion object {
+        private const val READ_BUFFER_SIZE = 4096
+        private const val RESPONSE_OK =
+            "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n" +
+                "Success. You can close this window.\n"
+        private const val RESPONSE_BAD_REQUEST =
+            "HTTP/1.1 400 Bad Request\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n" +
+                "Bad request.\n"
+    }
 
     override suspend fun startListening() {
         mutex.withLock {
-            if (serverSocket != null) return@withLock
-
-            val deferred = CompletableDeferred<OAuthCallbackResult>()
-            pendingCallback = deferred
-
-            val selector = SelectorManager()
-            selectorManager = selector
-
-            val server = aSocket(selector).tcp().bind(config.callbackHost, config.callbackPort)
-            serverSocket = server
-
-            scope.launch {
+            pendingDeferred = CompletableDeferred()
+        }
+        val selectorManager = SelectorManager(Dispatchers.Default)
+        val server = aSocket(selectorManager).tcp().bind(config.callbackHost, config.callbackPort)
+        serverSocket = server
+        scope.launch {
+            while (isActive) {
+                val socket = server.accept()
                 try {
-                    while (isActive) {
-                        val socket = server.accept()
-                        handleConnection(socket, deferred)
+                    val readChannel = socket.openReadChannel()
+                    val buf = ByteArray(READ_BUFFER_SIZE)
+                    var total = 0
+                    while (total < buf.size) {
+                        val n = readChannel.readAvailable(buf, total, buf.size - total)
+                        if (n <= 0) break
+                        total += n
                     }
-                } catch (_: Exception) {
+                    val request = buf.copyOf(total).decodeToString()
+                    val firstLine = request.lineSequence().firstOrNull().orEmpty()
+                    val rawQuery = firstLine.substringAfter('?').substringBefore(' ')
+                    val parameters = parseQueryString(rawQuery)
+                    val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
+                    handleRequest(params, socket)
+                } catch (_: Throwable) {
+                    // ignore
                 }
             }
         }
     }
 
-    @Suppress("ReturnCount")
-    private suspend fun handleConnection(
+    private suspend fun handleRequest(
+        params: Map<String, String>,
         socket: io.ktor.network.sockets.Socket,
-        deferred: CompletableDeferred<OAuthCallbackResult>,
     ) {
-        val input = socket.openReadChannel()
-        val output = socket.openWriteChannel()
-
+        val deferred = pendingDeferred ?: return
+        val outcome = dispatch(params)
+        val message =
+            when (outcome) {
+                is OAuthCallbackResult.Error ->
+                    if (outcome.message.isNotEmpty()) {
+                        RESPONSE_OK + outcome.message + "\n"
+                    } else {
+                        RESPONSE_BAD_REQUEST
+                    }
+                is OAuthCallbackResult.Success -> RESPONSE_OK
+            }
         try {
-            val buffer = ByteArray(4096)
-            val bytesRead = input.readAvailable(buffer)
-            if (bytesRead <= 0) return
-            val requestText = buffer.decodeToString(0, bytesRead)
-            val requestLine = requestText.substringBefore("\r\n")
-            val pathWithQuery = requestLine.substringAfter(" ").substringBefore(" ")
-            val queryString = pathWithQuery.substringAfter("?", "")
+            socket.openWriteChannel(autoFlush = true).writeString(message)
+        } catch (_: Throwable) {
+        }
+        deferred.complete(outcome)
+    }
 
-            val params = parseQueryString(queryString)
-            val error = params["error"]
-
-            if (error != null) {
-                val errorDescription = params["error_description"] ?: error
-                deferred.complete(
-                    OAuthCallbackResult.Error(message = errorDescription, errorCode = error),
-                )
-                val body = "Authorization failed: $error"
-                output.writeString(
-                    "HTTP/1.1 400 Bad Request\r\nContent-Type: text/html\r\nConnection: close\r\n\r\n$body",
-                )
-                output.flush()
-                return
-            }
-
-            val code = params["code"]
-            val state = params["state"]
-
-            if (code == null || state == null) {
-                output.writeString(
-                    "HTTP/1.1 400 Bad Request\r\n" +
-                        "Content-Type: text/html\r\nConnection: close\r\n\r\nMissing code or state",
-                )
-                output.flush()
-                return
-            }
-
-            deferred.complete(OAuthCallbackResult.Success(code, state))
-            output.writeString(
-                "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\n" +
-                    "\r\nSuccess! You can close this window.",
+    private fun dispatch(params: Map<String, String>): OAuthCallbackResult {
+        val error = params["error"]
+        if (error != null) {
+            return OAuthCallbackResult.Error(
+                message = params["error_description"] ?: error,
+                errorCode = error,
             )
-            output.flush()
-        } finally {
-            socket.close()
+        }
+        val code = params["code"]
+        val state = params["state"]
+        return if (code == null || state == null) {
+            OAuthCallbackResult.Error("Missing code or state")
+        } else {
+            OAuthCallbackResult.Success(code = code, state = state)
         }
     }
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
         val deferred =
-            pendingCallback
+            mutex.withLock { pendingDeferred }
                 ?: throw IllegalStateException("Not listening. Call startListening() first.")
-        return withTimeoutOrNull(config.timeoutSeconds.seconds) {
-            deferred.await()
-        } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
+        val timeoutDuration = config.timeoutSeconds.toLong().seconds
+        val result =
+            withTimeoutOrNull(timeoutDuration) { deferred.await() }
+                ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
+        mutex.withLock {
+            pendingDeferred = null
+        }
+        return result
     }
 
     override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
         startListening()
+        // 在 Native 平台没有通用浏览器打开方式，提示用户手动复制
         println("Please open this URL in your browser: $authorizeUrl")
         return waitForCallback()
     }
 
     override suspend fun stop() {
         mutex.withLock {
-            serverSocket?.close()
-            serverSocket = null
-            selectorManager?.close()
-            selectorManager = null
-            pendingCallback = null
+            pendingDeferred?.complete(OAuthCallbackResult.Error("Server stopped"))
+            pendingDeferred = null
         }
+        try {
+            serverSocket?.close()
+        } catch (_: Throwable) {
+        }
+        serverSocket = null
     }
 
-    private fun OAuthCallbackServerConfig.buildCallbackUrl(): String {
-        return URLBuilder(protocol = URLProtocol.HTTP, host = callbackHost, port = callbackPort).apply {
-            path(callbackPath)
+    private fun buildCallbackUrl(c: OAuthConfig): String =
+        URLBuilder(
+            protocol = URLProtocol.HTTP,
+            host = c.callbackHost,
+            port = c.callbackPort,
+        ).apply {
+            path(c.callbackPath)
         }.buildString()
-    }
 }
+
+/**
+ * Native 实现：创建 [NativeOAuthCallbackHandler]（基于 Ktor Network 本地 HTTP 服务器）。
+ */
+public actual fun createDefaultOAuthHandler(config: OAuthConfig): OAuthCallbackHandler =
+    NativeOAuthCallbackHandler(config)
