@@ -2,8 +2,20 @@ package com.furrist.rp.furtv.sdk.auth
 
 import com.furrist.rp.furtv.sdk.exception.OAuthException
 import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
-import com.furrist.rp.furtv.sdk.http.HttpClientConfig
+import com.furrist.rp.furtv.sdk.model.OAuthAuthorizeParams
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
+import com.furrist.rp.furtv.sdk.model.OAuthTokenData
+import com.furrist.rp.furtv.sdk.model.OAuthTokenRequest
+import com.furrist.rp.furtv.sdk.model.OAuthTokenResponse
 import com.furrist.rp.furtv.sdk.model.SdkConfig
+import com.furrist.rp.furtv.sdk.model.TokenData
+import com.furrist.rp.furtv.sdk.model.TokenExchangeRequest
+import com.furrist.rp.furtv.sdk.model.TokenExchangeResponse
+import com.furrist.rp.furtv.sdk.model.TokenInfo
+import com.furrist.rp.furtv.sdk.model.TokenRefreshResponse
+import com.furrist.rp.furtv.sdk.model.UserInfoData
+import com.furrist.rp.furtv.sdk.model.UserInfoResponse
+import com.furrist.rp.furtv.sdk.model.toTokenInfo
 import com.furrist.rp.furtv.sdk.utils.toHex
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -20,6 +32,7 @@ import kotlin.js.JsName
 import kotlin.random.Random
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Clock
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
@@ -37,8 +50,8 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 @JsName("AuthManager")
 public class AuthManager internal constructor(
     private val config: SdkConfig,
+    private val httpClient: HttpClient,
 ) {
-    private var httpClient: HttpClient = HttpClientConfig.createClient(config)
     private val tokenMutex = Mutex()
 
     // 令牌信息
@@ -86,7 +99,7 @@ public class AuthManager internal constructor(
     @JsName("setTokenInfo")
     public fun setTokenInfo(tokenInfo: TokenInfo) {
         this.tokenInfo = tokenInfo
-        updateHttpClient()
+        isOAuthToken = false
     }
 
     /**
@@ -96,7 +109,7 @@ public class AuthManager internal constructor(
     @JsName("clearToken")
     public fun clearToken() {
         tokenInfo = null
-        updateHttpClient()
+        isOAuthToken = false
     }
 
     /**
@@ -126,8 +139,8 @@ public class AuthManager internal constructor(
         val handler = callbackHandler ?: throw IllegalStateException("OAuth callback handler not set")
         val oauthConfig = OAuthConfig(enablePkce = true)
 
-        val state = StateManager.generateState()
-        StateManager.storeState(state, oauthConfig.stateTimeoutMinutes)
+        val state = StateStoreInternal.generateState()
+        StateStoreInternal.storeState(state, oauthConfig.timeoutSeconds / SECONDS_PER_MINUTE)
 
         handler.startListening()
 
@@ -153,7 +166,7 @@ public class AuthManager internal constructor(
     ): TokenInfo {
         when (result) {
             is OAuthCallbackResult.Success -> {
-                if (!StateManager.consumeState(result.state)) {
+                if (!StateStoreInternal.consumeState(result.state)) {
                     throw OAuthException("State mismatch or expired", errorCode = "state_mismatch")
                 }
                 return exchangeOAuthToken(result.code, callbackUrl, codeVerifier)
@@ -192,7 +205,6 @@ public class AuthManager internal constructor(
             tokenInfo = newTokenInfo
             isOAuthToken = false // 标记为非 OAuth 令牌
             platformAccessToken = newTokenInfo.accessToken
-            updateHttpClient()
         }
 
         return newTokenInfo
@@ -218,60 +230,10 @@ public class AuthManager internal constructor(
 
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
-            updateHttpClient()
+            isOAuthToken = false
         }
 
         return newTokenInfo
-    }
-
-    /**
-     * 获取有效的访问令牌（自动刷新）
-     *
-     * 自动检查令牌有效性，过期或即将过期时自动刷新。
-     *
-     * @param clientId 应用 ID（用于签名交换回退，格式 vap_xxxx），SDK 统一使用 clientId 命名，与 VDS 文档中的 appId 等价
-     * @param clientSecret 应用密钥
-     * @return 当前或刷新后的访问令牌
-     */
-    @JsName("getValidAccessToken")
-    public suspend fun getValidAccessToken(clientId: String, clientSecret: String): String {
-        return tokenMutex.withLock {
-            if (tokenInfo == null) {
-                exchangeToken(clientId, clientSecret)
-            } else if (tokenInfo!!.isExpired()) {
-                try {
-                    if (isOAuthToken && tokenInfo?.refreshToken != null) {
-                        refreshOAuthToken()
-                    } else {
-                        refreshToken()
-                    }
-                } catch (_: Exception) {
-                    exchangeToken(clientId, clientSecret)
-                }
-            }
-            tokenInfo!!.accessToken
-        }
-    }
-
-    /**
-     * 如果需要，刷新令牌
-     * 检查令牌是否过期（剩余时间 <= 300 秒），如果是则自动刷新
-     * @return TokenInfo 当前或刷新后的令牌信息，如果未认证则返回 null
-     * @deprecated 使用 [getValidAccessToken] 代替，该方法需要 clientId 和 clientSecret
-     */
-    @Deprecated(
-        "Use getValidAccessToken(clientId, clientSecret) instead",
-        ReplaceWith("getValidAccessToken(clientId, clientSecret)"),
-    )
-    @JsName("refreshTokenIfNeeded")
-    public suspend fun refreshTokenIfNeeded(): TokenInfo? {
-        return tokenMutex.withLock {
-            if (tokenInfo?.isExpired() == true) {
-                refreshToken()
-            } else {
-                tokenInfo
-            }
-        }
     }
 
     /**
@@ -427,7 +389,6 @@ public class AuthManager internal constructor(
             isOAuthToken = true // 标记为 OAuth 令牌
             oauthClientId = clientId
             oauthRedirectUri = redirectUri
-            updateHttpClient()
         }
 
         return newTokenInfo
@@ -484,7 +445,6 @@ public class AuthManager internal constructor(
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
             isOAuthToken = true
-            updateHttpClient()
         }
 
         return newTokenInfo
@@ -513,28 +473,46 @@ public class AuthManager internal constructor(
         return response.data
     }
 
-    /**
-     * 更新 HTTP 客户端（当令牌变化时）
-     * 使用新的访问令牌重新配置 HTTP 客户端
-     * 根据令牌类型选择合适的认证头：
-     * - OAuth 令牌：使用 Authorization Bearer
-     * - 签名交换令牌：使用 X-Api-Key（优先）
-     */
-    private fun updateHttpClient() {
-        val authToken =
-            when {
-                isOAuthToken -> platformAccessToken ?: tokenInfo?.apiKey ?: tokenInfo?.accessToken
-                else -> tokenInfo?.apiKey ?: tokenInfo?.accessToken
-            }
-        httpClient = HttpClientConfig.createClient(config, authToken)
-    }
+    internal companion object {
+        /** OAuth state 过期时间单位换算常量（每分钟多少秒）。 */
+        internal const val SECONDS_PER_MINUTE: Int = 60
 
-    /**
-     * 关闭客户端
-     * 释放认证管理器占用的资源
-     */
-    @JsName("close")
-    public fun close() {
-        httpClient.close()
+        /**
+         * OAuth `state` 内部管理器。生成、验证、消费 state，
+         * 作为 OAuth 回调服务器的 anti-CSRF token。
+         *
+         * 该管理器由 [AuthManager.loginWithOAuth] 内部使用；
+         * 不暴露为公开 API（在 Kotlin Multiplatform 中通过 `internal` 修饰符实现）。
+         */
+        internal object StateStoreInternal {
+            private const val STATE_LENGTH = 32
+            private const val DEFAULT_TIMEOUT_MINUTES = 10
+            private const val MILLIS_PER_MINUTE = 60_000L
+            private const val CHARS =
+                "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+            // 状态存储。注意：在多平台 commonMain 中 `@Synchronized` 不可用；
+            // 调用方应保证在主线程（main / single-thread dispatcher）内调用 OAuth 流程。
+            private val stateStorage: MutableMap<String, Long> = mutableMapOf()
+
+            fun generateState(): String =
+                (1..STATE_LENGTH)
+                    .map { CHARS.random(Random) }
+                    .joinToString("")
+
+            fun storeState(state: String, timeoutMinutes: Int = DEFAULT_TIMEOUT_MINUTES) {
+                val expiresAt =
+                    Clock.System.now().toEpochMilliseconds() + timeoutMinutes * MILLIS_PER_MINUTE
+                stateStorage[state] = expiresAt
+            }
+
+            fun consumeState(state: String): Boolean {
+                val expiresAt = stateStorage.remove(state) ?: return false
+                return Clock.System.now().toEpochMilliseconds() < expiresAt
+            }
+
+            // JVM 平台为了线程安全，期望调用方加锁
+            // (AuthManager 的 tokenMutex 在 loginWithOAuth 内部保护)。
+        }
     }
 }

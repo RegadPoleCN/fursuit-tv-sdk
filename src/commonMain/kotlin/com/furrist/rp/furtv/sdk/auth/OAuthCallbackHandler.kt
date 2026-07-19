@@ -1,8 +1,8 @@
 package com.furrist.rp.furtv.sdk.auth
 
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
 import kotlin.js.JsExport
 import kotlin.js.JsName
-import kotlin.jvm.JvmStatic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -101,28 +101,11 @@ public interface OAuthCallbackHandler {
 }
 
 /**
- * OAuth 回调服务器配置。
+ * `OAuthCallbackServerConfig` 已被合并到 [OAuthConfig]。
+ * 旧 API 仍可在 AuthManager 与平台实现之间通过 [OAuthConfig] 类型传递。
  *
- * @param callbackHost 监听主机名，默认 "localhost"
- * @param callbackPort 监听端口，默认 8080
- * @param callbackPath 回调路径，默认 "/callback"
- * @param timeoutSeconds 等待回调超时秒数，默认 300
+ * @deprecated 请直接使用 [OAuthConfig]。
  */
-@JsExport
-@Serializable
-@JsName("OAuthCallbackServerConfig")
-public data class OAuthCallbackServerConfig(
-    public val callbackHost: String = "localhost",
-    public val callbackPort: Int = 8080,
-    public val callbackPath: String = "/callback",
-    public val timeoutSeconds: Long = 300,
-) {
-    public companion object {
-        @JvmStatic
-        @JsName("default")
-        public val DEFAULT: OAuthCallbackServerConfig = OAuthCallbackServerConfig()
-    }
-}
 
 /**
  * 创建平台默认的 OAuth 回调处理器。
@@ -133,11 +116,11 @@ public data class OAuthCallbackServerConfig(
  * - **JS (Node.js)**: 使用 Node.js http 模块创建本地服务器
  * - **Native**: 启动本地 HTTP 服务器接收回调
  *
- * @param config 回调服务器配置，默认使用 [OAuthCallbackServerConfig.DEFAULT]
+ * @param config OAuth 配置，使用 [OAuthConfig]
  * @return 平台对应的 [OAuthCallbackHandler] 实例
  */
 @JsExport
 @JsName("createDefaultOAuthHandler")
 public expect fun createDefaultOAuthHandler(
-    config: OAuthCallbackServerConfig = OAuthCallbackServerConfig.DEFAULT,
+    config: OAuthConfig = OAuthConfig(),
 ): OAuthCallbackHandler

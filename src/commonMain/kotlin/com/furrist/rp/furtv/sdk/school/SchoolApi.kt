@@ -1,6 +1,16 @@
 package com.furrist.rp.furtv.sdk.school
 
+import com.furrist.rp.furtv.sdk.model.SchoolDetail
+import com.furrist.rp.furtv.sdk.model.SchoolDetailResponse
+import com.furrist.rp.furtv.sdk.model.SchoolInfo
+import com.furrist.rp.furtv.sdk.model.SchoolSearchData
 import com.furrist.rp.furtv.sdk.model.SchoolSearchParams
+import com.furrist.rp.furtv.sdk.model.SchoolSearchResponse
+import com.furrist.rp.furtv.sdk.model.UserCharactersData
+import com.furrist.rp.furtv.sdk.model.UserCharactersResponse
+import com.furrist.rp.furtv.sdk.model.UserSchoolInfo
+import com.furrist.rp.furtv.sdk.model.UserSchoolsData
+import com.furrist.rp.furtv.sdk.model.UserSchoolsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -27,15 +37,13 @@ public class SchoolApi internal constructor(
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
     /**
-     * 按关键词搜索学校。
+     * 按关键词搜索学校（参数对象版本，唯一公开签名）。
      *
      * @param params 搜索参数对象
      * @return 学校搜索结果数据对象
      * @throws NetworkException 网络连接失败或超时
-     * @throws AuthenticationException 认证凭证缺失或无效
-     * @throws ValidationException 参数验证失败
      */
-    @JsName("searchSchoolsWithParams")
+    @JsName("searchSchools")
     public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchData {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
@@ -45,23 +53,6 @@ public class SchoolApi internal constructor(
             }.body<SchoolSearchResponse>()
         return response.data
     }
-
-    /**
-     * 按关键词搜索学校（重载方法，保持向后兼容）。
-     *
-     * @param query 搜索关键词
-     * @param cursor 分页游标，null 表示首页
-     * @param limit 返回数量限制，null 表示使用服务端默认值
-     * @return 学校搜索结果数据对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws AuthenticationException 认证凭证缺失或无效
-     */
-    @JsName("searchSchools")
-    public suspend fun searchSchools(
-        query: String,
-        cursor: String? = null,
-        limit: Int? = null,
-    ): SchoolSearchData = searchSchools(SchoolSearchParams(query, cursor, limit))
 
     /**
      * 获取学校详情。

@@ -1,7 +1,20 @@
 package com.furrist.rp.furtv.sdk.search
 
+import com.furrist.rp.furtv.sdk.model.PopularData
+import com.furrist.rp.furtv.sdk.model.PopularLocationsData
+import com.furrist.rp.furtv.sdk.model.PopularLocationsResponse
+import com.furrist.rp.furtv.sdk.model.PopularResponse
+import com.furrist.rp.furtv.sdk.model.RandomFursuit
 import com.furrist.rp.furtv.sdk.model.RandomFursuitParams
+import com.furrist.rp.furtv.sdk.model.RandomFursuitResponse
+import com.furrist.rp.furtv.sdk.model.SearchData
 import com.furrist.rp.furtv.sdk.model.SearchParams
+import com.furrist.rp.furtv.sdk.model.SearchResponse
+import com.furrist.rp.furtv.sdk.model.SearchSuggestionsResponse
+import com.furrist.rp.furtv.sdk.model.SpeciesListData
+import com.furrist.rp.furtv.sdk.model.SpeciesListResponse
+import com.furrist.rp.furtv.sdk.model.SpeciesSearchData
+import com.furrist.rp.furtv.sdk.model.SpeciesSearchResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -31,8 +44,13 @@ public class SearchApi internal constructor(
         return response.data
     }
 
-    /** Returns random fursuit users based on [params]. Handles both single and multiple result responses. */
-    @JsName("getRandomFursuitWithParams")
+    /**
+     * 获取随机兽装用户列表。
+     *
+     * @param params 随机推荐参数
+     * @return 随机兽装用户列表
+     */
+    @JsName("getRandomFursuit")
     public suspend fun getRandomFursuit(params: RandomFursuitParams): List<RandomFursuit> {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
@@ -46,13 +64,13 @@ public class SearchApi internal constructor(
         }
     }
 
-    /** Returns random fursuit users (overload for backward compatibility). */
-    @JsName("getRandomFursuit")
-    public suspend fun getRandomFursuit(count: Int? = null, personalized: Boolean? = null): List<RandomFursuit> =
-        getRandomFursuit(RandomFursuitParams(count, personalized))
-
-    /** Searches users by keyword using [params]. */
-    @JsName("searchWithParams")
+    /**
+     * 关键词搜索用户。
+     *
+     * @param params 搜索参数
+     * @return 搜索结果
+     */
+    @JsName("search")
     public suspend fun search(params: SearchParams): SearchData {
         val response =
             httpClient.get("$baseUrl/api/proxy/furtv/search") {
@@ -61,26 +79,6 @@ public class SearchApi internal constructor(
                 params.cursor?.let { parameter("cursor", it) }
                 params.limit?.let { parameter("limit", it) }
                 params.page?.let { parameter("page", it) }
-            }.body<SearchResponse>()
-        return response.data
-    }
-
-    /** Searches users by keyword (overload for backward compatibility). */
-    @JsName("search")
-    public suspend fun search(
-        query: String,
-        type: String? = null,
-        cursor: String? = null,
-        limit: Int? = null,
-        page: Int? = null,
-    ): SearchData {
-        val response =
-            httpClient.get("$baseUrl/api/proxy/furtv/search") {
-                parameter("q", query)
-                type?.let { parameter("type", it) }
-                cursor?.let { parameter("cursor", it) }
-                limit?.let { parameter("limit", it) }
-                page?.let { parameter("page", it) }
             }.body<SearchResponse>()
         return response.data
     }
