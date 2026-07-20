@@ -1,14 +1,17 @@
 
-# 用户基础信息ID查询（furtv.users.id）
+# 用户基础信息ID查询
 
 通过用户 ID 获取公开基础资料。
 
-认证与端点统一说明请参考根目录文档：`认证方式与服务器端点`。
+权限节点：`furtv.users.id`
+
+## 请求头
+
+- `X-Api-Key: <apiKey>`
 
 ## 请求地址
 
 - `GET /api/proxy/furtv/users/id/:id`
-- 权限节点：`furtv.users.id`
 
 ## 路径参数
 
