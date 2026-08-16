@@ -27,7 +27,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
  */
 @JsExport
 @JsName("FursuitTvSdkBuilder")
-public class FursuitTvSdkBuilder() {
+public class FursuitTvSdkBuilder {
     private val config = MutableSdkConfig()
 
     public fun baseUrl(value: String): FursuitTvSdkBuilder = apply { config.baseUrl = value }

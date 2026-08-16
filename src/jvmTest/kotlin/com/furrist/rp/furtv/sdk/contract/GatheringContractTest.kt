@@ -15,7 +15,7 @@ class GatheringContractTest {
     }
 
     @Test fun `monthly object type with year month gatherings total`() {
-        val wrapper = json.decodeFromString<com.furrist.rp.furtv.sdk.model.GatheringMonthlyResponse>(ContractFixture.readFixture("vdsdocs/gathering/monthly.json"))
+        val wrapper = json.decodeFromString<GatheringMonthlyResponse>(ContractFixture.readFixture("vdsdocs/gathering/monthly.json"))
         val data: GatheringMonthlyData = wrapper.data
         assertEquals(2026, data.year)
         assertEquals(4, data.month)
@@ -24,7 +24,9 @@ class GatheringContractTest {
     }
 
     @Test fun `monthly distance object type`() {
-        val wrapper = json.decodeFromString<com.furrist.rp.furtv.sdk.model.GatheringMonthlyDistanceResponse>(ContractFixture.readFixture("vdsdocs/gathering/monthly-distance.json"))
+        val wrapper = json.decodeFromString<GatheringMonthlyDistanceResponse>(
+            ContractFixture.readFixture("vdsdocs/gathering/monthly-distance.json"),
+        )
         val data: GatheringMonthlyDistanceData = wrapper.data
         assertEquals(2026, data.year)
         assertEquals(4, data.month)
@@ -53,7 +55,9 @@ class GatheringContractTest {
     }
 
     @Test fun `registrations uses registrations field not data`() {
-        val data = json.decodeFromString<GatheringRegistrationsResponse>(ContractFixture.readFixture("vdsdocs/gathering/registrations.json"))
+        val data = json.decodeFromString<GatheringRegistrationsResponse>(
+            ContractFixture.readFixture("vdsdocs/gathering/registrations.json"),
+        )
         assertEquals(2, data.registrations.size)
     }
 

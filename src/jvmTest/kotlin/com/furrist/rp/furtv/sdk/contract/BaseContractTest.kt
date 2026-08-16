@@ -1,8 +1,10 @@
 package com.furrist.rp.furtv.sdk.contract
 
 import com.furrist.rp.furtv.sdk.model.AndroidVersionData
+import com.furrist.rp.furtv.sdk.model.AndroidVersionResponse
 import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
 import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
+import com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
@@ -20,7 +22,7 @@ class BaseContractTest {
 
     @Test
     fun `android version response decodes`() {
-        val wrapper = json.decodeFromString<com.furrist.rp.furtv.sdk.model.AndroidVersionResponse>(ContractFixture.readFixture("vdsdocs/base/android-version.json"))
+        val wrapper = json.decodeFromString<AndroidVersionResponse>(ContractFixture.readFixture("vdsdocs/base/android-version.json"))
         val data: AndroidVersionData = wrapper.data
         assertEquals("2.4.1", data.version)
         assertEquals(241, data.versionCode)
@@ -30,7 +32,7 @@ class BaseContractTest {
 
     @Test
     fun `theme packs manifest decodes with nested metadata`() {
-        val wrapper = json.decodeFromString<com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse>(ContractFixture.readFixture("vdsdocs/base/theme-packs.json"))
+        val wrapper = json.decodeFromString<ThemePacksManifestResponse>(ContractFixture.readFixture("vdsdocs/base/theme-packs.json"))
         val data: ThemePacksManifestData = wrapper.data
         assertEquals("2026-03-28T00:00:00Z", data.updatedAt)
         assertEquals(1, data.themes.size)

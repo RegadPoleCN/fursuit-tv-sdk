@@ -10,7 +10,7 @@ import kotlin.test.assertNotNull
  * - `TokenInfo.OAuth` 不暴露 platform 字段（`apiKey`）
  */
 class TokenInfoShapeTest {
-    private fun platform(extra: Map<String, Any?> = emptyMap()): TokenInfo.Platform =
+    private fun platform(): TokenInfo.Platform =
         TokenInfo.Platform(
             apiKey = "test",
             expiresAt = 1L,

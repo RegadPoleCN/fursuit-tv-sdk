@@ -3,7 +3,10 @@ config:
 
 style:
   WildcardImport:
+    active: false
+  MaxLineLength:
     active: true
+    maxLineLength: 140
   MagicNumber:
     active: true
     ignoreNumbers:
