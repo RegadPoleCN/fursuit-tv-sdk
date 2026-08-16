@@ -59,3 +59,7 @@ gradle.properties.local
 examples/*/build/
 examples/*/.gradle/
 examples/*/node_modules/
+
+CLAUDE.md
+.claude/
+openspec/
