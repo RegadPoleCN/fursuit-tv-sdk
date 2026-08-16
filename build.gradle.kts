@@ -31,8 +31,6 @@ kotlin {
     }
 
     jvm()
-
-    // Configure JVM toolchain to auto-provision JDK 17
     jvmToolchain(17)
 
     // ESM target - for modern bundlers and ES module consumers
@@ -98,18 +96,20 @@ kotlin {
             }
         }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
-
         // Only JVM target supports callback server (based on CIO engine)
         jvmMain {
             dependencies {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.ktor.client.mock)
+                implementation(libs.ktor.client.java)
             }
         }
 

@@ -15,6 +15,10 @@ import kotlin.js.JsName
  * }
  * ```
  *
+ * [!] 安全警告：此类的 `@JsExport` 暴露在 JS 端可被任何代码修改。
+ *     生产环境请仅在受信代码路径使用，不可从用户输入或网络响应直接传入
+ *     `MutableSdkConfig` 实例以避免配置被篡改。
+ *
  * `MutableSdkConfig` 仍是 `@JsExport` 公开类，但不提供链式 `setXxx(...)` 方法（直接赋属性更直观）。
  *
  * @property baseUrl API 基础 URL
@@ -36,6 +40,7 @@ public class MutableSdkConfig {
     public var baseUrl: String = SdkConfig.DEFAULT_BASE_URL
 
     @JsName("apiKey")
+    @Deprecated("apiKey at init is forbidden; provide clientId+clientSecret. The platform apiKey is auto-obtained via token exchange.")
     public var apiKey: String? = null
 
     @JsName("clientId")
@@ -68,7 +73,7 @@ public class MutableSdkConfig {
     internal fun toImmutable(): SdkConfig =
         SdkConfig(
             baseUrl = baseUrl,
-            apiKey = apiKey,
+            apiKey = null,  // 显式 null，不复制 caller 的 deprecated 值（per init-builder-refactor D9a）
             clientId = clientId,
             clientSecret = clientSecret,
             requestTimeout = requestTimeout,
@@ -79,4 +84,24 @@ public class MutableSdkConfig {
             maxRetries = maxRetries,
             retryInterval = retryInterval,
         )
+}
+
+/**
+ * Copy all 11 fields from `this` MutableSdkConfig to [target].
+ *
+ * Used by `FursuitTvSdkBuilder.build()` to forward builder-captured config into the
+ * `fursuitTvSdk { ... }` DSL block (single source of truth for `toImmutable()`).
+ */
+internal fun MutableSdkConfig.copyTo(target: MutableSdkConfig) {
+    target.baseUrl = baseUrl
+    target.apiKey = apiKey
+    target.clientId = clientId
+    target.clientSecret = clientSecret
+    target.requestTimeout = requestTimeout
+    target.connectTimeout = connectTimeout
+    target.socketTimeout = socketTimeout
+    target.logLevel = logLevel
+    target.enableRetry = enableRetry
+    target.maxRetries = maxRetries
+    target.retryInterval = retryInterval
 }

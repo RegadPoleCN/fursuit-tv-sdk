@@ -60,7 +60,9 @@ public enum class SdkLogLevel {
 @JsName("SdkConfig")
 public class SdkConfig(
     @JsName("baseUrl") public val baseUrl: String = Companion.DEFAULT_BASE_URL,
-    @JsName("apiKey") public val apiKey: String? = null,
+    @JsName("apiKey")
+    @Deprecated("apiKey is no longer the source of platform authentication. Use sdk.auth.getApiKey() instead.")
+    public val apiKey: String? = null,
     @JsName("clientId") public val clientId: String? = null,
     @JsName("clientSecret") public val clientSecret: String? = null,
     @JsName("requestTimeout") public val requestTimeout: Long = Companion.DEFAULT_REQUEST_TIMEOUT,

@@ -3,8 +3,14 @@ package com.furrist.rp.furtv.sdk.model
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlinx.datetime.Clock
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 // ============================================================================
 // Auth - 签名交换 & OAuth & 令牌管理模型
@@ -21,16 +27,6 @@ public data class TokenExchangeRequest(
     public val clientId: String,
     @SerialName("clientSecret")
     public val clientSecret: String,
-)
-
-/** 令牌交换响应包装。 */
-@JsExport
-@JsName("TokenExchangeResponse")
-@Serializable
-public data class TokenExchangeResponse(
-    public val success: Boolean,
-    public val data: TokenData,
-    public val requestId: String,
 )
 
 /** 令牌刷新信息。 */
@@ -68,18 +64,6 @@ public data class TokenData(
     public val refresh: TokenRefreshInfo? = null,
 )
 
-/** 令牌刷新响应包装。 */
-@JsExport
-@JsName("TokenRefreshResponse")
-@Serializable
-public data class TokenRefreshResponse(
-    public val success: Boolean,
-    public val data: TokenData,
-    public val requestId: String,
-    @SerialName("refresh")
-    public val refresh: TokenRefreshInfo? = null,
-)
-
 /** OAuth 授权 URL 参数。 */
 @JsExport
 @JsName("OAuthAuthorizeParams")
@@ -98,17 +82,6 @@ public data class OAuthAuthorizeParams(
 
 /**
  * OAuth 2.0 授权码流程 + 回调服务器配置（统一 `OAuthConfig`）。
- *
- * `timeoutSeconds` 同时承担两类超时角色：
- * - 回调服务器等待 OAuth code/state 的最大时长
- * - OAuth `state` 存储保留窗口（换算为分钟 = `timeoutSeconds` / 60）
- *
- * 字段说明：
- * - [callbackHost] 回调服务器绑定的本机主机名
- * - [callbackPort] 回调端口
- * - [callbackPath] 回调路径（例如 `/callback`）
- * - [timeoutSeconds] 默认 300 秒；同时承担回调等待与 state 存储超时
- * - [enablePkce] 是否启用 PKCE
  */
 @JsExport
 @JsName("OAuthConfig")
@@ -157,16 +130,6 @@ public data class OAuthTokenRequest(
     public val codeVerifier: String? = null,
 )
 
-/** OAuth 令牌响应包装。 */
-@JsExport
-@JsName("OAuthTokenResponse")
-@Serializable
-public data class OAuthTokenResponse(
-    public val success: Boolean,
-    public val data: OAuthTokenData,
-    public val requestId: String,
-)
-
 /** OAuth 令牌数据。 */
 @JsExport
 @JsName("OAuthTokenData")
@@ -181,16 +144,6 @@ public data class OAuthTokenData(
     public val scope: String? = null,
     @SerialName("refresh_token")
     public val refreshToken: String? = null,
-)
-
-/** 用户信息响应包装。 */
-@JsExport
-@JsName("UserInfoResponse")
-@Serializable
-public data class UserInfoResponse(
-    public val success: Boolean,
-    public val data: UserInfoData,
-    public val requestId: String,
 )
 
 /** 用户信息数据。 */
@@ -215,50 +168,67 @@ public data class UserInfoData(
     public val aud: Long? = null,
 )
 
-/** 令牌信息，SDK 内部使用的令牌存储结构。 */
+/** 令牌信息，SDK 内部使用的令牌存储结构（sealed class）。 */
 @JsExport
 @JsName("TokenInfo")
 @Serializable
-public data class TokenInfo(
-    public val accessToken: String,
-    public val apiKey: String,
-    public val expiresAt: Long,
-    public val tokenType: String,
-    public val refreshToken: String? = null,
-) {
-    private companion object {
-        private const val REFRESH_WINDOW_MS = 300_000L
-    }
+public sealed class TokenInfo {
+    public abstract val expiresAt: Long
+    public abstract val tokenType: String
 
-    /** 当令牌已过期或剩余 <= 300s 时返回 true。 */
+    /** 剩余有效期 ≤ 270s 时返回 true（refresh window 300s − skew 30s）。 */
     @JsName("isExpired")
     public fun isExpired(): Boolean {
         val now = Clock.System.now().toEpochMilliseconds()
-        return (expiresAt - now) <= REFRESH_WINDOW_MS
+        return (expiresAt - now) <= REFRESH_WINDOW_MS - SKEW_MS
     }
+
+    internal companion object {
+        internal const val REFRESH_WINDOW_MS: Long = 300_000L
+        internal const val SKEW_MS: Long = 30_000L
+    }
+
+    /** 平台签名，来自签名交换端点。 */
+    @Serializable
+    public data class Platform(
+        public val apiKey: String,
+        public override val expiresAt: Long,
+        public override val tokenType: String,
+    ) : TokenInfo()
+
+    /** OAuth 用户令牌，来自 OAuth 授权码流程。 */
+    @Serializable
+    public data class OAuth(
+        public val oauthToken: String,
+        public val refreshToken: String? = null,
+        public val scope: String? = null,
+        public val redirectUri: String,
+        public override val expiresAt: Long,
+        public override val tokenType: String,
+    ) : TokenInfo()
 }
 
-/** 将签名交换令牌数据转换为 TokenInfo。 */
+/** 将签名交换令牌数据转换为 TokenInfo.Platform。 */
 @JsExport
 @JsName("toTokenInfo")
-public fun TokenData.toTokenInfo(): TokenInfo =
-    TokenInfo(
-        accessToken = accessToken,
+public fun TokenData.toTokenInfo(): TokenInfo.Platform =
+    TokenInfo.Platform(
         apiKey = apiKey,
-        expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
+        expiresAt = Clock.System.now().toEpochMilliseconds() + expiresIn * 1000L - TokenInfo.SKEW_MS,
         tokenType = tokenType,
     )
 
-/** 将 OAuth 令牌数据转换为 TokenInfo。 */
+/** 将 OAuth 令牌数据转换为 TokenInfo.OAuth。 */
 @JsExport
 @JsName("toTokenInfoFromOAuth")
-public fun OAuthTokenData.toTokenInfo(): TokenInfo =
-    TokenInfo(
-        accessToken = accessToken,
-        apiKey = "",
-        expiresAt = Clock.System.now().toEpochMilliseconds() + (expiresIn * 1000L),
-        tokenType = tokenType,
+public fun OAuthTokenData.toTokenInfo(redirectUri: String): TokenInfo.OAuth =
+    TokenInfo.OAuth(
+        oauthToken = accessToken,
         refreshToken = refreshToken,
+        scope = scope,
+        redirectUri = redirectUri,
+        expiresAt = Clock.System.now().toEpochMilliseconds() + expiresIn * 1000L - TokenInfo.SKEW_MS,
+        tokenType = tokenType,
     )
 
 // ============================================================================
@@ -367,8 +337,8 @@ public data class ThemePacksManifestResponse(
 @JsName("ThemePacksManifestData")
 @Serializable
 public data class ThemePacksManifestData(
-    public val version: String,
-    public val packs: List<ThemePack>,
+    public val updatedAt: String,
+    public val themes: List<ThemePack>,
 )
 
 /** 主题包信息。 */
@@ -377,9 +347,77 @@ public data class ThemePacksManifestData(
 @Serializable
 public data class ThemePack(
     public val id: String,
-    public val name: String,
-    @SerialName("zip_url") public val zipUrl: String,
-    @SerialName("updated_at") public val updatedAt: String,
+    public val zipUrl: String,
+    public val metadata: ThemePackMetadata? = null,
+)
+
+/**
+ * vds-docs 服务端在多个端点用 `0`/`1` 整数或 `true`/`false` 布尔表示布尔值。
+ * 解码时两者都接受：`0`=false，`1`=true，`true`=true，`false`=false`。
+ * 序列化时统一输出整数（`true`=1，`false`=0`）。
+ *
+ * **设计动机**：vds-docs 同字段在不同端点混用 `0/1` 和 `true/false`。
+ * SDK 一律对外暴露 `Boolean` 类型，业务方无需关心 wire format 差异。
+ */
+public object BooleanAsIntSerializer : KSerializer<Boolean> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("BooleanAsInt", PrimitiveKind.BOOLEAN)
+
+    override fun serialize(encoder: Encoder, value: Boolean) {
+        encoder.encodeInt(if (value) 1 else 0)
+    }
+
+    override fun deserialize(decoder: Decoder): Boolean {
+        val raw = decoder.decodeString()
+        return when (raw.lowercase()) {
+            "true", "1" -> true
+            "false", "0" -> false
+            else -> raw.toBooleanStrictOrNull() ?: (raw.toIntOrNull()?.let { it != 0 } ?: false)
+        }
+    }
+}
+
+/** 主题包元信息。 */
+@JsExport
+@JsName("ThemePackMetadata")
+@Serializable
+public data class ThemePackMetadata(
+    public val name: String? = null,
+    public val author: ThemePackAuthor? = null,
+    public val intro: String? = null,
+    public val version: String? = null,
+    public val themeCss: String? = null,
+    public val homeBackground: ThemePackHomeBackground? = null,
+    public val preview: ThemePackPreview? = null,
+)
+
+/** 主题包作者。 */
+@JsExport
+@JsName("ThemePackAuthor")
+@Serializable
+public data class ThemePackAuthor(
+    public val username: String? = null,
+)
+
+/** 主题包首页背景设置。 */
+@JsExport
+@JsName("ThemePackHomeBackground")
+@Serializable
+public data class ThemePackHomeBackground(
+    public val opacity: Double? = null,
+    public val blur: Int? = null,
+)
+
+/** 主题包预览色板。 */
+@JsExport
+@JsName("ThemePackPreview")
+@Serializable
+public data class ThemePackPreview(
+    public val surface0: String? = null,
+    public val surface1: String? = null,
+    public val accent: String? = null,
+    public val accentRgb: String? = null,
+    public val contrastRgb: String? = null,
 )
 
 // ============================================================================
@@ -392,7 +430,7 @@ public data class ThemePack(
 @Serializable
 public data class UserProfileResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserProfile,
+    @SerialName("user") public val user: UserProfile,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -414,17 +452,110 @@ public data class UserProfile(
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("interests") public val interests: List<String>? = null,
     @SerialName("location") public val location: String? = null,
-    @SerialName("social_links") public val socialLinks: Map<String, String>? = null,
-    @SerialName("contact_info") public val contactInfo: Map<String, String>? = null,
+    @SerialName("social_links") public val socialLinks: UserProfileSocialLinks? = null,
+    @SerialName("contact_info") public val contactInfo: UserProfileContactInfo? = null,
     @SerialName("privacy_settings") public val privacySettings: UserProfilePrivacySettings? = null,
     @SerialName("characters") public val characters: List<UserProfileCharacter>? = null,
     @SerialName("other_verified_types") public val otherVerifiedTypes: List<String>? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
-    @SerialName("is_verified") public val isVerified: Boolean? = null,
+    @SerialName("is_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isVerified: Boolean? = null,
     @SerialName("created_at") public val createdAt: String? = null,
     @SerialName("destinations") public val destinations: List<UserDestination>? = null,
     @SerialName("destination") public val destination: String? = null,
     @SerialName("destination_expires_at") public val destinationExpiresAt: String? = null,
+    @SerialName("fursuit_images") public val fursuitImages: List<String>? = null,
+    @SerialName("page_banner") public val pageBanner: String? = null,
+    @SerialName("platform_level") public val platformLevel: Int? = null,
+    @SerialName("like_count") public val likeCount: Int? = null,
+    @SerialName("contact_request") public val contactRequest: ContactRequestState? = null,
+    @SerialName("has_completed_contact") @Serializable(with = BooleanAsIntSerializer::class)
+    public val hasCompletedContact: Boolean? = null,
+    @SerialName("profile_flags") public val profileFlags: List<String>? = null,
+)
+
+/** 用户社交链接。带自定义 KSerializer：反序列化时把 server JSON 拆为 entries (string-valued) + custom (CustomLink 列表)。 */
+@JsExport
+@JsName("UserProfileSocialLinks")
+@Serializable(with = UserProfileSocialLinksSerializer::class)
+public data class UserProfileSocialLinks(
+    public val entries: Map<String, String> = emptyMap(),
+    public val custom: List<CustomLink> = emptyList(),
+)
+
+/** 用户联系方式。同 UserProfileSocialLinks 模式。 */
+@JsExport
+@JsName("UserProfileContactInfo")
+@Serializable(with = UserProfileContactInfoSerializer::class)
+public data class UserProfileContactInfo(
+    public val entries: Map<String, String> = emptyMap(),
+    public val custom: List<CustomLink> = emptyList(),
+)
+
+/** 自定义链接（socialLinks/contactInfo 中 `custom` 数组元素）。 */
+@JsExport
+@JsName("CustomLink")
+@Serializable
+public data class CustomLink(
+    public val url: String,
+    public val name: String,
+)
+
+/** UserProfileSocialLinks 的 KSerializer：拆 server JSONObject 为 entries (string) + custom (数组)。 */
+public object UserProfileSocialLinksSerializer : KSerializer<UserProfileSocialLinks> {
+    @Serializable
+    private data class Surrogate(
+        val entries: Map<String, String> = emptyMap(),
+        val custom: List<CustomLink> = emptyList(),
+    )
+
+    override val descriptor: SerialDescriptor = Surrogate.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UserProfileSocialLinks) {
+        val surrogate = Surrogate(entries = value.entries, custom = value.custom)
+        encoder.encodeSerializableValue(Surrogate.serializer(), surrogate)
+    }
+
+    override fun deserialize(decoder: Decoder): UserProfileSocialLinks {
+        val surrogate = decoder.decodeSerializableValue(Surrogate.serializer())
+        return UserProfileSocialLinks(entries = surrogate.entries, custom = surrogate.custom)
+    }
+}
+
+/** UserProfileContactInfo 的 KSerializer：同 UserProfileSocialLinksSerializer 结构。 */
+public object UserProfileContactInfoSerializer : KSerializer<UserProfileContactInfo> {
+    @Serializable
+    private data class Surrogate(
+        val entries: Map<String, String> = emptyMap(),
+        val custom: List<CustomLink> = emptyList(),
+    )
+
+    override val descriptor: SerialDescriptor = Surrogate.serializer().descriptor
+
+    override fun serialize(encoder: Encoder, value: UserProfileContactInfo) {
+        val surrogate = Surrogate(entries = value.entries, custom = value.custom)
+        encoder.encodeSerializableValue(Surrogate.serializer(), surrogate)
+    }
+
+    override fun deserialize(decoder: Decoder): UserProfileContactInfo {
+        val surrogate = decoder.decodeSerializableValue(Surrogate.serializer())
+        return UserProfileContactInfo(entries = surrogate.entries, custom = surrogate.custom)
+    }
+}
+
+/** 用户扩列按钮状态（contact_request 嵌套对象）。 */
+@JsExport
+@JsName("ContactRequestState")
+@Serializable
+public data class ContactRequestState(
+    @SerialName("button_state") public val buttonState: String? = null,
+    public val canRequest: Boolean? = null,
+    @SerialName("reason_code") public val reasonCode: String? = null,
+    public val message: String? = null,
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val requiresAuth: Boolean? = null,
+    @SerialName("button_text") public val buttonText: String? = null,
 )
 
 /** 用户资料隐私设置。 */
@@ -432,13 +563,17 @@ public data class UserProfile(
 @JsName("UserProfilePrivacySettings")
 @Serializable
 public data class UserProfilePrivacySettings(
-    @SerialName("showEmail") public val showEmail: Boolean? = null,
-    @SerialName("allowContact") public val allowContact: Boolean? = null,
-    @SerialName("showLocation") public val showLocation: Boolean? = null,
+    @SerialName("show_email") public val showEmail: Boolean? = null,
+    @SerialName("allow_contact") public val allowContact: Boolean? = null,
+    @SerialName("show_location") public val showLocation: Boolean? = null,
     @SerialName("allow_messages") public val allowMessages: Boolean? = null,
     @SerialName("allow_return_images") public val allowReturnImages: Boolean? = null,
     @SerialName("profile_public") public val profilePublic: Boolean? = null,
     @SerialName("show_visitor_details") public val showVisitorDetails: Boolean? = null,
+    @SerialName("allow_map_share_invites") public val allowMapShareInvites: Boolean? = null,
+    @SerialName("contact_request_policy") public val contactRequestPolicy: String? = null,
+    @SerialName("contact_request_min_level") public val contactRequestMinLevel: Int? = null,
+    @SerialName("contact_request_block_flagged_users") public val contactRequestBlockFlaggedUsers: Boolean? = null,
 )
 
 /** 用户角色信息。 */
@@ -471,7 +606,7 @@ public data class UserDestination(
 @Serializable
 public data class UserIdResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserIdData,
+    @SerialName("user") public val user: UserIdData,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -488,43 +623,28 @@ public data class UserIdData(
     @SerialName("location") public val location: String? = null,
 )
 
-/** 用户点赞状态响应。 */
+/** 用户点赞状态响应（flat）。 */
 @JsExport
 @JsName("LikeStatusResponse")
 @Serializable
 public data class LikeStatusResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: LikeStatusData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 点赞状态数据。 */
-@JsExport
-@JsName("LikeStatusData")
-@Serializable
-public data class LikeStatusData(
-    @SerialName("like_count") public val likeCount: Int,
-    @SerialName("is_liked") public val isLiked: Boolean,
-    @SerialName("can_like") public val canLike: Boolean,
+    @SerialName("like_count") public val likeCount: Long? = null,
+    @SerialName("is_liked")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isLiked: Boolean? = null,
+    @SerialName("can_like") public val canLike: Boolean? = null,
     @SerialName("days_until_can_like") public val daysUntilCanLike: Int? = null,
+    @SerialName("requestId") public val requestId: String? = null,
 )
 
-/** 用户关系公开列表响应。 */
+/** 用户关系公开列表响应（flat）。 */
 @JsExport
 @JsName("UserRelationshipsResponse")
 @Serializable
 public data class UserRelationshipsResponse(
-    @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserRelationshipsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 用户关系数据。 */
-@JsExport
-@JsName("UserRelationshipsData")
-@Serializable
-public data class UserRelationshipsData(
     @SerialName("relationships") public val relationships: List<RelationshipInfo>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 关系信息。 */
@@ -542,24 +662,22 @@ public data class RelationshipInfo(
     @SerialName("partner_species") public val partnerSpecies: String? = null,
 )
 
-/** 用户访客记录响应。 */
+/** 用户访客记录响应（flat）。 */
 @JsExport
 @JsName("UserVisitorsResponse")
 @Serializable
 public data class UserVisitorsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserVisitorsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 用户访客数据。 */
-@JsExport
-@JsName("UserVisitorsData")
-@Serializable
-public data class UserVisitorsData(
-    @SerialName("visitors") public val visitors: List<VisitorInfo>,
-    @SerialName("isOwner") public val isOwner: Boolean? = null,
+    @SerialName("visitors") public val visitors: List<VisitorInfo>? = null,
+    @SerialName("isOwner")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isOwner: Boolean? = null,
     @SerialName("message") public val message: String? = null,
+    @SerialName("total_views") public val totalViews: Long? = null,
+    @SerialName("total_login_visits") public val totalLoginVisits: Long? = null,
+    @SerialName("total_login_visitors") public val totalLoginVisitors: Long? = null,
+    @SerialName("has_more") public val hasMore: Boolean? = null,
+    @SerialName("requestId") public val requestId: String? = null,
 )
 
 /** 访客信息。 */
@@ -567,6 +685,7 @@ public data class UserVisitorsData(
 @JsName("VisitorInfo")
 @Serializable
 public data class VisitorInfo(
+    @SerialName("visit_id") public val visitId: Int,
     @SerialName("visitor_id") public val visitorId: Int,
     @SerialName("visitor_username") public val visitorUsername: String,
     @SerialName("visitor_nickname") public val visitorNickname: String? = null,
@@ -574,25 +693,19 @@ public data class VisitorInfo(
     @SerialName("created_at") public val createdAt: String,
 )
 
-/** 用户社交徽章列表响应。 */
+/** 用户社交徽章列表响应（flat）。 */
 @JsExport
 @JsName("SocialBadgesResponse")
 @Serializable
 public data class SocialBadgesResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SocialBadgesData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 用户社交徽章数据。 */
-@JsExport
-@JsName("SocialBadgesData")
-@Serializable
-public data class SocialBadgesData(
     @SerialName("user") public val user: SocialBadgeUser? = null,
-    @SerialName("is_owner") public val isOwner: Boolean? = null,
+    @SerialName("is_owner")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isOwner: Boolean? = null,
     @SerialName("total_count") public val totalCount: Int? = null,
     @SerialName("badges") public val badges: List<SocialBadge>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 社交徽章用户摘要。 */
@@ -619,24 +732,18 @@ public data class SocialBadge(
     @SerialName("detail_text") public val detailText: String? = null,
 )
 
-/** 社交徽章详情响应。 */
+/** 社交徽章详情响应（flat）。 */
 @JsExport
 @JsName("SocialBadgeDetailResponse")
 @Serializable
 public data class SocialBadgeDetailResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SocialBadgeDetailData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 社交徽章详情数据。 */
-@JsExport
-@JsName("SocialBadgeDetailData")
-@Serializable
-public data class SocialBadgeDetailData(
     @SerialName("user") public val user: SocialBadgeUser? = null,
-    @SerialName("is_owner") public val isOwner: Boolean? = null,
+    @SerialName("is_owner")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isOwner: Boolean? = null,
     @SerialName("badge") public val badge: SocialBadgeDetail,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 社交徽章详情。 */
@@ -653,25 +760,21 @@ public data class SocialBadgeDetail(
     @SerialName("detail_text") public val detailText: String? = null,
 )
 
-/** 商店商品响应。 */
+/** 商店商品响应（flat）。 */
 @JsExport
 @JsName("StoreProductsResponse")
 @Serializable
 public data class StoreProductsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: StoreProductsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 商店商品数据。 */
-@JsExport
-@JsName("StoreProductsData")
-@Serializable
-public data class StoreProductsData(
     @SerialName("user") public val user: StoreUser? = null,
-    @SerialName("is_owner") public val isOwner: Boolean? = null,
-    @SerialName("is_merchant_verified") public val isMerchantVerified: Boolean? = null,
+    @SerialName("is_owner")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isOwner: Boolean? = null,
+    @SerialName("is_merchant_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isMerchantVerified: Boolean? = null,
     @SerialName("products") public val products: List<StoreProduct>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 商店用户摘要。 */
@@ -703,22 +806,14 @@ public data class StoreProduct(
 // Search - 搜索模型
 // ============================================================================
 
-/** 热门用户响应。 */
+/** 热门用户响应（flat：users 直接挂在顶层）。 */
 @JsExport
 @JsName("PopularResponse")
 @Serializable
 public data class PopularResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: PopularData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 热门用户数据。 */
-@JsExport
-@JsName("PopularData")
-@Serializable
-public data class PopularData(
     @SerialName("users") public val users: List<PopularUser>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 热门用户。 */
@@ -735,7 +830,9 @@ public data class PopularUser(
     @SerialName("showcase_portrait") public val showcasePortrait: String? = null,
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
-    @SerialName("is_verified") public val isVerified: Boolean? = null,
+    @SerialName("is_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isVerified: Boolean? = null,
     @SerialName("like_count") public val likeCount: Int? = null,
     @SerialName("created_at") public val createdAt: String? = null,
     @SerialName("destination") public val destination: String? = null,
@@ -772,7 +869,9 @@ public data class RandomFursuit(
     @SerialName("destination") public val destination: String? = null,
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
-    @SerialName("is_verified") public val isVerified: Boolean? = null,
+    @SerialName("is_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isVerified: Boolean? = null,
 )
 
 /** 随机推荐调试信息。 */
@@ -785,21 +884,12 @@ public data class RandomDebugInfo(
     @SerialName("response_ms") public val responseMs: Int? = null,
 )
 
-/** 搜索响应。 */
+/** 搜索响应（flat：users + 顶层元字段）。 */
 @JsExport
 @JsName("SearchResponse")
 @Serializable
 public data class SearchResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SearchData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 搜索结果数据。 */
-@JsExport
-@JsName("SearchData")
-@Serializable
-public data class SearchData(
     @SerialName("users") public val users: List<SearchUser>,
     @SerialName("search_type") public val searchType: String? = null,
     @SerialName("search_keywords") public val searchKeywords: List<String>? = null,
@@ -807,6 +897,7 @@ public data class SearchData(
     @SerialName("has_more") public val hasMore: Boolean = false,
     @SerialName("total") public val total: Int? = null,
     @SerialName("next_cursor") public val nextCursor: String? = null,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 搜索分页信息。 */
@@ -819,6 +910,7 @@ public data class SearchPagination(
     @SerialName("total") public val total: Int? = null,
     @SerialName("total_pages") public val totalPages: Int? = null,
     @SerialName("next_cursor") public val nextCursor: String? = null,
+    @SerialName("total_is_estimate") public val totalIsEstimate: Boolean? = null,
 )
 
 /** 搜索结果中的用户。 */
@@ -839,49 +931,35 @@ public data class SearchUser(
     @SerialName("destination_expires_at") public val destinationExpiresAt: String? = null,
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
-    @SerialName("is_verified") public val isVerified: Boolean? = null,
+    @SerialName("is_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isVerified: Boolean? = null,
     @SerialName("created_at") public val createdAt: String? = null,
 )
 
-/** 搜索建议响应。 */
+/** 搜索建议响应（flat：suggestions 直接挂在顶层）。 */
 @JsExport
 @JsName("SearchSuggestionsResponse")
 @Serializable
 public data class SearchSuggestionsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SearchSuggestionsData,
+    @SerialName("suggestions") public val suggestions: List<String>,
     @SerialName("requestId") public val requestId: String,
 )
 
-/** 搜索建议数据。 */
-@JsExport
-@JsName("SearchSuggestionsData")
-@Serializable
-public data class SearchSuggestionsData(
-    @SerialName("suggestions") public val suggestions: List<String>,
-)
-
-/** 物种搜索响应。 */
+/** 物种搜索响应（flat：species + users + 元字段）。 */
 @JsExport
 @JsName("SpeciesSearchResponse")
 @Serializable
 public data class SpeciesSearchResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SpeciesSearchData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 物种搜索数据。 */
-@JsExport
-@JsName("SpeciesSearchData")
-@Serializable
-public data class SpeciesSearchData(
     @SerialName("species") public val species: String,
     @SerialName("users") public val users: List<SpeciesSearchUser>,
     @SerialName("pagination") public val pagination: SearchPagination? = null,
     @SerialName("has_more") public val hasMore: Boolean = false,
     @SerialName("total") public val total: Int? = null,
     @SerialName("next_cursor") public val nextCursor: String? = null,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 物种搜索用户。 */
@@ -898,27 +976,21 @@ public data class SpeciesSearchUser(
     @SerialName("fursuit_maker") public val fursuitMaker: String? = null,
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
-    @SerialName("is_verified") public val isVerified: Boolean? = null,
+    @SerialName("is_verified")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isVerified: Boolean? = null,
     @SerialName("created_at") public val createdAt: String? = null,
 )
 
-/** 物种列表响应。 */
+/** 物种列表响应（flat）。 */
 @JsExport
 @JsName("SpeciesListResponse")
 @Serializable
 public data class SpeciesListResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SpeciesListData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 物种列表数据。 */
-@JsExport
-@JsName("SpeciesListData")
-@Serializable
-public data class SpeciesListData(
     @SerialName("species") public val species: List<SpeciesInfo>,
     @SerialName("total") public val total: Int,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 物种信息。 */
@@ -930,24 +1002,16 @@ public data class SpeciesInfo(
     @SerialName("count") public val count: Int,
 )
 
-/** 热门地点响应。 */
+/** 热门地点响应（flat）。 */
 @JsExport
 @JsName("PopularLocationsResponse")
 @Serializable
 public data class PopularLocationsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: PopularLocationsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 热门地点数据。 */
-@JsExport
-@JsName("PopularLocationsData")
-@Serializable
-public data class PopularLocationsData(
     @SerialName("popular_provinces") public val popularProvinces: List<ProvinceInfo>,
     @SerialName("popular_cities") public val popularCities: List<CityInfo>,
     @SerialName("total_users") public val totalUsers: Int? = null,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 省份信息。 */
@@ -973,32 +1037,35 @@ public data class CityInfo(
 // Gathering - 聚会模型
 // ============================================================================
 
-/** 聚会年度统计响应。 */
+/** 聚会年度统计响应（flat：total 直接挂在顶层）。 */
 @JsExport
 @JsName("GatheringYearStatsResponse")
 @Serializable
 public data class GatheringYearStatsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: GatheringYearStatsData,
+    @SerialName("total") public val total: Int,
     @SerialName("requestId") public val requestId: String,
 )
 
-/** 聚会年度统计数据。 */
-@JsExport
-@JsName("GatheringYearStatsData")
-@Serializable
-public data class GatheringYearStatsData(
-    @SerialName("total") public val total: Int,
-)
-
-/** 聚会月历响应。 */
+/** 聚会月历响应（data 改为 Object 类型 GatheringMonthlyData）。 */
 @JsExport
 @JsName("GatheringMonthlyResponse")
 @Serializable
 public data class GatheringMonthlyResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: List<GatheringMonthlyItem>,
+    @SerialName("data") public val data: GatheringMonthlyData,
     @SerialName("requestId") public val requestId: String,
+)
+
+/** 聚会月历数据。 */
+@JsExport
+@JsName("GatheringMonthlyData")
+@Serializable
+public data class GatheringMonthlyData(
+    @SerialName("year") public val year: Int,
+    @SerialName("month") public val month: Int,
+    @SerialName("gatherings") public val gatherings: List<GatheringMonthlyItem>,
+    @SerialName("total") public val total: Int,
 )
 
 /** 聚会月历项。 */
@@ -1022,7 +1089,9 @@ public data class GatheringMonthlyItem(
     @SerialName("logo") public val logo: String? = null,
     @SerialName("status") public val status: String? = null,
     @SerialName("badges") public val badges: List<GatheringBadge>? = null,
-    @SerialName("is_furtv_coop_driven") public val isFurtvCoopDriven: Boolean? = null,
+    @SerialName("is_furtv_coop_driven")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isFurtvCoopDriven: Boolean? = null,
     @SerialName("sourceCount") public val sourceCount: Int? = null,
     @SerialName("initialSource") public val initialSource: String? = null,
     @SerialName("dataSources") public val dataSources: List<DataSource>? = null,
@@ -1031,7 +1100,8 @@ public data class GatheringMonthlyItem(
     @SerialName("feeType") public val feeType: String? = null,
     @SerialName("feeAmount") public val feeAmount: String? = null,
     @SerialName("registrationStatus") public val registrationStatus: String? = null,
-    @SerialName("requiresApproval") public val requiresApproval: Boolean? = null,
+    @SerialName("requiresApproval") @Serializable(with = BooleanAsIntSerializer::class)
+    public val requiresApproval: Boolean? = null,
 )
 
 /** 聚会徽章。 */
@@ -1054,14 +1124,24 @@ public data class DataSource(
     @SerialName("logo_url") public val logoUrl: String? = null,
 )
 
-/** 聚会月历距离响应。 */
+/** 聚会月历距离响应（data 改为 Object 类型 GatheringMonthlyDistanceData）。 */
 @JsExport
 @JsName("GatheringMonthlyDistanceResponse")
 @Serializable
 public data class GatheringMonthlyDistanceResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: List<GatheringMonthlyDistanceItem>,
+    @SerialName("data") public val data: GatheringMonthlyDistanceData,
     @SerialName("requestId") public val requestId: String,
+)
+
+/** 聚会月历距离数据。 */
+@JsExport
+@JsName("GatheringMonthlyDistanceData")
+@Serializable
+public data class GatheringMonthlyDistanceData(
+    @SerialName("year") public val year: Int,
+    @SerialName("month") public val month: Int,
+    @SerialName("distances") public val distances: List<GatheringMonthlyDistanceItem>,
 )
 
 /** 聚会月历距离项。 */
@@ -1097,7 +1177,14 @@ public data class GatheringNearbyItem(
     @SerialName("lat") public val lat: Double? = null,
     @SerialName("lng") public val lng: Double? = null,
     @SerialName("badges") public val badges: List<GatheringBadge>? = null,
-    @SerialName("is_furtv_coop_driven") public val isFurtvCoopDriven: Boolean? = null,
+    @SerialName("is_furtv_coop_driven")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isFurtvCoopDriven: Boolean? = null,
+    @SerialName("event_time") public val eventTime: String? = null,
+    @SerialName("end_clock_time") public val endClockTime: String? = null,
+    @SerialName("start_time") public val startTime: String? = null,
+    @SerialName("end_time") public val endTime: String? = null,
+    @SerialName("time_zone") public val timeZone: String? = null,
 )
 
 /** 聚会附近模式响应。 */
@@ -1119,13 +1206,13 @@ public data class GatheringNearbyModeData(
     @SerialName("intent_gathering_ids") public val intentGatheringIds: List<Int>,
 )
 
-/** 聚会详情响应。 */
+/** 聚会详情响应（data → gathering）。 */
 @JsExport
 @JsName("GatheringDetailResponse")
 @Serializable
 public data class GatheringDetailResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: GatheringDetailData,
+    @SerialName("gathering") public val gathering: GatheringDetailData,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -1161,12 +1248,43 @@ public data class GatheringDetailData(
     @SerialName("source_count") public val sourceCount: Int? = null,
     @SerialName("data_sources") public val dataSources: List<DataSource>? = null,
     @SerialName("badges") public val badges: List<GatheringBadge>? = null,
-    @SerialName("is_furtv_coop_driven") public val isFurtvCoopDriven: Boolean? = null,
+    @SerialName("is_furtv_coop_driven")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isFurtvCoopDriven: Boolean? = null,
     @SerialName("interested_count") public val interestedCount: Int? = null,
     @SerialName("is_interested") public val isInterested: Boolean? = null,
     @SerialName("going_friends_count") public val goingFriendsCount: Int? = null,
     @SerialName("registration_stats") public val registrationStats: GatheringRegistrationStats? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
+    @SerialName("location_district") public val locationDistrict: String? = null,
+    @SerialName("location_detail") public val locationDetail: String? = null,
+    @SerialName("fee_type") public val feeType: String? = null,
+    @SerialName("fee_amount") public val feeAmount: String? = null,
+    @SerialName("fee_description") public val feeDescription: String? = null,
+    @SerialName("registration_deadline") public val registrationDeadline: String? = null,
+    @SerialName("registration_open_days") public val registrationOpenDays: Int? = null,
+    @SerialName("requires_approval") @Serializable(with = BooleanAsIntSerializer::class)
+    public val requiresApproval: Boolean? = null,
+    @SerialName("auto_approve_limit") public val autoApproveLimit: Int? = null,
+    @SerialName("group_chat_link") public val groupChatLink: String? = null,
+    @SerialName("group_chat_type") public val groupChatType: String? = null,
+    @SerialName("cancellation_reason") public val cancellationReason: String? = null,
+    @SerialName("requirements") public val requirements: String? = null,
+    @SerialName("notes") public val notes: String? = null,
+    @SerialName("is_recurring")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isRecurring: Boolean? = null,
+    @SerialName("series_id") public val seriesId: Int? = null,
+    @SerialName("parent_gathering_id") public val parentGatheringId: Int? = null,
+    @SerialName("recurrence_rule") public val recurrenceRule: String? = null,
+    @SerialName("recurrence_config") public val recurrenceConfig: String? = null,
+    @SerialName("destination_count") public val destinationCount: Int? = null,
+    @SerialName("interested_friends") public val interestedFriends: List<String>? = null,
+    @SerialName("going_friends") public val goingFriends: List<String>? = null,
+    @SerialName("organizer_species") public val organizerSpecies: String? = null,
+    @SerialName("max_participants") public val maxParticipants: Int? = null,
+    @SerialName("current_participants") public val currentParticipants: Int? = null,
+    @SerialName("min_participants") public val minParticipants: Int? = null,
 )
 
 /** 议程项。 */
@@ -1200,22 +1318,14 @@ public data class GatheringRegistrationStats(
     @SerialName("pending_count") public val pendingCount: Int? = null,
 )
 
-/** 聚会报名列表响应。 */
+/** 聚会报名列表响应（flat：registrations 直接挂在顶层）。 */
 @JsExport
 @JsName("GatheringRegistrationsResponse")
 @Serializable
 public data class GatheringRegistrationsResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: GatheringRegistrationsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 聚会报名列表数据。 */
-@JsExport
-@JsName("GatheringRegistrationsData")
-@Serializable
-public data class GatheringRegistrationsData(
     @SerialName("registrations") public val registrations: List<List<RegistrationItem>>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 报名项。 */
@@ -1238,22 +1348,13 @@ public data class RegistrationItem(
 // School - 学校模型
 // ============================================================================
 
-/** 学校搜索响应。 */
+/** 学校搜索响应（flat）。 */
 @JsExport
 @JsName("SchoolSearchResponse")
 @Serializable
 public data class SchoolSearchResponse(
-    @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: SchoolSearchData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 学校搜索结果数据。 */
-@JsExport
-@JsName("SchoolSearchData")
-@Serializable
-public data class SchoolSearchData(
     @SerialName("schools") public val schools: List<SchoolInfo>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 学校基本信息。 */
@@ -1270,12 +1371,11 @@ public data class SchoolInfo(
     @SerialName("student_count") public val studentCount: Int? = null,
 )
 
-/** 学校详情响应。 */
+/** 学校详情响应（无 success）。 */
 @JsExport
 @JsName("SchoolDetailResponse")
 @Serializable
 public data class SchoolDetailResponse(
-    @SerialName("success") public val success: Boolean,
     @SerialName("school") public val school: SchoolDetail,
     @SerialName("requestId") public val requestId: String,
 )
@@ -1294,22 +1394,13 @@ public data class SchoolDetail(
     @SerialName("student_count") public val studentCount: Int? = null,
 )
 
-/** 用户学校信息响应。 */
+/** 用户学校信息响应（vds-docs 顶层 `schools: [...]` + requestId，无 success 字段、无 data 包装）。 */
 @JsExport
 @JsName("UserSchoolsResponse")
 @Serializable
 public data class UserSchoolsResponse(
-    @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserSchoolsData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 用户学校数据。 */
-@JsExport
-@JsName("UserSchoolsData")
-@Serializable
-public data class UserSchoolsData(
     @SerialName("schools") public val schools: List<UserSchoolInfo>,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 用户学校关联信息。 */
@@ -1332,25 +1423,14 @@ public data class UserSchoolInfo(
     @SerialName("student_count") public val studentCount: Int? = null,
 )
 
-/** 用户角色列表响应。 */
+/** 用户角色列表响应（characters 直接挂在顶层；UserCharactersData 已删除）。 */
 @JsExport
 @JsName("UserCharactersResponse")
 @Serializable
 public data class UserCharactersResponse(
     @SerialName("success") public val success: Boolean,
-    @SerialName("data") public val data: UserCharactersData,
-    @SerialName("requestId") public val requestId: String,
-)
-
-/** 用户角色数据。 */
-@JsExport
-@JsName("UserCharactersData")
-@Serializable
-public data class UserCharactersData(
-    @SerialName("userId") public val userId: String,
-    @SerialName("username") public val username: String,
     @SerialName("characters") public val characters: List<CharacterInfo>,
-    @SerialName("totalCount") public val totalCount: Int,
+    @SerialName("requestId") public val requestId: String,
 )
 
 /** 角色信息。 */

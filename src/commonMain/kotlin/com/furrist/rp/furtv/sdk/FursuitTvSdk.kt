@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk
 
+import com.furrist.rp.furtv.sdk.auth.AuthHolder
 import com.furrist.rp.furtv.sdk.auth.AuthManager
 import com.furrist.rp.furtv.sdk.base.BaseApi
 import com.furrist.rp.furtv.sdk.gathering.GatheringApi
@@ -10,7 +11,8 @@ import com.furrist.rp.furtv.sdk.model.TokenInfo
 import com.furrist.rp.furtv.sdk.school.SchoolApi
 import com.furrist.rp.furtv.sdk.search.SearchApi
 import com.furrist.rp.furtv.sdk.user.UserApi
-import io.ktor.client.HttpClient
+import io.ktor.client.*
+import kotlin.concurrent.Volatile
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
@@ -29,9 +31,15 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 public class FursuitTvSdk internal constructor(
     private val config: SdkConfig,
     tokenInfo: TokenInfo? = null,
+    @Volatile private var closed: Boolean = false,
 ) {
+    /**
+     * AuthHolder：late-bound AuthManager 引用，供 `HttpClientConfig.defaultRequest` 通过
+     * 闭包按请求读取最新 apiKey（@Volatile 保证跨线程可见性）。
+     */
+    private val authHolder: AuthHolder = AuthHolder()
     @JsName("_httpClient")
-    private val httpClient: HttpClient = HttpClientConfig.getClient(config)
+    private val httpClient: HttpClient = HttpClientConfig.getClient(config, authHolder)
 
     /**
      * 认证管理器
@@ -44,23 +52,23 @@ public class FursuitTvSdk internal constructor(
 
     /** 基础接口 API */
     @JsName("base")
-    public val base: BaseApi = BaseApi(httpClient, config.baseUrl)
+    public val base: BaseApi = BaseApi(auth, httpClient, config.baseUrl)
 
     /** 用户相关 API */
     @JsName("user")
-    public val user: UserApi = UserApi(httpClient, config.baseUrl)
+    public val user: UserApi = UserApi(auth, httpClient, config.baseUrl)
 
     /** 搜索和发现 API */
     @JsName("search")
-    public val search: SearchApi = SearchApi(httpClient, config.baseUrl)
+    public val search: SearchApi = SearchApi(auth, httpClient, config.baseUrl)
 
     /** 聚会相关 API */
     @JsName("gathering")
-    public val gathering: GatheringApi = GatheringApi(httpClient, config.baseUrl)
+    public val gathering: GatheringApi = GatheringApi(auth, httpClient, config.baseUrl)
 
     /** 学校和角色 API */
     @JsName("school")
-    public val school: SchoolApi = SchoolApi(httpClient, config.baseUrl)
+    public val school: SchoolApi = SchoolApi(auth, httpClient, config.baseUrl)
 
     /**
      * 获取当前配置。
@@ -75,7 +83,9 @@ public class FursuitTvSdk internal constructor(
      */
     @JsName("close")
     public fun close() {
+        check(!closed) { "FursuitTvSdk already closed (close is irreversible)" }
         httpClient.close()
+        closed = true
     }
 }
 
@@ -106,7 +116,8 @@ public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk
     val config = mutableConfig.toImmutable()
 
     if (config.clientId != null && config.clientSecret != null && config.apiKey == null) {
-        val httpClient = HttpClientConfig.getClient(config)
+        val tempHolder = com.furrist.rp.furtv.sdk.auth.AuthHolder()
+        val httpClient = HttpClientConfig.getClient(config, tempHolder)
         val authManager = AuthManager(config, httpClient)
         val tokenInfo = authManager.exchangeToken(config.clientId, config.clientSecret)
         return FursuitTvSdk(config, tokenInfo)
@@ -114,13 +125,3 @@ public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk
 
     return FursuitTvSdk(config)
 }
-
-/**
- * `fursuitTvSdkBlocking` 同步入口声明。
- *
- * - JVM：`src/jvmMain/kotlin/com/furrist/rp/furtv/sdk/FursuitTvSdkJvm.kt`
- *   中的 `actual` 使用 `runBlocking { fursuitTvSdk(...) }` 实现。
- * - JS / Native：不支持阻塞线程；调用方应直接使用 suspend `fursuitTvSdk { ... }`
- *   或将其包装在自己的 `Promise` / `Future` 中。
- */
-public expect fun fursuitTvSdkBlocking(block: (MutableSdkConfig) -> Unit): FursuitTvSdk

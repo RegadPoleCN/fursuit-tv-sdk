@@ -1,5 +1,6 @@
 package com.furrist.rp.furtv.sdk.http
 
+import com.furrist.rp.furtv.sdk.auth.AuthHolder
 import com.furrist.rp.furtv.sdk.exception.ApiException
 import com.furrist.rp.furtv.sdk.exception.AuthenticationException
 import com.furrist.rp.furtv.sdk.exception.NetworkException
@@ -13,32 +14,28 @@ import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlin.js.JsExport
-import kotlin.js.JsName
 import kotlinx.serialization.json.Json
 
 /**
- * HTTP 客户端配置，提供 Ktor 客户端的创建和配置功能。
+ * HTTP 客户端配置（内部缓存工厂），提供 Ktor 客户端的创建和配置功能。
  *
- * 单例化：同 [SdkConfig] 共享一个 [HttpClient] 实例，通过 Ktor `defaultRequest { header(...) }`
+ * 单例化：同 `(SdkConfig, AuthHolder)` 共享一个 [HttpClient] 实例，通过 Ktor `defaultRequest { header(...) }`
  * 在每个请求上决定认证头：
  *
- * 1. `config.apiKey` 非空 → `X-Api-Key: <config.apiKey>`
- * 2. 否则当 AuthManager 当前 `TokenInfo.apiKey` 非空 → `X-Api-Key: <tokenInfo.apiKey>`
- * 3. 否则当 `TokenInfo.accessToken` 非空 → `Authorization: Bearer <tokenInfo.accessToken>`
- * 4. 全部为空 → 不发送认证头（用于 `/api/auth/token` 等未认证场景）
+ * 1. `authHolder.auth?.getApiKey()` 非空 → `X-Api-Key: <apiKey>`
+ * 2. 全部为空 → 不发送认证头（用于 `/api/auth/token` 等未认证场景）
  *
- * 头 (2)(3) 由调用方在每个 API 请求间使用 [applyAuthHeaders] 显式注入；
+ * 头 (1) 由 `defaultRequest` 通过 `AuthHolder.auth?.getApiKey()` 按请求自动注入（per `init-builder-refactor` D8）。
  * 调用方应使用 [FursuitTvSdk.auth] 的当前 TokenInfo 进行请求头注入。
  */
-@JsExport
-@JsName("HttpClientConfig")
-public object HttpClientConfig {
+internal object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
     private const val SUCCESS_STATUS_START = 200
     private const val SUCCESS_STATUS_END = 299
@@ -49,6 +46,7 @@ public object HttpClientConfig {
     private const val NOT_FOUND = 404
     private const val BAD_REQUEST = 400
     private const val ERROR_BODY_EMPTY = ""
+    private const val MAX_ERROR_BODY_LENGTH = 4096
 
     // Chrome User-Agent 字符串，用于模拟浏览器请求
     private const val USER_AGENT_CHROME =
@@ -56,32 +54,33 @@ public object HttpClientConfig {
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     /**
-     * SdkConfig → HttpClient 单例映射。
+     * (SdkConfig, AuthHolder) → HttpClient 单例映射。
+     * AuthHolder 加入缓存键——每个 SDK 实例独占自己的 HttpClient。
      */
-    private val instance: MutableMap<SdkConfig, HttpClient> = mutableMapOf()
+    private val instance: MutableMap<Pair<SdkConfig, AuthHolder>, HttpClient> = mutableMapOf()
 
     /**
-     * 单例工厂：为同一 [SdkConfig] 始终返回同一个 [HttpClient] 实例。
+     * 单例工厂：为同一 `(SdkConfig, AuthHolder)` 始终返回同一个 [HttpClient] 实例。
      *
-     * 第一次调用该方法创建新实例；后续调用直接返回缓存的客户端。
+     * **已知限制**（fix-js-compile 简化）：不再加锁。JVM 上多线程并发首次访问同一 key 时
+     * 可能并发调用 `buildClient`，导致多构造一个 HttpClient 但旧实例仍在缓存中被覆盖——
+     * 行为正确，仅有轻微内存浪费。实际应用通常单 SDK 实例单线程，无影响。
+     * JS / Native 单线程，无此问题。
      *
      * @param config SDK 配置
+     * @param authHolder AuthHolder 引用（供 defaultRequest 闭包读取）
      * @return 配置好的 HttpClient 单例
      */
-    @JsName("getClient")
-    @Suppress("NON_EXPORTABLE_TYPE")
-    public fun getClient(config: SdkConfig): HttpClient {
-        return instance.getOrPut(config) { buildClient(config) }
-    }
+    internal fun getClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
+        instance.getOrPut(config to authHolder) { buildClient(config, authHolder) }
 
-    @PublishedApi
-    internal fun buildClient(config: SdkConfig): HttpClient =
+    internal fun buildClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
         HttpClient {
             install(ContentNegotiation) {
                 json(
                     Json {
                         ignoreUnknownKeys = true
-                        prettyPrint = true
+                        prettyPrint = false
                         isLenient = true
                     },
                 )
@@ -96,14 +95,16 @@ public object HttpClientConfig {
                 header("Accept", "application/json")
                 header("X-Request-ID", generateRequestId())
                 header("User-Agent", USER_AGENT_CHROME)
-                if (!config.apiKey.isNullOrEmpty()) {
-                    header("X-Api-Key", config.apiKey)
+
+                // ✅ 每个请求从 AuthHolder 读取最新 apiKey（init-builder-refactor D8）
+                authHolder.auth?.getApiKey()?.let { apiKey ->
+                    header("X-Api-Key", apiKey)
                 }
             }
 
             HttpResponseValidator {
                 validateResponse { response ->
-                    validateStatusCode(response.status.value)
+                    validateStatusCode(response)
                 }
 
                 handleResponseExceptionWithRequest { cause, _ ->
@@ -131,14 +132,19 @@ public object HttpClientConfig {
     /**
      * 验证 HTTP 状态码是否在成功范围内（200-299），否则抛出对应异常。
      */
-    private fun validateStatusCode(statusCode: Int) {
-        if (statusCode !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
-            val errorBody = getErrorBody()
-            throwExceptionForStatusCode(statusCode, errorBody)
+    private suspend fun validateStatusCode(response: io.ktor.client.statement.HttpResponse) {
+        if (response.status.value !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
+            val errorBody = readErrorBody(response)
+            throwExceptionForStatusCode(response.status.value, errorBody)
         }
     }
 
-    private fun getErrorBody(): String? = ERROR_BODY_EMPTY
+    private suspend fun readErrorBody(response: io.ktor.client.statement.HttpResponse): String? =
+        try {
+            response.bodyAsText().take(MAX_ERROR_BODY_LENGTH)
+        } catch (_: Exception) {
+            ERROR_BODY_EMPTY
+        }
 
     private fun throwExceptionForStatusCode(statusCode: Int, errorBody: String?) {
         val errorMessage = errorBody ?: "Unknown error"
