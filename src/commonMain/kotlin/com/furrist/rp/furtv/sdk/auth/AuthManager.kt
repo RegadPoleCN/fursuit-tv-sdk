@@ -1,27 +1,16 @@
 package com.furrist.rp.furtv.sdk.auth
 
+import com.furrist.rp.furtv.sdk.auth.AuthManager.Companion.StateStoreInternal.stateStorage
 import com.furrist.rp.furtv.sdk.exception.OAuthException
 import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
 import com.furrist.rp.furtv.sdk.exception.ValidationException
-import com.furrist.rp.furtv.sdk.model.OAuthAuthorizeParams
-import com.furrist.rp.furtv.sdk.model.OAuthConfig
-import com.furrist.rp.furtv.sdk.model.OAuthTokenData
-import com.furrist.rp.furtv.sdk.model.OAuthTokenRequest
-import com.furrist.rp.furtv.sdk.model.SdkConfig
-import com.furrist.rp.furtv.sdk.model.TokenData
-import com.furrist.rp.furtv.sdk.model.TokenExchangeRequest
-import com.furrist.rp.furtv.sdk.model.TokenInfo
-import com.furrist.rp.furtv.sdk.model.UserInfoData
-import com.furrist.rp.furtv.sdk.model.toTokenInfo
+import com.furrist.rp.furtv.sdk.model.*
 import com.furrist.rp.furtv.sdk.utils.toHex
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlin.concurrent.Volatile
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.js.JsExport
@@ -32,7 +21,6 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
-import kotlin.concurrent.Volatile
 
 /**
  * 认证管理器

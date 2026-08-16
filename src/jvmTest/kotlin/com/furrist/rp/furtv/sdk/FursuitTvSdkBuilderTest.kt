@@ -1,8 +1,8 @@
 package com.furrist.rp.furtv.sdk
 
-import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.runBlocking
 
 /**
  * FursuitTvSdkBuilder 校验：apiKey-only init 已被禁用，必须提供 clientId + clientSecret。

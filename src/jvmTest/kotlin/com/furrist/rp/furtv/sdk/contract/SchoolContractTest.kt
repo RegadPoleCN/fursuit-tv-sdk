@@ -5,7 +5,6 @@ import com.furrist.rp.furtv.sdk.model.SchoolSearchResponse
 import com.furrist.rp.furtv.sdk.model.UserSchoolsResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 
 class SchoolContractTest {

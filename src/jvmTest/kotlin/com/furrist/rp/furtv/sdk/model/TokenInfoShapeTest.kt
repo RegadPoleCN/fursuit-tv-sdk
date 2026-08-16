@@ -1,7 +1,6 @@
 package com.furrist.rp.furtv.sdk.model
 
 import kotlin.test.Test
-import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 /**

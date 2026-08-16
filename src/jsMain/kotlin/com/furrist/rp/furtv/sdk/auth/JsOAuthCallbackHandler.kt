@@ -1,8 +1,6 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import com.furrist.rp.furtv.sdk.model.OAuthConfig
-import kotlin.js.JsExport
-import kotlin.js.JsName
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay

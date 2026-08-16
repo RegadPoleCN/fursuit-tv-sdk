@@ -5,8 +5,6 @@ import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
 import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 
 class BaseContractTest {

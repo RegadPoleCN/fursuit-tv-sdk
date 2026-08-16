@@ -1,6 +1,5 @@
 package com.furrist.rp.furtv.sdk.auth
 
-import kotlin.ExperimentalUnsignedTypes
 import kotlin.js.JsExport
 import kotlin.js.JsName
 

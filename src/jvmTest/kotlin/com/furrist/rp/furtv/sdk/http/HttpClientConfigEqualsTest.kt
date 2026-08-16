@@ -3,8 +3,8 @@ package com.furrist.rp.furtv.sdk.http
 import com.furrist.rp.furtv.sdk.auth.AuthHolder
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import kotlin.test.Test
-import kotlin.test.assertSame
 import kotlin.test.assertNotSame
+import kotlin.test.assertSame
 
 /**
  * Verifies cache behavior: cache is keyed by Pair<SdkConfig, AuthHolder>.

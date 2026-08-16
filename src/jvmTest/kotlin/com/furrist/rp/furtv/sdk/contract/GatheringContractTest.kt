@@ -1,13 +1,6 @@
 package com.furrist.rp.furtv.sdk.contract
 
-import com.furrist.rp.furtv.sdk.model.GatheringDetailResponse
-import com.furrist.rp.furtv.sdk.model.GatheringMonthlyData
-import com.furrist.rp.furtv.sdk.model.GatheringMonthlyDistanceData
-import com.furrist.rp.furtv.sdk.model.GatheringNearbyModeResponse
-import com.furrist.rp.furtv.sdk.model.GatheringNearbyResponse
-import com.furrist.rp.furtv.sdk.model.GatheringRegistrationsResponse
-import com.furrist.rp.furtv.sdk.model.GatheringYearStatsResponse
-import com.furrist.rp.furtv.sdk.model.UserCharactersResponse
+import com.furrist.rp.furtv.sdk.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

@@ -1,15 +1,9 @@
 package com.furrist.rp.furtv.sdk.contract
 
-import com.furrist.rp.furtv.sdk.model.PopularLocationsResponse
-import com.furrist.rp.furtv.sdk.model.PopularResponse
-import com.furrist.rp.furtv.sdk.model.SearchResponse
-import com.furrist.rp.furtv.sdk.model.SearchSuggestionsResponse
-import com.furrist.rp.furtv.sdk.model.SpeciesListResponse
-import com.furrist.rp.furtv.sdk.model.SpeciesSearchResponse
+import com.furrist.rp.furtv.sdk.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 
 class DiscoveryContractTest {

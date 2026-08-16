@@ -1,26 +1,16 @@
 package com.furrist.rp.furtv.sdk.http
 
 import com.furrist.rp.furtv.sdk.auth.AuthHolder
-import com.furrist.rp.furtv.sdk.exception.ApiException
-import com.furrist.rp.furtv.sdk.exception.AuthenticationException
-import com.furrist.rp.furtv.sdk.exception.NetworkException
-import com.furrist.rp.furtv.sdk.exception.NotFoundException
-import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
-import com.furrist.rp.furtv.sdk.exception.ValidationException
+import com.furrist.rp.furtv.sdk.exception.*
 import com.furrist.rp.furtv.sdk.model.SdkConfig
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpRequestRetry
-import io.ktor.client.plugins.HttpResponseValidator
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
-
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.request.header
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.client.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 /**

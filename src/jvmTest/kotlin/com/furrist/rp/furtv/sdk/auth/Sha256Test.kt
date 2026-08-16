@@ -1,10 +1,6 @@
 package com.furrist.rp.furtv.sdk.auth
 
-import kotlin.test.Test
-import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 /**
  * SHA256 哈希的单元测试。

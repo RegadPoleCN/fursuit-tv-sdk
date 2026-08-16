@@ -1,19 +1,10 @@
 package com.furrist.rp.furtv.sdk.school
 
 import com.furrist.rp.furtv.sdk.auth.AuthManager
-import com.furrist.rp.furtv.sdk.model.CharacterInfo
-import com.furrist.rp.furtv.sdk.model.SchoolDetail
-import com.furrist.rp.furtv.sdk.model.SchoolDetailResponse
-import com.furrist.rp.furtv.sdk.model.SchoolInfo
-import com.furrist.rp.furtv.sdk.model.SchoolSearchParams
-import com.furrist.rp.furtv.sdk.model.SchoolSearchResponse
-import com.furrist.rp.furtv.sdk.model.UserCharactersResponse
-import com.furrist.rp.furtv.sdk.model.UserSchoolInfo
-import com.furrist.rp.furtv.sdk.model.UserSchoolsResponse
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
+import com.furrist.rp.furtv.sdk.model.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync

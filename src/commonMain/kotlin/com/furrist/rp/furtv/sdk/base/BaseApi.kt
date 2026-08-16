@@ -1,22 +1,11 @@
 package com.furrist.rp.furtv.sdk.base
 
 import com.furrist.rp.furtv.sdk.auth.AuthManager
-import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckData
-import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckRequest
-import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckResponse
-import com.furrist.rp.furtv.sdk.model.AndroidVersionData
-import com.furrist.rp.furtv.sdk.model.AndroidVersionResponse
-import com.furrist.rp.furtv.sdk.model.HealthResponse
-import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
-import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
-import com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.furrist.rp.furtv.sdk.model.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync

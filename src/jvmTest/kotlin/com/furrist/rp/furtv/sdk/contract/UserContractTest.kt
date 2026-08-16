@@ -1,13 +1,6 @@
 package com.furrist.rp.furtv.sdk.contract
 
-import com.furrist.rp.furtv.sdk.model.LikeStatusResponse
-import com.furrist.rp.furtv.sdk.model.SocialBadgeDetailResponse
-import com.furrist.rp.furtv.sdk.model.SocialBadgesResponse
-import com.furrist.rp.furtv.sdk.model.StoreProductsResponse
-import com.furrist.rp.furtv.sdk.model.UserIdResponse
-import com.furrist.rp.furtv.sdk.model.UserProfileResponse
-import com.furrist.rp.furtv.sdk.model.UserRelationshipsResponse
-import com.furrist.rp.furtv.sdk.model.UserVisitorsResponse
+import com.furrist.rp.furtv.sdk.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull

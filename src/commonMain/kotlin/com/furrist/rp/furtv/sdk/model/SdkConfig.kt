@@ -1,6 +1,6 @@
 package com.furrist.rp.furtv.sdk.model
 
-import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmStatic

@@ -2,8 +2,8 @@ package com.furrist.rp.furtv.sdk.http
 
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import kotlin.test.Test
-import kotlin.test.assertNotSame
 import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope

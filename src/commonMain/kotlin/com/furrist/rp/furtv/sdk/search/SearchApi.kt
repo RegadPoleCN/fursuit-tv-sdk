@@ -1,20 +1,10 @@
 package com.furrist.rp.furtv.sdk.search
 
 import com.furrist.rp.furtv.sdk.auth.AuthManager
-import com.furrist.rp.furtv.sdk.model.PopularLocationsResponse
-import com.furrist.rp.furtv.sdk.model.PopularResponse
-import com.furrist.rp.furtv.sdk.model.RandomFursuit
-import com.furrist.rp.furtv.sdk.model.RandomFursuitParams
-import com.furrist.rp.furtv.sdk.model.RandomFursuitResponse
-import com.furrist.rp.furtv.sdk.model.SearchParams
-import com.furrist.rp.furtv.sdk.model.SearchResponse
-import com.furrist.rp.furtv.sdk.model.SearchSuggestionsResponse
-import com.furrist.rp.furtv.sdk.model.SpeciesListResponse
-import com.furrist.rp.furtv.sdk.model.SpeciesSearchResponse
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
+import com.furrist.rp.furtv.sdk.model.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync

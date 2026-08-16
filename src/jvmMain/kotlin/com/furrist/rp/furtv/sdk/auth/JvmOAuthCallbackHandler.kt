@@ -1,17 +1,13 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import com.furrist.rp.furtv.sdk.model.OAuthConfig
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLBuilder
-import io.ktor.http.URLProtocol
-import io.ktor.http.path
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.cio.CIO
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.util.logging.KtorSimpleLogger
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.util.logging.*
 import java.awt.Desktop
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
