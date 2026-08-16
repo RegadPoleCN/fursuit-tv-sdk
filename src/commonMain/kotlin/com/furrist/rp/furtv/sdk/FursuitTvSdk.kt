@@ -38,6 +38,7 @@ public class FursuitTvSdk internal constructor(
      * 闭包按请求读取最新 apiKey（@Volatile 保证跨线程可见性）。
      */
     private val authHolder: AuthHolder = AuthHolder()
+
     @JsName("_httpClient")
     private val httpClient: HttpClient = HttpClientConfig.getClient(config, authHolder)
 

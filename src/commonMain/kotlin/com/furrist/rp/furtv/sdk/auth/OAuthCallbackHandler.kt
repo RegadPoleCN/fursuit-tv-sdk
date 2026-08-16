@@ -99,13 +99,6 @@ public interface OAuthCallbackHandler {
 }
 
 /**
- * `OAuthCallbackServerConfig` 已被合并到 [OAuthConfig]。
- * 旧 API 仍可在 AuthManager 与平台实现之间通过 [OAuthConfig] 类型传递。
- *
- * @deprecated 请直接使用 [OAuthConfig]。
- */
-
-/**
  * 创建平台默认的 OAuth 回调处理器。
  *
  * 根据当前运行平台自动选择合适的实现：

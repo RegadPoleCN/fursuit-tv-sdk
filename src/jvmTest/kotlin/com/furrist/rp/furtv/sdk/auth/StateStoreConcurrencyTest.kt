@@ -24,18 +24,21 @@ import kotlinx.serialization.json.Json
  */
 class StateStoreConcurrencyTest {
     private fun mockHttpClient(): HttpClient {
-        val engine = MockEngine { request ->
-            val body = if (request.url.encodedPath.contains("/api/auth/token")) {
-                """{"success":true,"data":{"accessToken":"x","apiKey":"k","expiresIn":3600,"tokenType":"Bearer","appId":null,"grants":null,"refresh":null},"requestId":"r"}"""
-            } else {
-                """{"success":true,"data":{},"requestId":"r"}"""
+        val engine =
+            MockEngine { request ->
+                val body =
+                    if (request.url.encodedPath.contains("/api/auth/token")) {
+                        """{"success":true,"data":{"accessToken":"x","apiKey":"k","expiresIn":3600,"""" +
+                            """"tokenType":"Bearer","appId":null,"grants":null,"refresh":null},"requestId":"r"}"""
+                    } else {
+                        """{"success":true,"data":{},"requestId":"r"}"""
+                    }
+                respond(
+                    content = ByteReadChannel(body),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
             }
-            respond(
-                content = ByteReadChannel(body),
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
         return HttpClient(engine) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             defaultRequest { url("http://localhost/api/auth/token") }
@@ -43,21 +46,22 @@ class StateStoreConcurrencyTest {
     }
 
     @Test
-    fun stateStore_concurrentLoginWithOAuthCallsDoNotThrow() = runBlocking {
-        val am = AuthManager(SdkConfig(), mockHttpClient())
-        val n = 50
-        val errors = mutableListOf<Throwable>()
-        coroutineScope {
-            (1..n).map { i ->
-                async {
-                    runCatching { am.loginWithOAuth(scope = "openid-$i") }
-                        .onFailure { errors.add(it) }
-                }
-            }.awaitAll()
+    fun stateStore_concurrentLoginWithOAuthCallsDoNotThrow() =
+        runBlocking {
+            val am = AuthManager(SdkConfig(), mockHttpClient())
+            val n = 50
+            val errors = mutableListOf<Throwable>()
+            coroutineScope {
+                (1..n).map { i ->
+                    async {
+                        runCatching { am.loginWithOAuth(scope = "openid-$i") }
+                            .onFailure { errors.add(it) }
+                    }
+                }.awaitAll()
+            }
+            // 验证 StateStore 阶段没抛 CME 或死锁
+            for (e in errors) {
+                assertNotNull(e.message, "Error should have a non-null message, not a silent failure")
+            }
         }
-        // 验证 StateStore 阶段没抛 CME 或死锁
-        for (e in errors) {
-            assertNotNull(e.message, "Error should have a non-null message, not a silent failure")
-        }
-    }
 }

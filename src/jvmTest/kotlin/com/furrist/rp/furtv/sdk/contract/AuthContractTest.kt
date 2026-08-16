@@ -9,7 +9,12 @@ import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 
 class AuthContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test
     fun `token exchange response decodes`() {

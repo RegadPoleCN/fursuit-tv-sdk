@@ -10,7 +10,12 @@ import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 
 class BaseContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test
     fun `hello world response decodes`() {

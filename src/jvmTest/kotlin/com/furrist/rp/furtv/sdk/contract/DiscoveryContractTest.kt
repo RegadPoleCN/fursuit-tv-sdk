@@ -7,7 +7,12 @@ import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 
 class DiscoveryContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test fun `popular endpoint flat shape`() {
         val data = json.decodeFromString<PopularResponse>(ContractFixture.readFixture("vdsdocs/discovery/popular.json"))

@@ -12,11 +12,12 @@ class FursuitTvSdkBuilderTest {
     @Test
     fun `apiKey only without clientId or clientSecret is rejected`() {
         runBlocking<Unit> {
-            val ex = assertFailsWith<IllegalArgumentException> {
-                FursuitTvSdkBuilder()
-                    .apiKey("legacy-api-key")
-                    .build()
-            }
+            val ex =
+                assertFailsWith<IllegalArgumentException> {
+                    FursuitTvSdkBuilder()
+                        .apiKey("legacy-api-key")
+                        .build()
+                }
             assert(ex.message!!.contains("clientId"))
             assert(ex.message!!.contains("clientSecret"))
             assert(ex.message!!.contains("apiKey-only init is forbidden"))

@@ -60,14 +60,15 @@ class TokenInfoShapeTest {
 
     @Test
     fun oauth_doesNotExposeApiKeyProperty() {
-        val token: Any = TokenInfo.OAuth(
-            oauthToken = "x",
-            refreshToken = null,
-            scope = null,
-            redirectUri = "https://example.com/cb",
-            expiresAt = 1L,
-            tokenType = "Bearer",
-        )
+        val token: Any =
+            TokenInfo.OAuth(
+                oauthToken = "x",
+                refreshToken = null,
+                scope = null,
+                redirectUri = "https://example.com/cb",
+                expiresAt = 1L,
+                tokenType = "Bearer",
+            )
         val cls = token::class
         val apiKeyField = cls.members.firstOrNull { it.name == "apiKey" }
         assertNotNull(apiKeyField == null, "TokenInfo.OAuth should not expose 'apiKey'")
@@ -75,14 +76,15 @@ class TokenInfoShapeTest {
 
     @Test
     fun oauth_hasOauthTokenAndRedirectUriProperties() {
-        val token: Any = TokenInfo.OAuth(
-            oauthToken = "x",
-            refreshToken = null,
-            scope = null,
-            redirectUri = "https://example.com/cb",
-            expiresAt = 1L,
-            tokenType = "Bearer",
-        )
+        val token: Any =
+            TokenInfo.OAuth(
+                oauthToken = "x",
+                refreshToken = null,
+                scope = null,
+                redirectUri = "https://example.com/cb",
+                expiresAt = 1L,
+                tokenType = "Bearer",
+            )
         val cls = token::class
         val oauthTokenField = cls.members.firstOrNull { it.name == "oauthToken" }
         val redirectField = cls.members.firstOrNull { it.name == "redirectUri" }

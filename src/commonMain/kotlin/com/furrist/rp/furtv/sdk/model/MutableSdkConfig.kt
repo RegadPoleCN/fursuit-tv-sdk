@@ -73,7 +73,8 @@ public class MutableSdkConfig {
     internal fun toImmutable(): SdkConfig =
         SdkConfig(
             baseUrl = baseUrl,
-            apiKey = null,  // 显式 null，不复制 caller 的 deprecated 值（per init-builder-refactor D9a）
+            // 显式 null，不复制 caller 的 deprecated 值（per init-builder-refactor D9a）
+            apiKey = null,
             clientId = clientId,
             clientSecret = clientSecret,
             requestTimeout = requestTimeout,

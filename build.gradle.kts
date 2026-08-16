@@ -214,7 +214,7 @@ ktlint {
 
     filter {
         exclude("**/generated/**")
-        include("**/commonMain/**", "**/jvmMain/**", "**/jsMain/**", "**/nativeMain/**")
+        include("**/commonMain/**", "**/jvmMain/**", "**/jsMain/**", "**/nativeMain/**", "**/jvmTest/**")
     }
 }
 

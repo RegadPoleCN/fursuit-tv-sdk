@@ -60,4 +60,3 @@ class Sha256Test {
         assertTrue(hash.any { it != 0.toByte() }, "Hash should not be all zeros for empty input")
     }
 }
-

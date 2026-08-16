@@ -7,7 +7,12 @@ import kotlin.test.assertNotNull
 import kotlinx.serialization.json.Json
 
 class GatheringContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test fun `year stats flat with total`() {
         val data = json.decodeFromString<GatheringYearStatsResponse>(ContractFixture.readFixture("vdsdocs/gathering/year-stats.json"))
@@ -24,9 +29,10 @@ class GatheringContractTest {
     }
 
     @Test fun `monthly distance object type`() {
-        val wrapper = json.decodeFromString<GatheringMonthlyDistanceResponse>(
-            ContractFixture.readFixture("vdsdocs/gathering/monthly-distance.json"),
-        )
+        val wrapper =
+            json.decodeFromString<GatheringMonthlyDistanceResponse>(
+                ContractFixture.readFixture("vdsdocs/gathering/monthly-distance.json"),
+            )
         val data: GatheringMonthlyDistanceData = wrapper.data
         assertEquals(2026, data.year)
         assertEquals(4, data.month)
@@ -55,9 +61,10 @@ class GatheringContractTest {
     }
 
     @Test fun `registrations uses registrations field not data`() {
-        val data = json.decodeFromString<GatheringRegistrationsResponse>(
-            ContractFixture.readFixture("vdsdocs/gathering/registrations.json"),
-        )
+        val data =
+            json.decodeFromString<GatheringRegistrationsResponse>(
+                ContractFixture.readFixture("vdsdocs/gathering/registrations.json"),
+            )
         assertEquals(2, data.registrations.size)
     }
 

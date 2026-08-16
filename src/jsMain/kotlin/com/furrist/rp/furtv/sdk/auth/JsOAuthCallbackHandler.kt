@@ -129,15 +129,16 @@ public actual fun createDefaultOAuthHandler(config: OAuthConfig): OAuthCallbackH
  *
  * JS 环境中 `localhost` 默认使用 HTTP，因为没有本地服务器证书。
  */
-public fun buildCallbackUrl(c: OAuthConfig): String = buildString {
-    append("http://")
-    append(c.callbackHost)
-    if (c.callbackPort != 80) {
-        append(':')
-        append(c.callbackPort)
+public fun buildCallbackUrl(c: OAuthConfig): String =
+    buildString {
+        append("http://")
+        append(c.callbackHost)
+        if (c.callbackPort != 80) {
+            append(':')
+            append(c.callbackPort)
+        }
+        append(c.callbackPath)
     }
-    append(c.callbackPath)
-}
 
 @Suppress("UnusedPrivateMember")
 private suspend fun nodeCallbackPoll() {

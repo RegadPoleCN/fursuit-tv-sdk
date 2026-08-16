@@ -8,7 +8,12 @@ import kotlin.test.assertEquals
 import kotlinx.serialization.json.Json
 
 class SchoolContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test fun `school search no success field`() {
         val data = json.decodeFromString<SchoolSearchResponse>(ContractFixture.readFixture("vdsdocs/school/search.json"))

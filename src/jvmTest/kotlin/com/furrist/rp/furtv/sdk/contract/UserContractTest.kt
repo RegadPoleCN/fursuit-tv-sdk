@@ -8,7 +8,12 @@ import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 
 class UserContractTest {
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    private val json =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+        }
 
     @Test fun `user profile flat with UserProfileSocialLinks typed wrapper`() {
         val wrapper = json.decodeFromString<UserProfileResponse>(ContractFixture.readFixture("vdsdocs/user/profile.json"))

@@ -96,12 +96,14 @@ public class AuthManager internal constructor(
     }
 
     /** Throws [IllegalStateException] if [SdkConfig.clientId] is missing. */
-    private fun requireClientId(): String = config.clientId
-        ?: error("withFreshToken requires SDK init with clientId. Configure via fursuitTvSdk { clientId = \"...\" }.")
+    private fun requireClientId(): String =
+        config.clientId
+            ?: error("withFreshToken requires SDK init with clientId. Configure via fursuitTvSdk { clientId = \"...\" }.")
 
     /** Throws [IllegalStateException] if [SdkConfig.clientSecret] is missing. */
-    private fun requireClientSecret(): String = config.clientSecret
-        ?: error("withFreshToken requires SDK init with clientSecret.")
+    private fun requireClientSecret(): String =
+        config.clientSecret
+            ?: error("withFreshToken requires SDK init with clientSecret.")
 
     /**
      * 预检 token：过期/缺失则触发 `exchangeToken`。
@@ -111,10 +113,11 @@ public class AuthManager internal constructor(
      * 在锁**外**调 `exchangeToken`。
      */
     private suspend fun ensureFreshToken(clientId: String, clientSecret: String) {
-        val needsExchange = tokenMutex.withLock {
-            val current = (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() }
-            current == null
-        }
+        val needsExchange =
+            tokenMutex.withLock {
+                val current = (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() }
+                current == null
+            }
         if (needsExchange) {
             exchangeToken(clientId, clientSecret)
         }
@@ -199,25 +202,27 @@ public class AuthManager internal constructor(
     private suspend fun ensurePlatformToken(): TokenInfo.Platform {
         val current = tokenInfo as? TokenInfo.Platform
         return when {
-            current == null -> exchangeToken(
-                clientId = config.clientId ?: error("clientId not configured"),
-                clientSecret = config.clientSecret ?: error("clientSecret not configured"),
-            )
-            current.isExpired() -> try {
-                refreshToken()
-            } catch (e: Exception) {
-                // refresh 失败后用 exchangeToken 作为 recovery path（spec scenario 要求）
-                val clientId = config.clientId
-                val clientSecret = config.clientSecret
-                if (clientId == null || clientSecret == null) {
-                    throw IllegalStateException(
-                        "loginWithOAuth recovery failed: refresh failed AND clientId/clientSecret not configured at SDK init. " +
-                            "Original error: ${e.message}",
-                        e,
-                    )
+            current == null ->
+                exchangeToken(
+                    clientId = config.clientId ?: error("clientId not configured"),
+                    clientSecret = config.clientSecret ?: error("clientSecret not configured"),
+                )
+            current.isExpired() ->
+                try {
+                    refreshToken()
+                } catch (e: Exception) {
+                    // refresh 失败后用 exchangeToken 作为 recovery path（spec scenario 要求）
+                    val clientId = config.clientId
+                    val clientSecret = config.clientSecret
+                    if (clientId == null || clientSecret == null) {
+                        throw IllegalStateException(
+                            "loginWithOAuth recovery failed: refresh failed AND clientId/clientSecret not configured at SDK init. " +
+                                "Original error: ${e.message}",
+                            e,
+                        )
+                    }
+                    exchangeToken(clientId, clientSecret)
                 }
-                exchangeToken(clientId, clientSecret)
-            }
             else -> current
         }
     }
@@ -278,25 +283,27 @@ public class AuthManager internal constructor(
      */
     @JsName("refreshToken")
     public suspend fun refreshToken(): TokenInfo.Platform {
-        val currentApiKey = (tokenInfo as? TokenInfo.Platform)?.apiKey
-            ?: throw TokenExpiredException("No platform token to refresh")
+        val currentApiKey =
+            (tokenInfo as? TokenInfo.Platform)?.apiKey
+                ?: throw TokenExpiredException("No platform token to refresh")
 
-        val response = try {
-            httpClient.post("${config.baseUrl}/api/auth/token/refresh") {
-                // refreshToken 端点用 X-Api-Key 头（per vds-docs 业务 API 风格），不发送 Bearer。
-                // 之前的 Bearer 是误用 apiKey（公开凭证）作 access token 的语义错误。
-                header("X-Api-Key", currentApiKey)
-            }.body<TokenData>()
-        } catch (e: ValidationException) {
-            // RefreshTooEarly：旧 token 已不在 refresh 窗口，直接 exchange
-            if (e.message?.contains("RefreshTooEarly") == true) {
-                return exchangeToken(
-                    clientId = config.clientId ?: error("clientId not configured"),
-                    clientSecret = config.clientSecret ?: error("clientSecret not configured"),
-                )
+        val response =
+            try {
+                httpClient.post("${config.baseUrl}/api/auth/token/refresh") {
+                    // refreshToken 端点用 X-Api-Key 头（per vds-docs 业务 API 风格），不发送 Bearer。
+                    // 之前的 Bearer 是误用 apiKey（公开凭证）作 access token 的语义错误。
+                    header("X-Api-Key", currentApiKey)
+                }.body<TokenData>()
+            } catch (e: ValidationException) {
+                // RefreshTooEarly：旧 token 已不在 refresh 窗口，直接 exchange
+                if (e.message?.contains("RefreshTooEarly") == true) {
+                    return exchangeToken(
+                        clientId = config.clientId ?: error("clientId not configured"),
+                        clientSecret = config.clientSecret ?: error("clientSecret not configured"),
+                    )
+                }
+                throw e
             }
-            throw e
-        }
 
         val newTokenInfo = response.toTokenInfo()
 
@@ -453,8 +460,9 @@ public class AuthManager internal constructor(
      */
     @JsName("getUserInfo")
     public suspend fun getUserInfo(): UserInfoData {
-        val oauth = (tokenInfo as? TokenInfo.OAuth)?.takeIf { !it.isExpired() }
-            ?: throw IllegalStateException("No valid OAuth token. Call loginWithOAuth() first.")
+        val oauth =
+            (tokenInfo as? TokenInfo.OAuth)?.takeIf { !it.isExpired() }
+                ?: throw IllegalStateException("No valid OAuth token. Call loginWithOAuth() first.")
         val response =
             httpClient.get("${config.baseUrl}/api/proxy/account/sso/userinfo") {
                 header("Authorization", "Bearer ${oauth.oauthToken}")

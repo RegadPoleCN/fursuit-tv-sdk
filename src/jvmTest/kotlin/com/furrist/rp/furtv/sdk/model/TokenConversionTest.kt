@@ -19,12 +19,13 @@ class TokenConversionTest {
 
     @Test
     fun tokenData_toTokenInfo_producesPlatform() {
-        val source = TokenData(
-            accessToken = "access-token-value",
-            apiKey = "platform-api-key",
-            expiresIn = 3600,
-            tokenType = "Bearer",
-        )
+        val source =
+            TokenData(
+                accessToken = "access-token-value",
+                apiKey = "platform-api-key",
+                expiresIn = 3600,
+                tokenType = "Bearer",
+            )
 
         val before = nowMs()
         val platform = source.toTokenInfo()
@@ -42,12 +43,13 @@ class TokenConversionTest {
 
     @Test
     fun tokenData_toTokenInfo_returnTypeIsPlatform() {
-        val source = TokenData(
-            accessToken = "x",
-            apiKey = "y",
-            expiresIn = 60,
-            tokenType = "Bearer",
-        )
+        val source =
+            TokenData(
+                accessToken = "x",
+                apiKey = "y",
+                expiresIn = 60,
+                tokenType = "Bearer",
+            )
 
         val platform = source.toTokenInfo()
         val platformType: TokenInfo.Platform = platform
@@ -57,13 +59,14 @@ class TokenConversionTest {
     @Test
     fun oauthTokenData_toTokenInfo_producesOAuthWithCorrectFields() {
         val redirectUri = "https://example.com/callback"
-        val source = OAuthTokenData(
-            accessToken = "oauth-access-token",
-            expiresIn = 7200,
-            tokenType = "Bearer",
-            scope = "openid profile",
-            refreshToken = "oauth-refresh-token",
-        )
+        val source =
+            OAuthTokenData(
+                accessToken = "oauth-access-token",
+                expiresIn = 7200,
+                tokenType = "Bearer",
+                scope = "openid profile",
+                refreshToken = "oauth-refresh-token",
+            )
 
         val before = nowMs()
         val oauth = source.toTokenInfo(redirectUri = redirectUri)
@@ -84,13 +87,14 @@ class TokenConversionTest {
 
     @Test
     fun oauthTokenData_toTokenInfo_nullRefreshToken() {
-        val source = OAuthTokenData(
-            accessToken = "oauth-token",
-            expiresIn = 60,
-            tokenType = "Bearer",
-            scope = null,
-            refreshToken = null,
-        )
+        val source =
+            OAuthTokenData(
+                accessToken = "oauth-token",
+                expiresIn = 60,
+                tokenType = "Bearer",
+                scope = null,
+                refreshToken = null,
+            )
 
         val oauth = source.toTokenInfo(redirectUri = "https://example.com/cb")
         assertNull(oauth.refreshToken, "refreshToken must be null when server omits it")
@@ -100,12 +104,13 @@ class TokenConversionTest {
     @Test
     fun tokenData_toTokenInfo_appliesSkew() {
         val before = System.currentTimeMillis() + 60_000L - 30_000L
-        val platform = TokenData(
-            accessToken = "x",
-            apiKey = "k",
-            expiresIn = 60,
-            tokenType = "Bearer",
-        ).toTokenInfo()
+        val platform =
+            TokenData(
+                accessToken = "x",
+                apiKey = "k",
+                expiresIn = 60,
+                tokenType = "Bearer",
+            ).toTokenInfo()
         val after = System.currentTimeMillis() + 60_000L - 30_000L
         assertTrue(
             platform.expiresAt in before..after,
