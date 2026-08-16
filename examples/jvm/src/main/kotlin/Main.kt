@@ -1,14 +1,17 @@
 package com.furrist.rp.furtv.sdk.example
 
-import com.furrist.rp.furtv.sdk.FursuitTvSdk
+import com.furrist.rp.furtv.sdk.FursuitTvSdkBuilder
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel
 import com.furrist.rp.furtv.sdk.exception.FursuitTvSdkException
+import kotlinx.coroutines.runBlocking
 
-suspend fun main() {
-    val sdk = FursuitTvSdk.create {
-        apiKey = "your-api-key"
-        logLevel = SdkLogLevel.INFO
-    }
+fun main() = runBlocking {
+    // v0.3.0+：必须 clientId + clientSecret（apiKey-only 已被禁用）
+    val sdk = FursuitTvSdkBuilder()
+        .clientId("vap_xxxxxxxxxxxxxxxx")
+        .clientSecret("your-client-secret-here")
+        .logLevel(SdkLogLevel.INFO)
+        .build()  // suspend，在 runBlocking 里
 
     try {
         val health = sdk.base.health()
