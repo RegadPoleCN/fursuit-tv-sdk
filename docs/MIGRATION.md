@@ -20,38 +20,31 @@
 
 ## 1. SDK 构造迁移
 
-### 旧版（v1.x）
+### 旧版（v1.x，已废弃）
 
 ```kotlin
-// Kotlin
+// ❌ 旧工厂方法（全部删除）
 val sdk = FursuitTvSdk.createForTokenExchange(clientId = "vap_xxx", clientSecret = "...")
 val sdk2 = FursuitTvSdk.create(apiKey = "your-api-key")
 val sdk3 = FursuitTvSdk.create(config)
 
-// Java
+// Java（旧版）
 FursuitTvSdk sdk = FursuitTvSdk.createForTokenExchange("vap_xxx", "your-secret");
 ```
 
-### 新版（v2.0）
+### 新版（v0.3.0 / v2.0）
 
-仅保留 3 种入口，按平台选择：
+仅保留 2 种入口（按平台选择）：
 
 ```kotlin
-// Kotlin (suspend) — 推荐
+// Kotlin (suspend) — DSL 写法（推荐）
 val sdk = fursuitTvSdk {
     clientId = "vap_xxx"
     clientSecret = "your-secret"
 }
 
-// Kotlin 同步 / Java — 阻塞入口（JVM only）
-FursuitTvSdk sdk = FursuitTvSdkKt.fursuitTvSdkBlocking(b -> {
-    b.setClientId("vap_xxx");
-    b.setClientSecret("your-secret");
-    return null;
-});
-
-// Java 链式 Builder（推荐用于 Java）
-FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+// Java / 链式 Builder 写法（推荐用于 Java）
+FursuitTvSdk sdk = FursuitTvSdkBuilder.create()
     .clientId("vap_xxx")
     .clientSecret("your-secret")
     .buildBlocking();
@@ -66,6 +59,8 @@ FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
 | `FursuitTvSdk.Companion.create(config, tokenInfo)` | 同上 |
 | `FursuitTvSdk.Companion.createWithConfig(...)` | 同上 |
 | `FursuitTvSdk.Companion.createWithDsl(...)` | DSL 替代 |
+| `fursuitTvSdkBlocking { ... }` 整条 expect/actual 链 | `FursuitTvSdkBuilder` 替代（@JvmBlocking 生成 buildBlocking） |
+| `JvmFursuitTvSdkBuilder` 类 | 合并到 `FursuitTvSdkBuilder`（仅 rename） |
 | `SdkConfig.Companion.builder()` | 与 SDK DSL 重叠 |
 | `sdkConfig { ... }`（顶层函数） | 同上 |
 
@@ -77,6 +72,18 @@ FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
 +     clientId = "vap_xxx"
 +     clientSecret = "your-secret"
 + }
+```
+
+```diff
+// Java 旧版（删除）
+- FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+-     .apiKey("your-api-key")
+-     .buildBlocking();
+// Java 新版
++ FursuitTvSdk sdk = FursuitTvSdkBuilder.create()
++     .clientId("vap_xxx")
++     .clientSecret("your-secret")
++     .buildBlocking();
 ```
 
 ---
@@ -245,7 +252,7 @@ sdk.auth.clearToken()
 |------|------|------|
 | **examples/jvm/** | `examples/jvm/` | JVM Main.kt + build.gradle.kts |
 | **examples/js/** | `examples/js/` | 浏览器 + Node 双场景 + package.json |
-| **examples/java/** | `examples/java/` | 单一 Main.java（演示 `JvmFursuitTvSdkBuilder.buildBlocking()`） |
+| **examples/java/** | `examples/java/` | 单一 Main.java（演示 `FursuitTvSdkBuilder.buildBlocking()`） |
 
 ### 删除的示例
 
