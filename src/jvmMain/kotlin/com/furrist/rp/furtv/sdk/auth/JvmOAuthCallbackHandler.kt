@@ -1,16 +1,13 @@
 package com.furrist.rp.furtv.sdk.auth
 
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLBuilder
-import io.ktor.http.URLProtocol
-import io.ktor.http.path
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.cio.CIO
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.response.respondText
-import io.ktor.server.routing.get
-import io.ktor.server.routing.routing
-import io.ktor.util.logging.KtorSimpleLogger
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.cio.*
+import io.ktor.server.engine.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.util.logging.*
 import java.awt.Desktop
 import java.net.URI
 import kotlin.time.Duration.Companion.seconds
@@ -19,8 +16,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 
-internal class JvmOAuthCallbackHandler(
-    private val config: OAuthCallbackServerConfig,
+private class JvmOAuthCallbackHandler(
+    private val config: OAuthConfig,
 ) : OAuthCallbackHandler {
     private val logger = KtorSimpleLogger("com.furrist.rp.furtv.sdk.auth.JvmOAuthCallbackHandler")
 
@@ -29,7 +26,7 @@ internal class JvmOAuthCallbackHandler(
     @Volatile
     private var pendingDeferred: CompletableDeferred<OAuthCallbackResult>? = null
 
-    override val callbackUrl: String get() = config.buildCallbackUrl()
+    override val callbackUrl: String get() = buildCallbackUrl(config)
 
     private val server =
         embeddedServer(CIO, port = config.callbackPort, host = config.callbackHost) {
@@ -56,7 +53,7 @@ internal class JvmOAuthCallbackHandler(
                 ?: throw IllegalStateException("Not listening. Call startListening() first.")
 
         return try {
-            val timeoutDuration = config.timeoutSeconds.seconds
+            val timeoutDuration = config.timeoutSeconds.toLong().seconds
             withTimeoutOrNull(timeoutDuration) {
                 deferred.await()
             } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
@@ -118,9 +115,18 @@ internal class JvmOAuthCallbackHandler(
         call.respondText("Success! You can close this window.")
     }
 
-    private fun OAuthCallbackServerConfig.buildCallbackUrl(): String {
-        return URLBuilder(protocol = URLProtocol.HTTP, host = callbackHost, port = callbackPort).apply {
-            path(callbackPath)
+    private fun buildCallbackUrl(c: OAuthConfig): String =
+        URLBuilder(
+            protocol = URLProtocol.HTTP,
+            host = c.callbackHost,
+            port = c.callbackPort,
+        ).apply {
+            path(c.callbackPath)
         }.buildString()
-    }
 }
+
+/**
+ * JVM 实现：创建 [JvmOAuthCallbackHandler]（基于 Ktor CIO，自动打开浏览器）。
+ */
+public actual fun createDefaultOAuthHandler(config: OAuthConfig): OAuthCallbackHandler =
+    JvmOAuthCallbackHandler(config)

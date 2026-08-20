@@ -4,14 +4,15 @@
 本页给出一套从“拉起授权”到“拿到用户信息”的最短流程。  
 拿到用户信息后，如何创建本地会话或绑定账号，可按你的业务自行处理。
 
+VDS 账户 SSO 端点为**标准 OAuth 形式**：调用时无需开放平台签名，任何标准 OAuth 框架（Passport、Spring Security、NextAuth、Authlib 等）都可以直接接入。
+
 ## 1. 接入前准备
+
+**别忘记在能力中添加 VDS账户SSO ，并在权限管理中开启相应权限。**
 
 - `client_id`：你的应用 ID（格式 `vap_xxxx`）
 - `client_secret`：你的应用 AK（在控制台可查看/刷新）
 - `redirect_uri`：必须在应用安全设置的“重定向 URL”里有做填写和设置
-- 开放平台签名：调用开放平台接口时，统一使用  
-  `Authorization: Bearer <你的开放平台签名>`
-- 别忘记在能力中添加 VDS账户SSO ，并在权限管理中开启相应权限。
 
 说明：
 
@@ -19,7 +20,22 @@
   - 应用 ID = `client_id`
   - AK = `client_secret`
 
-## 2. Scope 说明
+## 2. 标准框架端点配置
+
+直接把以下三个地址填进你的 OAuth 框架配置即可（`VDP_BASE_URL` 默认推荐 `https://open-global.vdsentnet.com`）：
+
+```
+authorization_endpoint: <VDP_BASE_URL>/api/proxy/account/sso/authorize
+token_endpoint:         <VDP_BASE_URL>/api/proxy/account/sso/token
+userinfo_endpoint:      <VDP_BASE_URL>/api/proxy/account/sso/userinfo
+```
+
+- Token 端点支持 client_secret_post（参数放请求体）与 client_secret_basic（Authorization: Basic）
+- UserInfo 端点使用标准 Authorization: Bearer <access_token>
+
+**详细介绍请至对应页面查看**
+
+## 3. Scope 说明
 
 当前对外开放：
 
@@ -28,7 +44,7 @@
 
 推荐直接使用 `profile`，可一次拿到更完整的基础用户信息。
 
-## 3. 前端拉起授权
+## 4. 前端拉起授权
 
 前端把用户跳转到授权链接（`state` 可选，建议生成）。
 
@@ -43,12 +59,12 @@
 按上面参数组装后示例：
 
 ```text
-https://account.vds.pub/authorize?client_id=vap_xxxxxxxxxxxxxxxx&redirect_uri=https%3A%2F%2Fdsv.pub&response_type=code&scope=openid&state=YOUR_STATE
+https://open-global.vdsentnet.com/api/proxy/account/sso/authorize?client_id=vap_xxxxxxxxxxxxxxxx&redirect_uri=https%3A%2F%2Fdsv.pub&response_type=code&scope=openid&state=YOUR_STATE
 ```
 
 参数需要与后端换取 token 时保持一致，尤其是 `redirect_uri`。
 
-## 4. 后端回调处理（拿 token + userinfo）
+## 5. 后端回调处理（拿 token + userinfo）
 
 拿到 `code` 后，后端调用开放平台接口：
 
@@ -57,7 +73,7 @@ https://account.vds.pub/authorize?client_id=vap_xxxxxxxxxxxxxxxx&redirect_uri=ht
 
 到这里就完成接入闭环。
 
-## 5. Node.js 快速示例
+## 6. Node.js 快速示例
 
 ```js
 import axios from "axios";
@@ -65,7 +81,6 @@ import axios from "axios";
 const VDP_BASE_URL = "https://open-global.vdsentnet.com";
 const OAUTH_CLIENT_ID = process.env.OAUTH_CLIENT_ID; // vap_xxxx
 const OAUTH_CLIENT_SECRET = process.env.OAUTH_CLIENT_SECRET; // 应用 AK
-const VDP_BEARER = process.env.VDP_BEARER; // 开放平台签名（Bearer）
 const OAUTH_PROVIDER = "vds_account";
 
 function normalizeOAuthUserInfo(data = {}) {
@@ -96,7 +111,6 @@ async function handleOAuthCallback(req, res, fallbackRedirect) {
     params,
     {
       headers: {
-        Authorization: `Bearer ${VDP_BEARER}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
       timeout: 10000,
@@ -110,8 +124,7 @@ async function handleOAuthCallback(req, res, fallbackRedirect) {
     `${VDP_BASE_URL}/api/proxy/account/sso/userinfo`,
     {
       headers: {
-        Authorization: `Bearer ${VDP_BEARER}`,
-        "X-OAuth-Access-Token": accessToken,
+        Authorization: `Bearer ${accessToken}`,
       },
       timeout: 10000,
     },
@@ -125,8 +138,16 @@ async function handleOAuthCallback(req, res, fallbackRedirect) {
   });
 }
 ```
+## 7. 旧接入方式（仍然兼容）
 
-## 6. 对应接口文档
+早期接入方式要求所有请求携带开放平台签名（`Authorization: Bearer <开放平台签名>`），并配合以下约定：
+
+- 在应用能力中添加 VDS账户SSO，并在权限管理中开启相应权限节点
+- UserInfo 使用 `X-OAuth-Access-Token: <access_token>` 头传递 OAuth 令牌
+
+按该方式接入的存量应用无需修改，行为保持不变。
+
+## 8. 对应接口文档
 
 - `VDS账户/授权端点（account.sso.authorize）`
 - `VDS账户/签名交换端点（account.sso.token）`

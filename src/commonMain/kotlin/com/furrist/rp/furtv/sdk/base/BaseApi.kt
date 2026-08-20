@@ -1,12 +1,11 @@
 package com.furrist.rp.furtv.sdk.base
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
+import com.furrist.rp.furtv.sdk.auth.AuthManager
+import com.furrist.rp.furtv.sdk.model.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
@@ -15,6 +14,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 /**
  * 基础接口 API，提供 helloWorld、health、version 和 theme-packs 端点。
  *
+ * @param auth 认证管理器（提供 `withFreshToken` 包装 + re-exchange）
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
@@ -23,6 +23,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 @JsExport
 @JsName("BaseApi")
 public class BaseApi internal constructor(
+    private val auth: AuthManager,
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
@@ -33,8 +34,10 @@ public class BaseApi internal constructor(
      */
     @JsName("helloWorld")
     public suspend fun helloWorld(): HelloWorldResponse =
-        httpClient.get("$baseUrl/api/proxy/base/hello-world")
-            .body<HelloWorldResponse>()
+        auth.withFreshToken {
+            httpClient.get("$baseUrl/api/proxy/base/hello-world")
+                .body<HelloWorldResponse>()
+        }
 
     /**
      * 健康检查接口。
@@ -43,8 +46,10 @@ public class BaseApi internal constructor(
      */
     @JsName("health")
     public suspend fun health(): HealthResponse =
-        httpClient.get("$baseUrl/api/proxy/furtv/health")
-            .body<HealthResponse>()
+        auth.withFreshToken {
+            httpClient.get("$baseUrl/api/proxy/furtv/health")
+                .body<HealthResponse>()
+        }
 
     /**
      * 获取 Android 客户端最新版本信息。
@@ -52,12 +57,12 @@ public class BaseApi internal constructor(
      * @return 版本信息数据对象
      */
     @JsName("getAndroidVersion")
-    public suspend fun getAndroidVersion(): AndroidVersionData {
-        val response =
+    public suspend fun getAndroidVersion(): AndroidVersionData =
+        auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/version/android")
                 .body<AndroidVersionResponse>()
-        return response.data
-    }
+                .data
+        }
 
     /**
      * 检查 Android 客户端版本更新。
@@ -70,14 +75,13 @@ public class BaseApi internal constructor(
     public suspend fun checkAndroidVersion(
         currentVersion: String,
         currentVersionCode: Int? = null,
-    ): AndroidVersionCheckData {
-        val response =
+    ): AndroidVersionCheckData =
+        auth.withFreshToken {
             httpClient.post("$baseUrl/api/proxy/furtv/version/android/check") {
                 contentType(ContentType.Application.Json)
                 setBody(AndroidVersionCheckRequest(currentVersion, currentVersionCode))
-            }.body<AndroidVersionCheckResponse>()
-        return response.data
-    }
+            }.body<AndroidVersionCheckResponse>().data
+        }
 
     /**
      * 获取主题包清单。
@@ -85,10 +89,10 @@ public class BaseApi internal constructor(
      * @return 主题包清单数据对象
      */
     @JsName("getThemePacksManifest")
-    public suspend fun getThemePacksManifest(): ThemePacksManifestData {
-        val response =
+    public suspend fun getThemePacksManifest(): ThemePacksManifestData =
+        auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/theme-packs/manifest")
                 .body<ThemePacksManifestResponse>()
-        return response.data
-    }
+                .data
+        }
 }

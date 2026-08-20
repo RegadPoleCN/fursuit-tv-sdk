@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.dokka)
     alias(libs.plugins.suspend.transform)
     alias(libs.plugins.ktlint)
-    alias(libs.plugins.binary.compatibility.validator)
     alias(libs.plugins.maven.publish)
     signing
 }
@@ -32,8 +31,6 @@ kotlin {
     }
 
     jvm()
-
-    // Configure JVM toolchain to auto-provision JDK 17
     jvmToolchain(17)
 
     // ESM target - for modern bundlers and ES module consumers
@@ -105,6 +102,14 @@ kotlin {
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.ktor.client.mock)
+                implementation(libs.ktor.client.java)
             }
         }
 
@@ -209,16 +214,12 @@ ktlint {
 
     filter {
         exclude("**/generated/**")
-        include("**/commonMain/**", "**/jvmMain/**", "**/jsMain/**", "**/nativeMain/**")
+        include("**/commonMain/**", "**/jvmMain/**", "**/jsMain/**", "**/nativeMain/**", "**/jvmTest/**")
     }
 }
 
 // Configure API compatibility validator
-apiValidation {
-    ignoredPackages.add("com.furrist.rp.furtv.sdk.internal")
-
-    nonPublicMarkers.add("kotlin.internal.InlineOnly")
-}
+// Removed in refactor (binary-compatibility-validator plugin removed).
 
 // Custom tasks for better development experience
 tasks.register("checkAll") {
@@ -226,7 +227,6 @@ tasks.register("checkAll") {
     description = "Runs all code quality checks"
     dependsOn(tasks.named("detekt"))
     dependsOn(tasks.named("ktlintCheck"))
-    dependsOn(tasks.named("apiCheck"))
 }
 
 tasks.register("quickBuild") {

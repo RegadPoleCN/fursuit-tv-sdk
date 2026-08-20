@@ -1,16 +1,9 @@
 package com.furrist.rp.furtv.sdk.model
 
-import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.jvm.JvmStatic
-
-private const val DEFAULT_BASE_URL = "https://open-global.vdsentnet.com"
-private const val DEFAULT_REQUEST_TIMEOUT = 30000L
-private const val DEFAULT_CONNECT_TIMEOUT = 10000L
-private const val DEFAULT_SOCKET_TIMEOUT = 30000L
-private const val DEFAULT_MAX_RETRIES = 3
-private const val DEFAULT_RETRY_INTERVAL = 1000L
 
 /**
  * SDK 日志级别枚举，控制 HTTP 请求日志输出详细程度。
@@ -66,19 +59,39 @@ public enum class SdkLogLevel {
 @JsExport
 @JsName("SdkConfig")
 public class SdkConfig(
-    @JsName("baseUrl") public val baseUrl: String = DEFAULT_BASE_URL,
-    @JsName("apiKey") public val apiKey: String? = null,
+    @JsName("baseUrl") public val baseUrl: String = Companion.DEFAULT_BASE_URL,
+    @JsName("apiKey")
+    @Deprecated("apiKey is no longer the source of platform authentication. Use sdk.auth.getApiKey() instead.")
+    public val apiKey: String? = null,
     @JsName("clientId") public val clientId: String? = null,
     @JsName("clientSecret") public val clientSecret: String? = null,
-    @JsName("requestTimeout") public val requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT,
-    @JsName("connectTimeout") public val connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT,
-    @JsName("socketTimeout") public val socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT,
+    @JsName("requestTimeout") public val requestTimeout: Long = Companion.DEFAULT_REQUEST_TIMEOUT,
+    @JsName("connectTimeout") public val connectTimeout: Long = Companion.DEFAULT_CONNECT_TIMEOUT,
+    @JsName("socketTimeout") public val socketTimeout: Long = Companion.DEFAULT_SOCKET_TIMEOUT,
     @JsName("logLevel") public val logLevel: SdkLogLevel = SdkLogLevel.INFO,
     @JsName("enableRetry") public val enableRetry: Boolean = true,
-    @JsName("maxRetries") public val maxRetries: Int = DEFAULT_MAX_RETRIES,
-    @JsName("retryInterval") public val retryInterval: Long = DEFAULT_RETRY_INTERVAL,
+    @JsName("maxRetries") public val maxRetries: Int = Companion.DEFAULT_MAX_RETRIES,
+    @JsName("retryInterval") public val retryInterval: Long = Companion.DEFAULT_RETRY_INTERVAL,
 ) {
     public companion object {
+        /** API 基础 URL 默认值。 */
+        public const val DEFAULT_BASE_URL: String = "https://open-global.vdsentnet.com"
+
+        /** 请求超时时间（毫秒）默认值。 */
+        public const val DEFAULT_REQUEST_TIMEOUT: Long = 30000L
+
+        /** 连接超时时间（毫秒）默认值。 */
+        public const val DEFAULT_CONNECT_TIMEOUT: Long = 10000L
+
+        /** 套接字超时时间（毫秒）默认值。 */
+        public const val DEFAULT_SOCKET_TIMEOUT: Long = 30000L
+
+        /** 最大重试次数默认值。 */
+        public const val DEFAULT_MAX_RETRIES: Int = 3
+
+        /** 重试间隔（毫秒）默认值。 */
+        public const val DEFAULT_RETRY_INTERVAL: Long = 1000L
+
         /**
          * 为签名交换创建配置。
          *
@@ -101,36 +114,5 @@ public class SdkConfig(
         @JsName("withApiKey")
         public fun withApiKey(apiKey: String): SdkConfig =
             SdkConfig(apiKey = apiKey)
-
-        /**
-         * 使用 DSL 方式创建配置。
-         *
-         * @param block 配置块
-         * @return SdkConfig 实例
-         */
-        @JvmStatic
-        @JsName("createSdkConfig")
-        public fun sdkConfig(block: SdkConfig.() -> Unit = {}): SdkConfig =
-            SdkConfig().apply(block)
-
-        /**
-         * 创建 Builder 实例用于链式配置。
-         *
-         * @return MutableSdkConfig 实例，支持链式调用后通过 [MutableSdkConfig.toImmutable] 转换
-         */
-        @JvmStatic
-        @JsName("builder")
-        public fun builder(): MutableSdkConfig = MutableSdkConfig()
     }
 }
-
-/**
- * 使用 DSL 方式创建 SdkConfig。
- *
- * @param block 配置块
- * @return SdkConfig 实例
- */
-@JsExport
-@JsName("sdkConfig")
-public fun sdkConfig(block: (SdkConfig) -> Unit): SdkConfig =
-    SdkConfig().apply(block)

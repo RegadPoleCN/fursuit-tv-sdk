@@ -1,14 +1,19 @@
 
-# 聚会报名列表（furtv.gatherings.registrations）
+# 聚会报名列表
+
+**初步测试返回值有大量Buffer字段，不通过**
 
 获取聚会通过审核的报名列表。
 
-认证与端点统一说明请参考根目录文档：`认证方式与服务器端点`。
+权限节点：`furtv.gatherings.registrations`
+
+## 请求头
+
+- `X-Api-Key: <apiKey>`
 
 ## 请求地址
 
 - `GET /api/proxy/furtv/gatherings/:id/registrations`
-- 权限节点：`furtv.gatherings.registrations`
 
 ## 路径参数
 

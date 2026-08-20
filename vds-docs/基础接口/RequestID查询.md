@@ -1,17 +1,21 @@
 
 # RequestID 查询
 
-## 返回位置
+## 请求头
 
-每次请求都会附带 `requestId`：
-
-- Response Header: `x-request-id`
-- JSON 响应体字段: `requestId`
+- `X-Api-Key: <apiKey>`
 
 ## 查询接口
 
 - `GET /api/vds-auth/request-logs/search?q=<requestId>`
 - `GET /api/vds-auth/request-logs/:requestId`
+
+## RequestID位置
+
+每次请求都会附带 `requestId`：
+
+- Response Header: `x-request-id`
+- JSON 响应体字段: `requestId`
 
 ## 说明
 

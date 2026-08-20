@@ -28,7 +28,7 @@
 ### 方式 1: DSL 签名交换（推荐）
 
 ```kotlin
-val sdk = FursuitTvSdk.buildBlocking {
+val sdk = fursuitTvSdk {
     clientId = "vap_xxxxxxxxxxxxxxxx"
     clientSecret = "your-client-secret"
 }
@@ -36,17 +36,25 @@ val sdk = FursuitTvSdk.buildBlocking {
 val profile = sdk.user.getUserProfile("username")
 ```
 
-> `buildBlocking()` 是 suspend-transform 插件为 `build()` suspend 函数生成的阻塞变体，
-> 适合在非协程上下文（如 `main` 函数）中直接调用。也可以使用 `buildAsync()` 获取
-> `CompletableDeferred<FursuitTvSdk>` 进行异步构建。
-
-### 方式 2: 已有 apiKey
+### 方式 2: 链式 Builder（Java 友好）
 
 ```kotlin
-val sdk = FursuitTvSdk.create("your-api-key")
-
-val profile = sdk.user.getUserProfile("username")
+val sdk = FursuitTvSdkBuilder()
+    .clientId("vap_xxxxxxxxxxxxxxxx")
+    .clientSecret("your-client-secret")
+    .build()  // suspend，需在 coroutine 上下文
 ```
+
+Java 用法（suspend-transform 生成 `buildBlocking()` / `buildAsync()`）：
+
+```java
+FursuitTvSdk sdk = FursuitTvSdkBuilder.create()
+    .clientId("vap_xxxxxxxxxxxxxxxx")
+    .clientSecret("your-client-secret")
+    .buildBlocking();
+```
+
+> **v0.3.0+ 约束**：必须同时提供 `clientId` + `clientSecret`。apiKey-only init 已被禁用。
 
 ## API 调用示例
 

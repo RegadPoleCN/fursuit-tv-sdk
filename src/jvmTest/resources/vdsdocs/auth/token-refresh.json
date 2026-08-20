@@ -1,0 +1,1 @@
+{"accessToken":"eyJ0eXAiOiJKV1QifQ.refreshed","apiKey":"vap_test_api_key_refreshed_aaaaaaaaaaaaaaaaaaaaaaaaaa","expiresInSeconds":7200,"tokenType":"Bearer","appId":"vap_test_app_id","refresh":{"mode":"expiring","refreshWindowSeconds":300,"previousTokenSecondsRemaining":180}}

@@ -7,12 +7,13 @@
 - 接口网关是否可用
 - `requestId` 是否正常返回
 
-认证与端点统一说明请参考根目录文档：`认证方式与服务器端点`。
+## 请求头
 
-## 请求信息
+- `X-Api-Key: <apiKey>`
 
-- 方法：`GET`
-- 路径：`/api/proxy/base/hello-world`
+## 请求地址
+
+- `GET /api/proxy/base/hello-world`
 
 ## 成功响应示例
 
