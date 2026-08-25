@@ -3,7 +3,7 @@ package com.furrist.rp.furtv.sdk.model
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 /**
  * `TokenInfo.isExpired()` 边界测试。

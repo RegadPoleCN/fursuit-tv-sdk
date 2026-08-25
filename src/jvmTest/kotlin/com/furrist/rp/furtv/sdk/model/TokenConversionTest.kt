@@ -4,7 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 
 /**
  * `TokenData.toTokenInfo()` 与 `OAuthTokenData.toTokenInfo(redirectUri)` 转换函数测试。
