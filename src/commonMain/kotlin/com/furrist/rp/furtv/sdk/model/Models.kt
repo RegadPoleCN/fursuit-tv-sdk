@@ -2,7 +2,7 @@ package com.furrist.rp.furtv.sdk.model
 
 import kotlin.js.JsExport
 import kotlin.js.JsName
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
