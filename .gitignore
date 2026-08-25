@@ -62,4 +62,6 @@ examples/*/node_modules/
 
 CLAUDE.md
 .claude/
+.omo/
+review/
 openspec/
