@@ -24,7 +24,7 @@ ktlint = "14.2.0"
 dokka = "2.2.0"
 
 # maven
-maven-publish = "0.36.0"
+maven-publish = "0.37.0"
 
 # Suspend Transform
 suspend-transform = "2.3.20-0.13.2"
