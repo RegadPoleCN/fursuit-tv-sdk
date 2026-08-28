@@ -27,7 +27,7 @@ dokka = "2.2.0"
 maven-publish = "0.36.0"
 
 # Suspend Transform
-suspend-transform = "2.3.20-0.13.2"
+suspend-transform = "2.4.0-0.14.0"
 
 [libraries]
 # Ktor Core
