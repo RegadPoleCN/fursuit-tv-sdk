@@ -119,21 +119,28 @@ public class AuthManager internal constructor(
             ?: error("withFreshToken requires SDK init with clientSecret.")
 
     /**
-     * 预检 token：过期/缺失则触发 `exchangeToken`。
+     * 预检 token：过期/缺失时优先走 refresh 端点换新（#22），失败回落 `exchangeToken`。
      *
-     * **check-then-call** 模式：`tokenMutex` 不可重入，`exchangeToken` 内部已经 `withLock`，
-     * 因此不能直接在锁内调 `exchangeToken`（会死锁）。本方法在锁内判断 needsExchange，
-     * 在锁**外**调 `exchangeToken`。
+     * **check-then-call** 模式：`tokenMutex` 不可重入，锁内只做判断，锁**外**执行
+     * `refreshToken` / `exchangeToken`。
+     * 依据 vds-docs《接入实践参考》:4-8：临近过期窗口优先换新、失败回落签名交换。
      */
     private suspend fun ensureFreshToken(clientId: String, clientSecret: String) {
-        val needsExchange =
-            tokenMutex.withLock {
-                val current = (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() }
-                current == null
+        val hasFreshPlatform =
+            tokenMutex.withLock { (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() } != null }
+        if (hasFreshPlatform) return
+        val hasPlatformToken = tokenMutex.withLock { tokenInfo is TokenInfo.Platform }
+        if (hasPlatformToken) {
+            try {
+                refreshToken()
+                return
+            } catch (e: Exception) {
+                // CancellationException 必须重抛（JVM 上它是 Exception 子类，会被本 catch 捕获）
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                // 其余异常回落 exchangeToken（refreshToken 内部已含 RefreshTooEarly → exchange 回落）
             }
-        if (needsExchange) {
-            exchangeToken(clientId, clientSecret)
         }
+        exchangeToken(clientId, clientSecret)
     }
 
     /**
@@ -222,6 +229,8 @@ public class AuthManager internal constructor(
                 try {
                     refreshToken()
                 } catch (e: Exception) {
+                    // CancellationException 必须重抛（JVM 上它是 Exception 子类，会被本 catch 捕获）
+                    if (e is kotlinx.coroutines.CancellationException) throw e
                     // refresh 失败后用 exchangeToken 作为 recovery path（spec scenario 要求）
                     val clientId = config.clientId
                     val clientSecret = config.clientSecret
