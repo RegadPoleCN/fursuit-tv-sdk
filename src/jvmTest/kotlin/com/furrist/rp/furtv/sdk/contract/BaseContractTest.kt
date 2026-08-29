@@ -39,10 +39,11 @@ class BaseContractTest {
     @Test
     fun `android version check request requires currentVersionCode`() {
         // 审计项 #40：文档示例恒携带 currentVersionCode，请求体字段改必填
-        val encoded = json.encodeToString(
-            AndroidVersionCheckRequest.serializer(),
-            AndroidVersionCheckRequest("1.2.3", 241),
-        )
+        val encoded =
+            json.encodeToString(
+                AndroidVersionCheckRequest.serializer(),
+                AndroidVersionCheckRequest("1.2.3", 241),
+            )
         assertTrue(encoded.contains("\"currentVersionCode\":241"))
     }
 

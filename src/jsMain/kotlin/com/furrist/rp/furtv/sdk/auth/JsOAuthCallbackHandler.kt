@@ -66,21 +66,22 @@ public class JsOAuthCallbackHandler(
         val deferred = CompletableDeferred<OAuthCallbackResult>()
         deferredResult = deferred
         val http = importNodeHttp().await<dynamic>()
-        val server = http.createServer { req, res ->
-            try {
-                val rawQuery = (req.url as String?).orEmpty().substringAfter('?', "")
-                val parameters = parseQueryString(rawQuery)
-                val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
-                handleAuthorizationCallback(params, deferred)
-            } catch (_: Throwable) {
-                // 回调解析失败不影响服务器继续监听
+        val server =
+            http.createServer { req, res ->
+                try {
+                    val rawQuery = (req.url as String?).orEmpty().substringAfter('?', "")
+                    val parameters = parseQueryString(rawQuery)
+                    val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
+                    handleAuthorizationCallback(params, deferred)
+                } catch (_: Throwable) {
+                    // 回调解析失败不影响服务器继续监听
+                }
+                // 禁止向 dynamic 的 Node API 传 Kotlin 集合当 headers，一律用 setHeader
+                res.setHeader("Content-Type", "text/plain")
+                res.writeHead(200)
+                res.end("Success. You can close this window.")
+                nodeServer?.close()
             }
-            // 禁止向 dynamic 的 Node API 传 Kotlin 集合当 headers，一律用 setHeader
-            res.setHeader("Content-Type", "text/plain")
-            res.writeHead(200)
-            res.end("Success. You can close this window.")
-            nodeServer?.close()
-        }
         nodeServer = server
         server.listen(config.callbackPort, config.callbackHost)
     }

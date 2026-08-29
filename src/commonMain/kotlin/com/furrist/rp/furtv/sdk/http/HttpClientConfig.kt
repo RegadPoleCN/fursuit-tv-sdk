@@ -47,7 +47,11 @@ internal object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
 
     // #25：sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
-    private val errorJson = Json { ignoreUnknownKeys = true; isLenient = true }
+    private val errorJson =
+        Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
     private const val SUCCESS_STATUS_START = 200
     private const val SUCCESS_STATUS_END = 299
     private const val SERVER_ERROR_START = 500

@@ -42,6 +42,8 @@ private class NativeOAuthCallbackHandler(
 
     private companion object {
         private const val READ_BUFFER_SIZE = 4096
+        private const val HEADER_END_NOT_FOUND = -1
+        private val HEADER_TERMINATOR = byteArrayOf(0x0D, 0x0A, 0x0D, 0x0A)
         private const val RESPONSE_OK =
             "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\n" +
                 "Success. You can close this window.\n"
@@ -63,31 +65,7 @@ private class NativeOAuthCallbackHandler(
             while (isActive) {
                 val socket = server.accept()
                 try {
-                    val readChannel = socket.openReadChannel()
-                    val buf = ByteArray(READ_BUFFER_SIZE)
-                    var total = 0
-                    // #4：读到请求头结束符（\r\n\r\n）即处理；浏览器 GET 保持连接时不再挂起到超时
-                    while (total < buf.size) {
-                        val n = readChannel.readAvailable(buf, total, buf.size - total)
-                        if (n <= 0) break
-                        total += n
-                        if (findHeaderEnd(buf, total) >= 0) break
-                    }
-                    var requestEnd = total
-                    val headerEnd = findHeaderEnd(buf, total)
-                    if (headerEnd >= 0) {
-                        // 有 body 时按 Content-Length 补读
-                        val contentLength = parseContentLength(buf, headerEnd)
-                        if (contentLength > 0) {
-                            while (total < buf.size && total < headerEnd + contentLength) {
-                                val n = readChannel.readAvailable(buf, total, buf.size - total)
-                                if (n <= 0) break
-                                total += n
-                            }
-                            requestEnd = total
-                        }
-                    }
-                    val request = buf.copyOf(requestEnd).decodeToString()
+                    val request = readCallbackRequest(socket.openReadChannel())
                     val firstLine = request.lineSequence().firstOrNull().orEmpty()
                     val rawQuery = firstLine.substringAfter('?').substringBefore(' ')
                     val parameters = parseQueryString(rawQuery)
@@ -104,13 +82,41 @@ private class NativeOAuthCallbackHandler(
         }
     }
 
+    /**
+     * #4：读到请求头结束符（\r\n\r\n）即返回；浏览器 GET 保持连接时不再挂起到超时。
+     * 有 body 时按 Content-Length 补读。
+     */
+    private suspend fun readCallbackRequest(readChannel: ByteReadChannel): String {
+        val buf = ByteArray(READ_BUFFER_SIZE)
+        var total = 0
+        while (total < buf.size && findHeaderEnd(buf, total) < 0) {
+            val n = readChannel.readAvailable(buf, total, buf.size - total)
+            if (n <= 0) break
+            total += n
+        }
+        var requestEnd = total
+        val headerEnd = findHeaderEnd(buf, total)
+        if (headerEnd >= 0) {
+            val contentLength = parseContentLength(buf, headerEnd)
+            if (contentLength > 0) {
+                while (total < buf.size && total < headerEnd + contentLength) {
+                    val n = readChannel.readAvailable(buf, total, buf.size - total)
+                    if (n <= 0) break
+                    total += n
+                }
+                requestEnd = total
+            }
+        }
+        return buf.copyOf(requestEnd).decodeToString()
+    }
+
     private fun findHeaderEnd(buf: ByteArray, limit: Int): Int {
-        val t = byteArrayOf(0x0D, 0x0A, 0x0D, 0x0A)
+        val t = HEADER_TERMINATOR
         outer@ for (i in 0..limit - t.size) {
             for (j in t.indices) if (buf[i + j] != t[j]) continue@outer
             return i + t.size
         }
-        return -1
+        return HEADER_END_NOT_FOUND
     }
 
     private fun parseContentLength(buf: ByteArray, headerEnd: Int): Int {

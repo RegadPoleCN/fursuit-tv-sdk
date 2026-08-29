@@ -26,17 +26,17 @@ import kotlin.test.assertTrue
  * 《授权端点》:36 要求 redirect_uri 等参数编码）。
  */
 class OAuthAuthorizeUrlEncodingTest {
-
     @Test
     fun `authorize url encodes query parameter values`() {
         val config = SdkConfig(clientId = "vap_test", clientSecret = "test-secret")
         val auth = AuthManager(config, HttpClient())
 
-        val url = auth.getOAuthAuthorizeUrl(
-            redirectUri = "https://example.com/cb?x=1",
-            scope = "profile",
-            state = "a&b=c",
-        )
+        val url =
+            auth.getOAuthAuthorizeUrl(
+                redirectUri = "https://example.com/cb?x=1",
+                scope = "profile",
+                state = "a&b=c",
+            )
 
         assertTrue(url.startsWith("https://open-global.vdsentnet.com/api/proxy/account/sso/authorize?"))
         assertTrue(url.contains("client_id=vap_test"))
