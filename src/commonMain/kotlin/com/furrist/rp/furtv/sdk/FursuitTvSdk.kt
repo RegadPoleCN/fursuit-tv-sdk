@@ -102,12 +102,12 @@ public class FursuitTvSdk internal constructor(
     public fun getConfig(): SdkConfig = config
 
     /**
-     * 关闭 SDK 客户端并释放资源（关闭共享的 HttpClient）。
+     * 关闭 SDK 客户端并释放资源（关闭共享的 HttpClient 并驱逐缓存条目，#30）。
      */
     @JsName("close")
     public fun close() {
         check(!closed) { "FursuitTvSdk already closed (close is irreversible)" }
-        httpClient.close()
+        HttpClientConfig.evict(config, authHolder)
         closed = true
     }
 }
@@ -140,11 +140,11 @@ public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk
 
     // #8：配置级 apiKey 已删除，条件简化为 clientId + clientSecret
     if (config.clientId != null && config.clientSecret != null) {
-        val tempHolder = com.furrist.rp.furtv.sdk.auth.AuthHolder()
-        val httpClient = HttpClientConfig.getClient(config, tempHolder)
-        val authManager = AuthManager(config, httpClient)
-        val tokenInfo = authManager.exchangeToken(config.clientId, config.clientSecret)
-        return FursuitTvSdk(config, tokenInfo)
+        // #30：复用 SDK 自身的 holder/client 完成交换，tokenInfo 写入其 AuthManager，
+        // 不再创建临时 AuthHolder/HttpClient（否则泄漏到缓存中永远不驱逐）
+        val sdk = FursuitTvSdk(config)
+        sdk.auth.exchangeToken(config.clientId, config.clientSecret)
+        return sdk
     }
 
     return FursuitTvSdk(config)

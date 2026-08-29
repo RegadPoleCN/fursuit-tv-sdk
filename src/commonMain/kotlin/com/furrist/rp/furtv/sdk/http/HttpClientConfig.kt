@@ -88,6 +88,15 @@ internal object HttpClientConfig {
     internal fun getClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
         instance.getOrPut(config to authHolder) { buildClient(config, authHolder) }
 
+    /**
+     * #30：关闭并驱逐 `(config, authHolder)` 对应的缓存条目。
+     * remove 对不存在的 key 返回 null，天然幂等。驱逐后同 key 再 [getClient]
+     * 会重建新活客户端（调用方 close 后继续使用属未定义行为）。
+     */
+    internal fun evict(config: SdkConfig, authHolder: AuthHolder) {
+        instance.remove(config to authHolder)?.close()
+    }
+
     internal fun buildClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
         HttpClient {
             install(ContentNegotiation) {
