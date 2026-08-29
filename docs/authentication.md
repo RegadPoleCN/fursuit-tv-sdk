@@ -379,3 +379,17 @@ val customContact = user.contactInfo?.custom
 ```
 
 迁移点：所有 `?.get("...")` → `?.entries?.get("...")`。`MutableSdkConfig.apiKey` 字段保留但 `@Deprecated`（调用应改用 `clientId/clientSecret` + `auth.getApiKey()`）。
+
+## 浏览器中继页接入约定
+
+JS 浏览器端 SDK 无法直接在页面接收 OAuth 重定向，回调通过 `window.postMessage` 送达。接入方需部署一个**中继页**，其 URL 配置为 OAuth 应用的 `redirect_uri`。中继页收到 OAuth 重定向（query 含 `code`/`state` 或 `error`/`error_description`）时，把 query 参数原样转发给打开它的页面：
+
+```html
+<script>
+  const q = new URLSearchParams(location.search);
+  const payload = Object.fromEntries(q.entries());
+  window.opener && window.opener.postMessage(JSON.stringify(payload), "*");
+</script>
+```
+
+约定：payload 为 query 参数的 JSON 序列化（或 query-like 字符串），SDK 的 `JsOAuthCallbackHandler` 会解析其中的 `code`/`state`/`error`/`error_description` 字段。Node.js 环境无需中继页——SDK 会直接在本机 `callbackHost:callbackPort` 启动回调服务器。

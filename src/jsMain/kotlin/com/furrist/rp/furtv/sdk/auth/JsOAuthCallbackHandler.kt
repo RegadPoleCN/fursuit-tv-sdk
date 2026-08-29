@@ -17,9 +17,10 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import com.furrist.rp.furtv.sdk.model.OAuthConfig
+import io.ktor.http.parseQueryString
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.EventListener
@@ -36,12 +37,16 @@ public class JsOAuthCallbackHandler(
     private var deferredResult: CompletableDeferred<OAuthCallbackResult>? = null
     private var messageListener: EventListener? = null
 
-    private companion object {
-        private const val NODE_POLL_INTERVAL_MS = 500L
-    }
+    // #5：Node.js 本地回调服务器（dynamic 持有 node:http Server 实例）
+    private var nodeServer: dynamic = null
+
+    private fun importNodeHttp(): dynamic = js("import('node:http')")
 
     override suspend fun startListening() {
-        if (!isBrowser) return
+        if (!isBrowser) {
+            startNodeServer()
+            return
+        }
         val deferred = CompletableDeferred<OAuthCallbackResult>()
         deferredResult = deferred
         val listener =
@@ -57,6 +62,29 @@ public class JsOAuthCallbackHandler(
         window.addEventListener("message", listener)
     }
 
+    private suspend fun startNodeServer() {
+        val deferred = CompletableDeferred<OAuthCallbackResult>()
+        deferredResult = deferred
+        val http = importNodeHttp().await<dynamic>()
+        val server = http.createServer { req, res ->
+            try {
+                val rawQuery = (req.url as String?).orEmpty().substringAfter('?', "")
+                val parameters = parseQueryString(rawQuery)
+                val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
+                handleAuthorizationCallback(params, deferred)
+            } catch (_: Throwable) {
+                // 回调解析失败不影响服务器继续监听
+            }
+            // 禁止向 dynamic 的 Node API 传 Kotlin 集合当 headers，一律用 setHeader
+            res.setHeader("Content-Type", "text/plain")
+            res.writeHead(200)
+            res.end("Success. You can close this window.")
+            nodeServer?.close()
+        }
+        nodeServer = server
+        server.listen(config.callbackPort, config.callbackHost)
+    }
+
     override suspend fun waitForCallback(): OAuthCallbackResult {
         val timeoutMillis = config.timeoutSeconds * 1000L
         return withTimeoutOrNull(timeoutMillis) {
@@ -66,8 +94,7 @@ public class JsOAuthCallbackHandler(
                         OAuthCallbackResult.Error("No callback received. Did the browser listen for messages?")
                     } else {
                         OAuthCallbackResult.Error(
-                            "Node.js callback polling does not run in waitForCallback()." +
-                                " Use startAndGetCallback().",
+                            "Node.js callback server is not running. Call startListening() first.",
                         )
                     }
                 }
@@ -92,6 +119,8 @@ public class JsOAuthCallbackHandler(
         if (isBrowser) {
             messageListener?.let { window.removeEventListener("message", it) }
         }
+        nodeServer?.close()
+        nodeServer = null
     }
 
     private fun parseQueryLike(payload: String): Map<String, String> {
@@ -155,13 +184,3 @@ public fun buildCallbackUrl(c: OAuthConfig): String =
         }
         append(c.callbackPath)
     }
-
-@Suppress("UnusedPrivateMember")
-private suspend fun nodeCallbackPoll() {
-    // 占位 Node.js 回调轮询（如果 SDK 内部需要使用 http.Server，可以在此扩展）。
-    while (true) {
-        delay(NODE_POLL_INTERVAL_MS)
-    }
-}
-
-private const val NODE_POLL_INTERVAL_MS: Long = 500L
