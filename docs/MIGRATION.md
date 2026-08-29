@@ -325,3 +325,28 @@ let sdk = try await FursuitTvSdkKt.fursuitTvSdk { cfg in
 | `docs/error-handling.md` | 异常体系 + 处理策略 |
 | `docs/api.md` | 合并所有 6 个 API 模块的单一文档 |
 | `docs/MIGRATION.md`（**新增**） | 本文档：v1.x → v2.0 迁移指南 |
+---
+
+## 0.4.0 API 返回值统一
+
+全部 API 方法统一返回完整 `*Response` 包装，`success` / `requestId` 等元数据可达。
+旧调用 → 新调用对照（逐方法）：
+
+| 方法 | 旧调用 | 新调用 |
+|------|--------|--------|
+| `user.getUserProfile` | `profile.username` | `profile.user.username` |
+| `user.getUserId` | `id.id` | `id.user.id` |
+| `gathering.getMonthly` | `monthly.<字段>` | `monthly.data.<字段>` |
+| `gathering.getMonthlyDistance` | `distance.<字段>` | `distance.data.<字段>` |
+| `gathering.getNearby` | `nearby.size` | `nearby.data.size`（旧返回是 `List`，直接追加 `.data`） |
+| `gathering.getNearbyMode` | `nearbyMode.gatherings.size` | `nearbyMode.data.gatherings.size` |
+| `gathering.getGatheringDetail` | `detail.title` | `detail.gathering.title` |
+| `base.getAndroidVersion` | `v.version` | `v.data.version` |
+| `base.checkAndroidVersion` | `r.needUpdate` | `r.data.needUpdate`（字段名是 `needUpdate`，无 `updateAvailable`） |
+| `base.getThemePacksManifest` | `m.themes` | `m.data.themes` |
+| `school.getSchoolDetail` | `s.name` | `s.school.name` |
+| `search.getRandomFursuit` | `list.size` | `resp.fursuits?.size ?: resp.fursuit?.let { 1 } ?: 0` |
+
+其他 0.4.0 破坏性变更（详见 CHANGELOG）：配置级 apiKey 删除、PKCE 删除、
+`checkAndroidVersion` 的 `currentVersionCode` 改必填、`getMonthlyDistance`
+新增必填 `lat`/`lng`、文档外请求参数与响应字段移除。

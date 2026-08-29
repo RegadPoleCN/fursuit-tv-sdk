@@ -15,6 +15,7 @@
 - **移除文档外请求参数**：`getNearby` 改无参（`GatheringNearbyParams` 删除）、`getRegistrations` 移除 `status`/`cursor`/`limit`、`searchSchools` 移除 `cursor`/`limit`、`getRandomFursuit` 移除 `personalized`（审计项 #26）
 - **移除文档外响应字段**：`RandomFursuit.location`、`PopularLocationsResponse.total_users`、`LikeStatusResponse.can_like`（严格依据 vds-docs，文档无即移除）（审计项 #27）
 - **`getRandomFursuit` 返回完整 `RandomFursuitResponse`**：不再自动解包为 `List<RandomFursuit>`，`count`/`requested_count`/`debug_info`/`requestId` 可达（审计项 #28）
+- **全部 API 方法统一返回完整 `*Response` 包装**：11 个解包方法不再自动解包，`success`/`requestId` 等元数据可达；完整对照见 `docs/MIGRATION.md`「0.4.0 API 返回值统一」（审计项 #39）
 
 ### 变更
 

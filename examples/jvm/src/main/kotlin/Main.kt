@@ -18,20 +18,20 @@ fun main() = runBlocking {
         println("Health: ${health.message}")
 
         val profile = sdk.user.getUserProfile("username")
-        println("Username: ${profile.username}")
-        println("Nickname: ${profile.nickname}")
+        println("Username: ${profile.user.username}")
+        println("Nickname: ${profile.user.nickname}")
 
         val popular = sdk.search.getPopular()
         println("Popular users: ${popular.users.size}")
 
         val userId = sdk.user.getUserId("username")
-        println("User ID: ${userId.id}")
+        println("User ID: ${userId.user.id}")
 
         val likeStatus = sdk.user.getLikeStatus("username")
         println("Liked: ${likeStatus.isLiked}")
 
         val nearbyMode = sdk.gathering.getNearbyMode()
-        println("Nearby gatherings: ${nearbyMode.gatherings.size}")
+        println("Nearby gatherings: ${nearbyMode.data.gatherings.size}")
 
         val yearStats = sdk.gathering.getYearStats()
         println("Gathering total: ${yearStats.total}")
