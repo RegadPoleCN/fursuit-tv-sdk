@@ -9,10 +9,15 @@
 
 - **`PopularUser.popularityScore` 类型 `Int?` → `String?`**：vds-docs 热门推荐响应中 `popularity_score` 为字符串（如 `"2989"`），原 `Int?` 与文档不符（审计项 #12）
 - **`BaseApi.checkAndroidVersion` 的 `currentVersionCode` 改为必填**：方法参数与 `AndroidVersionCheckRequest.currentVersionCode` 由 `Int?` 改为非空 `Int`；vds-docs 示例恒携带该参数（审计项 #40）
+- **PKCE 支持整体删除**：`loginWithOAuth` 不再自动生成/发送 code_challenge；`getOAuthAuthorizeUrl` 移除 `enablePkce`/`codeChallenge` 参数；`exchangeOAuthToken` 移除 `codeVerifier` 参数；`OAuthConfig.enablePkce` 删除；`Sha256`/`toHex` 工具删除（vds-docs 未记载 PKCE，属文档外扩展）（审计项 #6）
 
 ### 变更
 
+- `loginWithOAuth` scope 默认值改为 `"profile"`（审计项 #24）
+- `/account/sso/*` 请求不再注入 `X-Api-Key`（审计项 #23）
+- sso 端点错误响应结构化为 `OAuthException(errorCode)`（审计项 #25）
 - OAuth 授权 URL 的 query 参数值（`client_id`/`redirect_uri`/`scope`/`state` 等）按文档要求 URL 编码（审计项 #1）
+- 修复 `loginWithOAuth` 双重启动回调服务器（审计项 #2）；Native `startListening` 幂等守卫（审计项 #3）；Native 回调读取改头结束符检测，浏览器 GET 保持连接不再挂起（审计项 #4）；Node.js 实现真实本地 OAuth 回调服务器并补浏览器中继页接入约定（审计项 #5）
 
 ### 新增
 
