@@ -45,10 +45,9 @@ public class SchoolApi internal constructor(
     @JsName("searchSchools")
     public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchResponse =
         auth.withFreshToken {
+            // #26：学校搜索.md 查询参数仅 query，cursor/limit 为文档外参数
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
                 parameter("query", params.query)
-                params.cursor?.let { parameter("cursor", it) }
-                params.limit?.let { parameter("limit", it) }
             }.body<SchoolSearchResponse>()
         }
 

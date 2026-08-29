@@ -56,7 +56,7 @@ public class SearchApi internal constructor(
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
                 params.count?.let { parameter("count", it) }
-                params.personalized?.let { parameter("personalized", it) }
+                // #26：随机推荐.md 查询参数仅 count，文档外参数已移除
             }.body<RandomFursuitResponse>()
         }
 

@@ -75,13 +75,11 @@ public class GatheringApi internal constructor(
         }
 
     @JsName("getNearby")
-    public suspend fun getNearby(params: GatheringNearbyParams): List<GatheringNearbyItem> =
+    public suspend fun getNearby(): List<GatheringNearbyItem> =
         auth.withFreshToken {
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby") {
-                params.lat?.let { parameter("lat", it) }
-                params.lng?.let { parameter("lng", it) }
-                params.radius?.let { parameter("radius", it) }
-            }.body<GatheringNearbyResponse>().data
+            // #26：聚会附近.md 无查询参数章节，lat/lng/radius 为文档外参数
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby")
+                .body<GatheringNearbyResponse>().data
         }
 
     @JsName("getNearbyMode")
@@ -101,10 +99,8 @@ public class GatheringApi internal constructor(
     @JsName("getRegistrations")
     public suspend fun getRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsResponse =
         auth.withFreshToken {
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations") {
-                params.status?.let { parameter("status", it) }
-                params.cursor?.let { parameter("cursor", it) }
-                params.limit?.let { parameter("limit", it) }
-            }.body<GatheringRegistrationsResponse>()
+            // #26：聚会报名列表.md 仅定义路径参数 id，status/cursor/limit 为文档外参数
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations")
+                .body<GatheringRegistrationsResponse>()
         }
 }

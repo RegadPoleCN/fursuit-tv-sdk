@@ -702,7 +702,6 @@ public data class LikeStatusResponse(
     @SerialName("is_liked")
     @Serializable(with = BooleanAsIntSerializer::class)
     public val isLiked: Boolean? = null,
-    @SerialName("can_like") public val canLike: Boolean? = null,
     @SerialName("days_until_can_like") public val daysUntilCanLike: Int? = null,
     @SerialName("requestId") public val requestId: String? = null,
 )
@@ -934,7 +933,6 @@ public data class RandomFursuit(
     @SerialName("avatar_url") public val avatarUrl: String? = null,
     @SerialName("fursuit_species") public val fursuitSpecies: String? = null,
     @SerialName("fursuit_maker") public val fursuitMaker: String? = null,
-    @SerialName("location") public val location: String? = null,
     @SerialName("destination") public val destination: String? = null,
     @SerialName("introduction") public val introduction: String? = null,
     @SerialName("view_count") public val viewCount: Int? = null,
@@ -1112,7 +1110,6 @@ public data class PopularLocationsResponse(
     @SerialName("success") public val success: Boolean,
     @SerialName("popular_provinces") public val popularProvinces: List<ProvinceInfo>,
     @SerialName("popular_cities") public val popularCities: List<CityInfo>,
-    @SerialName("total_users") public val totalUsers: Int? = null,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -1683,7 +1680,6 @@ public data class SearchParams(
 @Serializable
 public data class RandomFursuitParams(
     public val count: Int? = null,
-    public val personalized: Boolean? = null,
 )
 
 /** 聚会月历参数。 */
@@ -1695,25 +1691,12 @@ public data class GatheringMonthlyParams(
     public val month: Int,
 )
 
-/** 附近聚会参数。 */
-@JsExport
-@JsName("GatheringNearbyParams")
-@Serializable
-public data class GatheringNearbyParams(
-    public val lat: Double? = null,
-    public val lng: Double? = null,
-    public val radius: Int? = null,
-)
-
 /** 聚会报名列表参数。 */
 @JsExport
 @JsName("GatheringRegistrationsParams")
 @Serializable
 public data class GatheringRegistrationsParams(
     public val gatheringId: String,
-    public val status: String? = null,
-    public val cursor: String? = null,
-    public val limit: Int? = null,
 )
 
 /** 学校搜索参数。 */
@@ -1722,6 +1705,4 @@ public data class GatheringRegistrationsParams(
 @Serializable
 public data class SchoolSearchParams(
     public val query: String,
-    public val cursor: String? = null,
-    public val limit: Int? = null,
 )
