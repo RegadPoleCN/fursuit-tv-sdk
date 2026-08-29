@@ -28,6 +28,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 /**
  * HTTP 客户端配置（内部缓存工厂），提供 Ktor 客户端的创建和配置功能。
@@ -43,6 +45,9 @@ import kotlinx.serialization.json.Json
  */
 internal object HttpClientConfig {
     private const val REQUEST_ID_LENGTH = 16
+
+    // #25：sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
+    private val errorJson = Json { ignoreUnknownKeys = true; isLenient = true }
     private const val SUCCESS_STATUS_START = 200
     private const val SUCCESS_STATUS_END = 299
     private const val SERVER_ERROR_START = 500
@@ -103,8 +108,11 @@ internal object HttpClientConfig {
                 header("User-Agent", USER_AGENT_CHROME)
 
                 // ✅ 每个请求从 AuthHolder 读取最新 apiKey（init-builder-refactor D8）
-                authHolder.auth?.getApiKey()?.let { apiKey ->
-                    header("X-Api-Key", apiKey)
+                // /account/sso/* 端点无需任何平台签名头（vds-docs：VDS账户各篇"无需任何开放平台签名"）
+                if (!url.encodedPath.contains("/account/sso/")) {
+                    authHolder.auth?.getApiKey()?.let { apiKey ->
+                        header("X-Api-Key", apiKey)
+                    }
                 }
             }
 
@@ -141,6 +149,10 @@ internal object HttpClientConfig {
     private suspend fun validateStatusCode(response: io.ktor.client.statement.HttpResponse) {
         if (response.status.value !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
             val errorBody = readErrorBody(response)
+            // #25：sso 端点（OAuth token / userinfo）错误体为 {error, error_description}，结构化抛出
+            if (response.request.url.encodedPath.contains("/account/sso/")) {
+                throwOAuthError(response.status.value, errorBody)
+            }
             throwExceptionForStatusCode(response.status.value, errorBody)
         }
     }
@@ -174,6 +186,21 @@ internal object HttpClientConfig {
         throw exception
     }
 
+    /**
+     * #25：解析 sso 端点的 OAuth 错误体 `{error, error_description}`（签名交换端点.md:66-72、
+     * 用户信息端点.md:70-75），结构化抛出 [OAuthException]；解析失败回落为通用消息。
+     */
+    private fun throwOAuthError(statusCode: Int, errorBody: String?): Nothing {
+        val element = errorBody?.let { body -> runCatching { errorJson.parseToJsonElement(body) }.getOrNull() }
+        val obj = element as? JsonObject
+        val errorCode = (obj?.get("error") as? JsonPrimitive)?.content
+        val errorDescription = (obj?.get("error_description") as? JsonPrimitive)?.content
+        throw OAuthException(
+            message = errorDescription ?: "OAuth request failed (HTTP $statusCode): ${errorBody ?: "Unknown error"}",
+            errorCode = errorCode,
+        )
+    }
+
     private fun handleResponseException(cause: Throwable): Nothing {
         when (cause) {
             is TokenExpiredException,
@@ -181,6 +208,7 @@ internal object HttpClientConfig {
             is NotFoundException,
             is ValidationException,
             is ApiException,
+            is OAuthException,
             -> throw cause
             else -> throw NetworkException("Network error: ${cause.message}", cause)
         }
