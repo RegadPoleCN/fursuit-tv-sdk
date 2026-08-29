@@ -146,10 +146,7 @@ val handler = createDefaultOAuthHandler(oauthConfig)
 ```
 
 ```kotlin
-val oauthConfig = OAuthConfig(
-    enablePkce = true,
-    stateTimeoutMinutes = 5,
-)
+// （旧版 enablePkce / stateTimeoutMinutes 配置项已随 0.4.0 PKCE 移除而删除）
 ```
 
 ### 新版（v2.0）
@@ -162,7 +159,6 @@ val oauthConfig = OAuthConfig(
     callbackPort = 8080,
     callbackPath = "/callback",
     timeoutSeconds = 300,   // 默认 300，同时承担"回调等待超时"与"state 存储超时"两种角色
-    enablePkce = true,
 )
 val handler = createDefaultOAuthHandler(oauthConfig)
 ```

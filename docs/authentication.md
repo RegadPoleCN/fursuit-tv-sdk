@@ -19,7 +19,7 @@ val sdk = fursuitTvSdk {
 
 // SDK 自动完成签名交换，可直接使用所有 API
 val profile = sdk.user.getUserProfile("exampleUser")
-println("用户: ${profile.displayName}")
+println("用户: ${profile.nickname}")
 
 sdk.close()
 ```
@@ -92,22 +92,17 @@ const sdk = await FursuitTvSdkBuilder.create()
    └─ 复杂链式 → FursuitTvSdkBuilder().build()
 ```
 
-## ⚠️ 约束：apiKey-only init 已被禁用
+## ⚠️ 约束：apiKey-only init 不可表达
+
+0.4.0 起，配置级 `apiKey` 已从 `MutableSdkConfig` / `SdkConfig` / `FursuitTvSdkBuilder` 中**彻底删除**，apiKey-only 初始化在编译期不可表达。
 
 ```kotlin
-// ❌ 不允许（运行抛 IllegalStateException）
-val sdk = fursuitTvSdk { apiKey = "your-api-key" }
-val sdk = FursuitTvSdkBuilder().apiKey("...").build()
-val sdk = FursuitTvSdkBuilder().apiKey("...").buildBlocking()  // Java 同步
-
-// ✅ 必须同时提供 clientId + clientSecret
+// ✅ 必须同时提供 clientId + clientSecret（platform apiKey 由 token exchange 自动获取）
 val sdk = fursuitTvSdk { clientId = "..."; clientSecret = "..." }
 val sdk = FursuitTvSdkBuilder().clientId("...").clientSecret("...").build()
 ```
 
-**理由：** platform `apiKey` 由 token exchange 自动获取；调用方不应绕过 exchange 直接传 apiKey。`apiKey` 字段在 `MutableSdkConfig` 上保留但标 `@Deprecated`（向后兼容）。
-
-错误消息：`"SDK init requires both clientId and clientSecret. apiKey-only init is forbidden."`
+错误消息：`"FursuitTvSdkBuilder.build() requires both clientId and clientSecret. apiKey-only init is forbidden (the platform apiKey is auto-obtained via token exchange). Use .clientId(...).clientSecret(...) before .build()."`
 
 ## 认证方式对比
 
@@ -118,10 +113,10 @@ val sdk = FursuitTvSdkBuilder().clientId("...").clientSecret("...").build()
 | **获取令牌** | `apiKey`（平台签名） | `oauthToken`（用户令牌，从 `TokenInfo.OAuth.oauthToken`） |
 | **认证头（业务 API）** | `X-Api-Key: <apiKey>` | `X-Api-Key: <apiKey>`（业务 API 仍用平台签名） |
 | **认证头（OAuth API）** | 不适用 | `Authorization: Bearer <oauthToken>`（单头） |
-| **令牌刷新** | 自动（SDK 内置，≤300秒触发） | 重新调用 `loginWithOAuth()`（无自动刷新） |
+| **令牌刷新** | 自动（SDK 内置，≤270秒触发） | 重新调用 `loginWithOAuth()`（无自动刷新） |
 | **前置条件** | 无 | 必须先完成签名交换 |
 | **典型用途** | 调用业务 API（user/search/gathering/school） | 获取用户信息（getUserInfo） |
-| **安全级别** | 高（服务端凭证） | 更高（PKCE 防止中间人攻击） |
+| **安全级别** | 高（服务端凭证） | 高（标准授权码流程 + state CSRF 防护） |
 
 ## 方式一：签名交换（Token Exchange）
 
@@ -150,12 +145,12 @@ clientId + clientSecret → POST /api/auth/token → TokenInfo.Platform {apiKey}
 | 令牌 | 认证头 | 优先级 | 说明 |
 |------|--------|--------|------|
 | **apiKey** | `X-Api-Key: <apiKey>` | **优先** | SDK 默认使用此头 |
-| **accessToken** (platform) | `Authorization: Bearer` | 备选 | 当 apiKey 为空时自动切换 |
+| **accessToken** (platform) | 不单独发送认证头 | — | platform 令牌的 apiKey 即业务请求的 `X-Api-Key` 凭证（OAuth userinfo 单独使用 Bearer） |
 
 #### 自动刷新机制
 
 SDK 会在以下情况自动刷新令牌：
-- 剩余有效期 **≤ 300 秒**时自动触发刷新
+- 剩余有效期 **≤ 270 秒**（300 秒窗口减 30 秒 skew 缓冲）时自动触发刷新
 - 刷新失败时会**回退到重新 exchangeToken()**
 - 整个过程对开发者透明，无需手动干预
 
@@ -195,7 +190,6 @@ while (true) {
 val authorizeUrl = sdk.auth.getOAuthAuthorizeUrl(
     redirectUri = "http://localhost:8080/callback",
     state = "random-state-string",  // CSRF 防护
-    enablePkce = true
 )
 // 输出: https://open-global.vdsentnet.com/api/proxy/account/sso/authorize?...
 ```
@@ -219,10 +213,6 @@ val tokenInfo = sdk.auth.exchangeOAuthToken(
 )
 // 返回 TokenInfo.OAuth {oauthToken, refreshToken, scope, redirectUri, expiresAt}
 ```
-
-### PKCE 安全增强
-
-SDK 支持 PKCE（Proof Key for Code Exchange）来防止授权码拦截攻击。`loginWithOAuth()` 默认启用 PKCE。
 
 ### 自动化流程：loginWithOAuth()
 
@@ -255,7 +245,7 @@ val userInfo = sdk.auth.getUserInfo()
 println("用户昵称: ${userInfo.nickname}")
 ```
 
-`loginWithOAuth()` 自动完成：生成 state + PKCE、启动回调监听、验证 state、交换令牌、返回 `TokenInfo.OAuth`。
+`loginWithOAuth()` 自动完成：生成 state、启动回调监听、验证 state、交换令牌、返回 `TokenInfo.OAuth`。
 
 ## 令牌类型总览
 

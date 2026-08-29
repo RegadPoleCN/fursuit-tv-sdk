@@ -75,27 +75,21 @@ val sdk = fursuitTvSdk {
 
 ### Java 用户
 
-Java 用户无法直接使用 Kotlin DSL，可使用 `JvmFursuitTvSdkBuilder` 进行链式配置。SDK 通过 `kotlin-suspend-transform-compiler-plugin` 自动为 Java 用户生成了 `buildBlocking()` 和 `buildAsync()` 两种构建方式：
+Java 用户无法直接使用 Kotlin DSL，可使用 `FursuitTvSdkBuilder` 进行链式配置。SDK 通过 `kotlin-suspend-transform-compiler-plugin` 自动为 Java 用户生成了 `buildBlocking()` 和 `buildAsync()` 两种构建方式：
 
 ```java
-import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+import com.furrist.rp.furtv.sdk.FursuitTvSdkBuilder;
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
 
-// 使用 apiKey 模式 — buildBlocking() 同步构建
-FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
-    .apiKey("your-api-key")
-    .logLevel(SdkLogLevel.INFO)
-    .buildBlocking();
-
-// 使用签名交换模式 — buildBlocking() 同步构建
-FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
+// buildBlocking() 同步构建（必须 clientId + clientSecret，platform apiKey 由 token exchange 自动获取）
+FursuitTvSdk sdk = FursuitTvSdkBuilder.create()
     .clientId("vap_xxx")
     .clientSecret("your-secret")
     .logLevel(SdkLogLevel.INFO)
     .buildBlocking();
 
-// 使用签名交换模式 — buildAsync() 异步构建，返回 CompletableFuture
-CompletableFuture<FursuitTvSdk> future = JvmFursuitTvSdkBuilder.create()
+// buildAsync() 异步构建，返回 CompletableFuture
+CompletableFuture<FursuitTvSdk> future = FursuitTvSdkBuilder.create()
     .clientId("vap_xxx")
     .clientSecret("your-secret")
     .logLevel(SdkLogLevel.INFO)
@@ -161,7 +155,7 @@ fun main() = runBlocking {
     try {
         // 调用 API
         val profile = sdk.user.getUserProfile("username")
-        println("用户：${profile.displayName}")
+        println("用户：${profile.nickname}")
     } catch (e: NotFoundException) {
         println("用户不存在")
     } catch (e: ApiException) {
@@ -176,13 +170,14 @@ fun main() = runBlocking {
 
 ```java
 import com.furrist.rp.furtv.sdk.FursuitTvSdk;
-import com.furrist.rp.furtv.sdk.factory.JvmFursuitTvSdkBuilder;
+import com.furrist.rp.furtv.sdk.FursuitTvSdkBuilder;
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel;
 
 public class Main {
     public static void main(String[] args) {
-        FursuitTvSdk sdk = JvmFursuitTvSdkBuilder.create()
-            .apiKey("your-api-key")
+        FursuitTvSdk sdk = FursuitTvSdkBuilder.create()
+            .clientId("vap_xxx")
+            .clientSecret("your-secret")
             .logLevel(SdkLogLevel.INFO)
             .buildBlocking();
 
@@ -211,7 +206,7 @@ const sdk = await fursuitTvSdk({
 
 try {
     const profile = sdk.user.getUserProfile("username");
-    console.log(`用户：${profile.displayName}`);
+    console.log(`用户：${profile.nickname}`);
 } catch (e) {
     console.error("错误：", e.message);
 } finally {
