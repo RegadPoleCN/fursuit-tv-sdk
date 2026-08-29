@@ -190,7 +190,8 @@ public class AuthManager internal constructor(
         val state = StateStoreInternal.generateState()
         StateStoreInternal.storeState(state, oauthConfig.timeoutSeconds / SECONDS_PER_MINUTE)
 
-        handler.startListening()
+        // startListening 由 handler.startAndGetCallback 内部调用（#2：此处不得重复启动，
+        // 否则 Native 二次 bind 崩溃 / JVM 二次 start 抛异常 / JS 覆盖 deferred）
 
         val pkceParams = generatePkceParameters(oauthConfig.enablePkce)
         val authorizeUrl =
