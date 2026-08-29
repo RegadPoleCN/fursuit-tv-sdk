@@ -1304,8 +1304,38 @@ public data class GatheringNearbyModeResponse(
 @JsName("GatheringNearbyModeData")
 @Serializable
 public data class GatheringNearbyModeData(
-    @SerialName("gatherings") public val gatherings: List<GatheringNearbyItem>,
+    @SerialName("gatherings") public val gatherings: List<GatheringNearbyModeItem>,
     @SerialName("intent_gathering_ids") public val intentGatheringIds: List<Int>,
+)
+
+/**
+ * 聚会附近模式项（聚会附近模式.md 响应元素；#15）。
+ * 注：文档第 4 行明示 `participants` 为服务端预留字段（现阶段不处理），故不建模。
+ */
+@JsExport
+@JsName("GatheringNearbyModeItem")
+@Serializable
+public data class GatheringNearbyModeItem(
+    @SerialName("id") public val id: Int,
+    @SerialName("title") public val title: String,
+    @SerialName("event_date") public val eventDate: String? = null,
+    @SerialName("end_date") public val endDate: String? = null,
+    @SerialName("event_time") public val eventTime: String? = null,
+    @SerialName("end_clock_time") public val endClockTime: String? = null,
+    @SerialName("start_time") public val startTime: String? = null,
+    @SerialName("end_time") public val endTime: String? = null,
+    @SerialName("time_zone") public val timeZone: String? = null,
+    @SerialName("avatar_url") public val avatarUrl: String? = null,
+    @SerialName("current_participants") public val currentParticipants: Int? = null,
+    @SerialName("max_participants") public val maxParticipants: Int? = null,
+    @SerialName("address") public val address: String? = null,
+    @SerialName("city") public val city: String? = null,
+    @SerialName("lat") public val lat: Double? = null,
+    @SerialName("lng") public val lng: Double? = null,
+    @SerialName("badges") public val badges: List<GatheringBadge>? = null,
+    @SerialName("is_furtv_coop_driven")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isFurtvCoopDriven: Boolean? = null,
 )
 
 /** 聚会详情响应（data → gathering）。 */
@@ -1387,6 +1417,22 @@ public data class GatheringDetailData(
     @SerialName("max_participants") public val maxParticipants: Int? = null,
     @SerialName("current_participants") public val currentParticipants: Int? = null,
     @SerialName("min_participants") public val minParticipants: Int? = null,
+    @SerialName("content_source") public val contentSource: String? = null,
+    @SerialName("external_source") public val externalSource: String? = null,
+    @SerialName("external_id") public val externalId: String? = null,
+    @SerialName("source_url") public val sourceUrl: String? = null,
+    @SerialName("raw_payload") public val rawPayload: JsonObject? = null,
+    @SerialName("sync_skip_source_updates") public val syncSkipSourceUpdates: Int? = null,
+    @SerialName("sync_skip_reason") public val syncSkipReason: String? = null,
+    @SerialName("sync_skip_updated_at") public val syncSkipUpdatedAt: String? = null,
+    @SerialName("sync_skip_updated_by") public val syncSkipUpdatedBy: String? = null,
+    @SerialName("organizer_type") public val organizerType: String? = null,
+    @SerialName("registration_status") public val registrationStatus: String? = null,
+    @SerialName("created_at") public val createdAt: String? = null,
+    @SerialName("updated_at") public val updatedAt: String? = null,
+    @SerialName("is_furtv_coop_badge_enabled")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isFurtvCoopBadgeEnabled: Boolean? = null,
 )
 
 /** 议程项。 */
