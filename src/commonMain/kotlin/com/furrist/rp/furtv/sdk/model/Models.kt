@@ -78,6 +78,7 @@ public data class TokenData(
     public val grants: List<String>? = null,
     @SerialName("refresh")
     public val refresh: TokenRefreshInfo? = null,
+    public val requestId: String? = null,
 )
 
 /** OAuth 授权 URL 参数。 */
@@ -160,6 +161,7 @@ public data class OAuthTokenData(
     public val scope: String? = null,
     @SerialName("refresh_token")
     public val refreshToken: String? = null,
+    public val requestId: String? = null,
 )
 
 /** 用户信息数据。 */
@@ -182,6 +184,7 @@ public data class UserInfoData(
     public val iss: String? = null,
     @SerialName("aud")
     public val aud: Long? = null,
+    public val requestId: String? = null,
 )
 
 /** 令牌信息，SDK 内部使用的令牌存储结构（sealed class）。 */
@@ -489,6 +492,7 @@ public data class UserProfile(
     @SerialName("has_completed_contact") @Serializable(with = BooleanAsIntSerializer::class)
     public val hasCompletedContact: Boolean? = null,
     @SerialName("profile_flags") public val profileFlags: List<String>? = null,
+    @SerialName("contact_reputation_level") public val contactReputationLevel: Int? = null,
 )
 
 /** 用户社交链接。带自定义 KSerializer：反序列化时把 server JSON 拆为 entries (string-valued) + custom (CustomLink 列表)。 */
@@ -566,9 +570,10 @@ public object UserProfileContactInfoSerializer : KSerializer<UserProfileContactI
 @Serializable
 public data class ContactRequestState(
     @SerialName("button_state") public val buttonState: String? = null,
-    public val canRequest: Boolean? = null,
+    @SerialName("can_request") public val canRequest: Boolean? = null,
     @SerialName("reason_code") public val reasonCode: String? = null,
     public val message: String? = null,
+    @SerialName("requires_auth")
     @Serializable(with = BooleanAsIntSerializer::class)
     public val requiresAuth: Boolean? = null,
     @SerialName("button_text") public val buttonText: String? = null,
@@ -853,7 +858,7 @@ public data class PopularUser(
     @SerialName("created_at") public val createdAt: String? = null,
     @SerialName("destination") public val destination: String? = null,
     @SerialName("destination_expires_at") public val destinationExpiresAt: String? = null,
-    @SerialName("popularity_score") public val popularityScore: Int? = null,
+    @SerialName("popularity_score") public val popularityScore: String? = null,
 )
 
 /** 随机推荐响应。 */
@@ -913,6 +918,7 @@ public data class SearchResponse(
     @SerialName("has_more") public val hasMore: Boolean = false,
     @SerialName("total") public val total: Int? = null,
     @SerialName("next_cursor") public val nextCursor: String? = null,
+    @SerialName("total_is_estimate") public val totalIsEstimate: Boolean? = null,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -951,6 +957,10 @@ public data class SearchUser(
     @Serializable(with = BooleanAsIntSerializer::class)
     public val isVerified: Boolean? = null,
     @SerialName("created_at") public val createdAt: String? = null,
+    @SerialName("like_count") public val likeCount: Int? = null,
+    @SerialName("is_liked")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isLiked: Boolean? = null,
 )
 
 /** 搜索建议响应（flat：suggestions 直接挂在顶层）。 */
@@ -975,6 +985,7 @@ public data class SpeciesSearchResponse(
     @SerialName("has_more") public val hasMore: Boolean = false,
     @SerialName("total") public val total: Int? = null,
     @SerialName("next_cursor") public val nextCursor: String? = null,
+    @SerialName("total_is_estimate") public val totalIsEstimate: Boolean? = null,
     @SerialName("requestId") public val requestId: String,
 )
 
@@ -996,6 +1007,10 @@ public data class SpeciesSearchUser(
     @Serializable(with = BooleanAsIntSerializer::class)
     public val isVerified: Boolean? = null,
     @SerialName("created_at") public val createdAt: String? = null,
+    @SerialName("like_count") public val likeCount: Int? = null,
+    @SerialName("is_liked")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val isLiked: Boolean? = null,
 )
 
 /** 物种列表响应（flat）。 */
@@ -1459,6 +1474,10 @@ public data class CharacterInfo(
     @SerialName("species") public val species: String? = null,
     @SerialName("gender") public val gender: String? = null,
     @SerialName("worldview") public val worldview: String? = null,
+    @SerialName("images") public val images: List<String>? = null,
+    @SerialName("birthday") public val birthday: String? = null,
+    @SerialName("created_at") public val createdAt: String? = null,
+    @SerialName("updated_at") public val updatedAt: String? = null,
 )
 
 // ============================================================================

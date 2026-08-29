@@ -41,6 +41,8 @@ class AuthContractTest {
         assertEquals(3600, data.expiresIn)
         assertEquals("vap_xxxxxxxxxxxxxxxx", data.appId)
         assertEquals(listOf("furtv", "furtv.gathering.timeline"), data.grants)
+        // 审计项 #29：签名交换响应含 requestId
+        assertEquals("6ff8d966-b3f6-46a6-9fe3-24fd6553ef52", data.requestId)
     }
 
     @Test
@@ -51,6 +53,8 @@ class AuthContractTest {
         assertEquals(31556952, data.expiresIn)
         assertNotNull(data.refreshToken)
         assertEquals("openid profile", data.scope)
+        // 审计项 #29：OAuth token 响应含 requestId
+        assertEquals("435e1d38-e4b6-4224-a629-8927b81c96cc", data.requestId)
     }
 
     @Test
@@ -61,5 +65,7 @@ class AuthContractTest {
         assertEquals("example_user", data.username)
         assertEquals(1774002667L, data.updatedAt)
         assertEquals(35L, data.aud)
+        // 审计项 #29：userinfo 响应含 requestId
+        assertEquals("ab7747a5-9601-49ad-ba58-9111592dc3b0", data.requestId)
     }
 }

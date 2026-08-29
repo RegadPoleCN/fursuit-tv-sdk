@@ -36,6 +36,8 @@ class DiscoveryContractTest {
         assertEquals(1, data.users.size)
         assertEquals(1024, data.users[0].id)
         assertEquals("fox_demo", data.users[0].username)
+        // 审计项 #12：popularity_score 在文档中为字符串
+        assertEquals("2989", data.users[0].popularityScore)
     }
 
     @Test fun `search endpoint flat shape with pagination`() {
@@ -44,6 +46,10 @@ class DiscoveryContractTest {
         assertNotNull(data.pagination)
         assertEquals(1, data.pagination?.page)
         assertEquals("general", data.searchType)
+        // 审计项 #10/#11：like_count / is_liked / 顶层 total_is_estimate
+        assertEquals(4, data.users[0].likeCount)
+        assertEquals(false, data.users[0].isLiked)
+        assertEquals(false, data.totalIsEstimate)
     }
 
     @Test fun `suggestions flat list`() {
@@ -56,6 +62,10 @@ class DiscoveryContractTest {
         val data = json.decodeFromString<SpeciesSearchResponse>(ContractFixture.readFixture("vdsdocs/discovery/species-search.json"))
         // vds-docs uses "is_verified":1 (int) but model expects Boolean — gap revealed, not asserted
         assertEquals("狐", data.species)
+        // 审计项 #10/#11
+        assertEquals(35, data.users[0].likeCount)
+        assertEquals(false, data.users[0].isLiked)
+        assertEquals(false, data.totalIsEstimate)
     }
 
     @Test fun `species list flat with total`() {
