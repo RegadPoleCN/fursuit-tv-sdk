@@ -61,7 +61,6 @@ public enum class SdkLogLevel {
  * Fursuit.TV SDK 不可变配置。
  *
  * @property baseUrl API 基础 URL
- * @property apiKey API 密钥（可选，签名交换后可为空）
  * @property clientId 客户端 ID（即 VDS 文档中的 appId），用于签名交换或 OAuth
  * @property clientSecret 客户端密钥，用于签名交换或 OAuth
  * @property requestTimeout 请求超时时间（毫秒）
@@ -76,9 +75,6 @@ public enum class SdkLogLevel {
 @JsName("SdkConfig")
 public class SdkConfig(
     @JsName("baseUrl") public val baseUrl: String = Companion.DEFAULT_BASE_URL,
-    @JsName("apiKey")
-    @Deprecated("apiKey is no longer the source of platform authentication. Use sdk.auth.getApiKey() instead.")
-    public val apiKey: String? = null,
     @JsName("clientId") public val clientId: String? = null,
     @JsName("clientSecret") public val clientSecret: String? = null,
     @JsName("requestTimeout") public val requestTimeout: Long = Companion.DEFAULT_REQUEST_TIMEOUT,
@@ -119,16 +115,5 @@ public class SdkConfig(
         @JsName("forTokenExchange")
         public fun forTokenExchange(clientId: String, clientSecret: String): SdkConfig =
             SdkConfig(clientId = clientId, clientSecret = clientSecret)
-
-        /**
-         * 为已有 apiKey 创建配置。
-         *
-         * @param apiKey API 密钥
-         * @return SdkConfig 实例
-         */
-        @JvmStatic
-        @JsName("withApiKey")
-        public fun withApiKey(apiKey: String): SdkConfig =
-            SdkConfig(apiKey = apiKey)
     }
 }

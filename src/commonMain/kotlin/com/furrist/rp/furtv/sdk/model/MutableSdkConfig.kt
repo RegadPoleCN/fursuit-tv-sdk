@@ -38,7 +38,6 @@ import kotlin.js.JsName
  * `MutableSdkConfig` 仍是 `@JsExport` 公开类，但不提供链式 `setXxx(...)` 方法（直接赋属性更直观）。
  *
  * @property baseUrl API 基础 URL
- * @property apiKey API 密钥（可选）
  * @property clientId 客户端 ID（即 VDS 文档中的 appId）
  * @property clientSecret 客户端密钥
  * @property requestTimeout 请求超时时间（毫秒）
@@ -54,10 +53,6 @@ import kotlin.js.JsName
 public class MutableSdkConfig {
     @JsName("baseUrl")
     public var baseUrl: String = SdkConfig.DEFAULT_BASE_URL
-
-    @JsName("apiKey")
-    @Deprecated("apiKey at init is forbidden; provide clientId+clientSecret. The platform apiKey is auto-obtained via token exchange.")
-    public var apiKey: String? = null
 
     @JsName("clientId")
     public var clientId: String? = null
@@ -89,8 +84,6 @@ public class MutableSdkConfig {
     internal fun toImmutable(): SdkConfig =
         SdkConfig(
             baseUrl = baseUrl,
-            // 显式 null，不复制 caller 的 deprecated 值（per init-builder-refactor D9a）
-            apiKey = null,
             clientId = clientId,
             clientSecret = clientSecret,
             requestTimeout = requestTimeout,
@@ -104,14 +97,13 @@ public class MutableSdkConfig {
 }
 
 /**
- * Copy all 11 fields from `this` MutableSdkConfig to [target].
+ * Copy all fields from `this` MutableSdkConfig to [target].
  *
  * Used by `FursuitTvSdkBuilder.build()` to forward builder-captured config into the
  * `fursuitTvSdk { ... }` DSL block (single source of truth for `toImmutable()`).
  */
 internal fun MutableSdkConfig.copyTo(target: MutableSdkConfig) {
     target.baseUrl = baseUrl
-    target.apiKey = apiKey
     target.clientId = clientId
     target.clientSecret = clientSecret
     target.requestTimeout = requestTimeout

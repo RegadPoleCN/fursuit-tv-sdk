@@ -28,7 +28,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 /**
  * Fursuit.TV SDK 链式 Builder（cross-language）。
  *
- * 单一公共入口，替代旧的 `FursuitTvSdk.create` / `createForTokenExchange` / `withApiKey` /
+ * 单一公共入口，替代旧的 `FursuitTvSdk.create` / `createForTokenExchange` /
  * `JvmFursuitTvSdkBuilder` / `fursuitTvSdkBlocking`。suspend `build()` 由 suspend-transform
  * 插件在 JVM bytecode 阶段生成同步 `buildBlocking()` 和异步 `buildAsync()`。
  *
@@ -47,13 +47,6 @@ public class FursuitTvSdkBuilder {
     private val config = MutableSdkConfig()
 
     public fun baseUrl(value: String): FursuitTvSdkBuilder = apply { config.baseUrl = value }
-
-    /**
-     * @deprecated apiKey-only init 被禁止。提供 `clientId` + `clientSecret` 走 token exchange。
-     * 该字段保留以兼容老代码，但调用方应迁移到 `clientId`/`clientSecret`。
-     */
-    @Deprecated("apiKey at init is forbidden; provide clientId+clientSecret. The platform apiKey is auto-obtained via token exchange.")
-    public fun apiKey(value: String): FursuitTvSdkBuilder = apply { config.apiKey = value }
 
     public fun clientId(value: String): FursuitTvSdkBuilder = apply { config.clientId = value }
 

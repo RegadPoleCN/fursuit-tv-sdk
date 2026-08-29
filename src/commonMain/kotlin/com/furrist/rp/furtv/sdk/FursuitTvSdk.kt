@@ -132,7 +132,8 @@ public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk
     block(mutableConfig)
     val config = mutableConfig.toImmutable()
 
-    if (config.clientId != null && config.clientSecret != null && config.apiKey == null) {
+    // #8：配置级 apiKey 已删除，条件简化为 clientId + clientSecret
+    if (config.clientId != null && config.clientSecret != null) {
         val tempHolder = com.furrist.rp.furtv.sdk.auth.AuthHolder()
         val httpClient = HttpClientConfig.getClient(config, tempHolder)
         val authManager = AuthManager(config, httpClient)
