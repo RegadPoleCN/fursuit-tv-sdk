@@ -21,14 +21,11 @@ import com.furrist.rp.furtv.sdk.exception.OAuthException
 import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
 import com.furrist.rp.furtv.sdk.exception.ValidationException
 import com.furrist.rp.furtv.sdk.model.*
-import com.furrist.rp.furtv.sdk.utils.toHex
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlin.concurrent.Volatile
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.random.Random
@@ -169,23 +166,23 @@ public class AuthManager internal constructor(
     /**
      * 执行完整的 OAuth 登录流程
      *
-     * 1. 自动生成状态和 PKCE 参数
+     * 1. 自动生成状态参数
      * 2. 调用回调处理器开始监听
      * 3. 验证回调中的 state 参数（防止 CSRF 攻击）
      * 4. 交换授权码获取用户令牌
      *
-     * @param scope 权限范围（可选）
+     * @param scope 权限范围（默认 "profile"，与 vds-docs 示例一致；显式传 null 则不发送 scope 参数）
      * @return TokenInfo 获取到的用户令牌信息
      * @throws IllegalStateException 如果没有可用的回调处理器
      * @throws OAuthException 如果 state 验证失败或 OAuth 流程出错
      */
     @JsName("loginWithOAuth")
-    public suspend fun loginWithOAuth(scope: String? = null): TokenInfo {
+    public suspend fun loginWithOAuth(scope: String? = "profile"): TokenInfo {
         // 1. 确保 platform 签名有效（隐式 exchange / refresh）
         ensurePlatformToken()
 
         val handler = callbackHandler ?: throw IllegalStateException("OAuth callback handler not set")
-        val oauthConfig = OAuthConfig(enablePkce = true)
+        val oauthConfig = OAuthConfig()
 
         val state = StateStoreInternal.generateState()
         StateStoreInternal.storeState(state, oauthConfig.timeoutSeconds / SECONDS_PER_MINUTE)
@@ -193,19 +190,16 @@ public class AuthManager internal constructor(
         // startListening 由 handler.startAndGetCallback 内部调用（#2：此处不得重复启动，
         // 否则 Native 二次 bind 崩溃 / JVM 二次 start 抛异常 / JS 覆盖 deferred）
 
-        val pkceParams = generatePkceParameters(oauthConfig.enablePkce)
         val authorizeUrl =
             getOAuthAuthorizeUrl(
                 redirectUri = handler.callbackUrl,
                 scope = scope,
                 state = state,
-                enablePkce = oauthConfig.enablePkce,
-                codeChallenge = pkceParams?.codeChallenge,
             )
 
         val result = handler.startAndGetCallback(authorizeUrl)
 
-        return processOAuthCallbackResult(result, handler.callbackUrl, pkceParams?.codeVerifier)
+        return processOAuthCallbackResult(result, handler.callbackUrl)
     }
 
     /**
@@ -247,14 +241,13 @@ public class AuthManager internal constructor(
     private suspend fun processOAuthCallbackResult(
         result: OAuthCallbackResult,
         callbackUrl: String,
-        codeVerifier: String?,
     ): TokenInfo {
         when (result) {
             is OAuthCallbackResult.Success -> {
                 if (!StateStoreInternal.consumeState(result.state)) {
                     throw OAuthException("State mismatch or expired", errorCode = "state_mismatch")
                 }
-                return exchangeOAuthToken(result.code, callbackUrl, codeVerifier)
+                return exchangeOAuthToken(result.code, callbackUrl)
             }
             is OAuthCallbackResult.Error -> {
                 throw OAuthException(
@@ -329,48 +322,10 @@ public class AuthManager internal constructor(
     }
 
     /**
-     * 生成 PKCE code verifier
-     * @return 随机的 code_verifier 字符串
-     */
-    private fun generateCodeVerifier(): String = Random.nextBytes(32).toHex()
-
-    /**
-     * 生成 PKCE code challenge
-     * 对 code_verifier 进行 SHA256 哈希并进行 base64url 编码
-     * 使用纯 Kotlin 实现的 SHA256 算法，支持所有 Kotlin Multiplatform 平台
-     * @param verifier code_verifier 字符串
-     * @return code_challenge base64url 编码的 SHA256 哈希值
-     */
-    @OptIn(ExperimentalEncodingApi::class)
-    private fun generateCodeChallenge(verifier: String): String {
-        val sha256Hash = verifier.encodeToByteArray().sha256()
-        return Base64.UrlSafe.encode(sha256Hash).replace("=", "")
-    }
-
-    /**
-     * Generate PKCE parameters if enabled.
-     * @param enablePkce Whether to enable PKCE (Proof Key for Code Exchange)
-     * @return PkceParameters if enabled, null otherwise
-     */
-    private fun generatePkceParameters(enablePkce: Boolean): PkceParameters? {
-        if (!enablePkce) return null
-
-        val codeVerifier = generateCodeVerifier()
-        val codeChallenge = generateCodeChallenge(codeVerifier)
-
-        return PkceParameters(
-            codeVerifier = codeVerifier,
-            codeChallenge = codeChallenge,
-        )
-    }
-
-    /**
      * 生成 OAuth 授权 URL。
      * @param redirectUri 重定向 URI
      * @param scope 权限范围（可选）
      * @param state 状态参数，用于防止 CSRF 攻击（可选）
-     * @param enablePkce 是否启用 PKCE（可选，默认启用）
-     * @param codeChallenge PKCE code_challenge 值（可选，启用 PKCE 时若未提供则自动生成）
      * @return 完整的授权 URL
      * @throws IllegalStateException 当缺少 clientId 时抛出
      */
@@ -379,18 +334,8 @@ public class AuthManager internal constructor(
         redirectUri: String,
         scope: String? = null,
         state: String? = null,
-        enablePkce: Boolean = true,
-        codeChallenge: String? = null,
     ): String {
         val clientId = config.clientId ?: throw IllegalStateException("clientId is not configured in SDK")
-
-        var effectiveCodeChallenge: String? = null
-        var codeChallengeMethod: String? = null
-
-        if (enablePkce) {
-            effectiveCodeChallenge = codeChallenge ?: generatePkceParameters(true)?.codeChallenge
-            codeChallengeMethod = "SHA256"
-        }
 
         val queryParams =
             buildString {
@@ -399,22 +344,9 @@ public class AuthManager internal constructor(
                 append("&response_type=code")
                 scope?.let { append("&scope=${it.encodeURLParameter()}") }
                 state?.let { append("&state=${it.encodeURLParameter()}") }
-                effectiveCodeChallenge?.let { append("&code_challenge=${it.encodeURLParameter()}") }
-                codeChallengeMethod?.let { append("&code_challenge_method=${it.encodeURLParameter()}") }
             }
         return "${config.baseUrl}/api/proxy/account/sso/authorize$queryParams"
     }
-
-    /**
-     * PKCE (Proof Key for Code Exchange) parameters for OAuth security.
-     * @property codeVerifier The random verifier generated by client
-     * @property codeChallenge The SHA256 hash of codeVerifier, base64url encoded
-     */
-    @JsName("PkceParameters")
-    public data class PkceParameters(
-        public val codeVerifier: String,
-        public val codeChallenge: String,
-    )
 
     /**
      * 使用授权码换取 OAuth 用户令牌。
@@ -424,7 +356,6 @@ public class AuthManager internal constructor(
      *
      * @param code OAuth 授权码（从回调 URL 中获取）
      * @param redirectUri 重定向 URI（必须与授权时一致）
-     * @param codeVerifier PKCE code_verifier（如果使用了 PKCE）
      * @return OAuth 用户令牌信息（TokenInfo.OAuth）
      * @throws IllegalStateException 如果 clientId 或 clientSecret 未配置
      */
@@ -433,23 +364,18 @@ public class AuthManager internal constructor(
     public suspend fun exchangeOAuthToken(
         code: String,
         redirectUri: String,
-        codeVerifier: String? = null,
     ): TokenInfo.OAuth {
         val clientId = config.clientId ?: throw IllegalStateException("clientId is not configured in SDK")
         val clientSecret = config.clientSecret ?: throw IllegalStateException("clientSecret is not configured in SDK")
 
         val requestBody =
-            mutableMapOf(
+            mapOf(
                 "grant_type" to "authorization_code",
                 "client_id" to clientId,
                 "client_secret" to clientSecret,
                 "code" to code,
                 "redirect_uri" to redirectUri,
             )
-
-        codeVerifier?.let {
-            requestBody["code_verifier"] = it
-        }
 
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {

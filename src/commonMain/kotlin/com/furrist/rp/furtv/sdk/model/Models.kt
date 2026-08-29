@@ -108,7 +108,6 @@ public data class OAuthConfig(
     public val callbackPort: Int = DEFAULT_CALLBACK_PORT,
     public val callbackPath: String = DEFAULT_CALLBACK_PATH,
     public val timeoutSeconds: Int = DEFAULT_TIMEOUT_SECONDS,
-    public val enablePkce: Boolean = false,
 ) {
     init {
         require(callbackPort in 1..MAX_PORT_NUMBER) {

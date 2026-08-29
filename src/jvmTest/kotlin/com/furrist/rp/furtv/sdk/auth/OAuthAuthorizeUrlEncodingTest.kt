@@ -36,7 +36,6 @@ class OAuthAuthorizeUrlEncodingTest {
             redirectUri = "https://example.com/cb?x=1",
             scope = "profile",
             state = "a&b=c",
-            enablePkce = false,
         )
 
         assertTrue(url.startsWith("https://open-global.vdsentnet.com/api/proxy/account/sso/authorize?"))
