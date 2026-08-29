@@ -393,13 +393,13 @@ public class AuthManager internal constructor(
 
         val queryParams =
             buildString {
-                append("?client_id=$clientId")
-                append("&redirect_uri=$redirectUri")
+                append("?client_id=${clientId.encodeURLParameter()}")
+                append("&redirect_uri=${redirectUri.encodeURLParameter()}")
                 append("&response_type=code")
-                scope?.let { append("&scope=$it") }
-                state?.let { append("&state=$it") }
-                effectiveCodeChallenge?.let { append("&code_challenge=$it") }
-                codeChallengeMethod?.let { append("&code_challenge_method=$it") }
+                scope?.let { append("&scope=${it.encodeURLParameter()}") }
+                state?.let { append("&state=${it.encodeURLParameter()}") }
+                effectiveCodeChallenge?.let { append("&code_challenge=${it.encodeURLParameter()}") }
+                codeChallengeMethod?.let { append("&code_challenge_method=${it.encodeURLParameter()}") }
             }
         return "${config.baseUrl}/api/proxy/account/sso/authorize$queryParams"
     }
