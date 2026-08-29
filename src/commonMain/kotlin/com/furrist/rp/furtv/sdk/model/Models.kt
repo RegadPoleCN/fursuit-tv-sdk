@@ -86,22 +86,6 @@ public data class TokenData(
     public val requestId: String? = null,
 )
 
-/** OAuth 授权 URL 参数。 */
-@JsExport
-@JsName("OAuthAuthorizeParams")
-@Serializable
-public data class OAuthAuthorizeParams(
-    public val clientId: String,
-    public val redirectUri: String,
-    public val state: String? = null,
-    public val scope: String? = null,
-    public val responseType: String = "code",
-    @SerialName("code_challenge")
-    public val codeChallenge: String? = null,
-    @SerialName("code_challenge_method")
-    public val codeChallengeMethod: String? = null,
-)
-
 /**
  * OAuth 2.0 授权码流程 + 回调服务器配置（统一 `OAuthConfig`）。
  */
@@ -131,25 +115,6 @@ public data class OAuthConfig(
         private const val MAX_PORT_NUMBER = 65535
     }
 }
-
-/** OAuth 令牌请求。 */
-@JsExport
-@JsName("OAuthTokenRequest")
-@Serializable
-public data class OAuthTokenRequest(
-    @SerialName("grant_type")
-    public val grantType: String = "authorization_code",
-    @SerialName("client_secret")
-    public val clientSecret: String,
-    @SerialName("code")
-    public val code: String,
-    @SerialName("redirect_uri")
-    public val redirectUri: String,
-    @SerialName("client_id")
-    public val clientId: String,
-    @SerialName("code_verifier")
-    public val codeVerifier: String? = null,
-)
 
 /** OAuth 令牌数据。 */
 @JsExport
