@@ -67,6 +67,12 @@ public class FursuitTvSdk internal constructor(
             tokenInfo?.let { setTokenInfo(it) }
         }
 
+    init {
+        // #41：将 AuthManager 晚绑定到 authHolder，defaultRequest 才能按请求
+        // 读取并注入 X-Api-Key（此前全仓库无赋值，业务请求从不携带认证头）。
+        authHolder.auth = auth
+    }
+
     /** 基础接口 API */
     @JsName("base")
     public val base: BaseApi = BaseApi(auth, httpClient, config.baseUrl)
