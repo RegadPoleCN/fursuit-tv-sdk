@@ -48,19 +48,17 @@ public class UserApi internal constructor(
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
     @JsName("getUserProfile")
-    public suspend fun getUserProfile(username: String): UserProfile =
+    public suspend fun getUserProfile(username: String): UserProfileResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/users/$username")
                 .body<UserProfileResponse>()
-                .user
         }
 
     @JsName("getUserId")
-    public suspend fun getUserId(id: String): UserIdData =
+    public suspend fun getUserId(id: String): UserIdResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/users/id/$id")
                 .body<UserIdResponse>()
-                .user
         }
 
     @JsName("getLikeStatus")

@@ -70,14 +70,13 @@ public class BaseApi internal constructor(
     /**
      * 获取 Android 客户端最新版本信息。
      *
-     * @return 版本信息数据对象
+     * @return 版本信息响应包装（#39：含 success/requestId）
      */
     @JsName("getAndroidVersion")
-    public suspend fun getAndroidVersion(): AndroidVersionData =
+    public suspend fun getAndroidVersion(): AndroidVersionResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/version/android")
                 .body<AndroidVersionResponse>()
-                .data
         }
 
     /**
@@ -85,30 +84,29 @@ public class BaseApi internal constructor(
      *
      * @param currentVersion 当前版本字符串（如 "1.2.3"）
      * @param currentVersionCode 当前版本号（必填）
-     * @return 版本检查结果数据对象
+     * @return 版本检查响应包装（#39：含 success/requestId）
      */
     @JsName("checkAndroidVersion")
     public suspend fun checkAndroidVersion(
         currentVersion: String,
         currentVersionCode: Int,
-    ): AndroidVersionCheckData =
+    ): AndroidVersionCheckResponse =
         auth.withFreshToken {
             httpClient.post("$baseUrl/api/proxy/furtv/version/android/check") {
                 contentType(ContentType.Application.Json)
                 setBody(AndroidVersionCheckRequest(currentVersion, currentVersionCode))
-            }.body<AndroidVersionCheckResponse>().data
+            }.body<AndroidVersionCheckResponse>()
         }
 
     /**
      * 获取主题包清单。
      *
-     * @return 主题包清单数据对象
+     * @return 主题包清单响应包装（#39：含 success/requestId）
      */
     @JsName("getThemePacksManifest")
-    public suspend fun getThemePacksManifest(): ThemePacksManifestData =
+    public suspend fun getThemePacksManifest(): ThemePacksManifestResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/theme-packs/manifest")
                 .body<ThemePacksManifestResponse>()
-                .data
         }
 }

@@ -270,7 +270,11 @@ public data class HelloWorldResponse(
     public val requestId: String,
 )
 
-/** 健康检查接口响应。 */
+/**
+ * 健康检查接口响应。
+ *
+ * 服务端另返回内部诊断对象（db / user_stats / user_stats_buffer，测试名单标"疑似 debug 泄露"），有意不建模。
+ */
 @JsExport
 @JsName("HealthResponse")
 @Serializable

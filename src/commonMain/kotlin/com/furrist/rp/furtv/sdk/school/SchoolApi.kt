@@ -52,10 +52,10 @@ public class SchoolApi internal constructor(
         }
 
     @JsName("getSchoolDetail")
-    public suspend fun getSchoolDetail(schoolId: String): SchoolDetail =
+    public suspend fun getSchoolDetail(schoolId: String): SchoolDetailResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/schools/$schoolId")
-                .body<SchoolDetailResponse>().school
+                .body<SchoolDetailResponse>()
         }
 
     @JsName("getUserSchools")

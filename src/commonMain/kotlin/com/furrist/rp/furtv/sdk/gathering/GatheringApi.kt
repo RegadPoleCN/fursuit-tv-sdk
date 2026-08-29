@@ -50,12 +50,12 @@ public class GatheringApi internal constructor(
         }
 
     @JsName("getMonthly")
-    public suspend fun getMonthly(params: GatheringMonthlyParams): GatheringMonthlyData =
+    public suspend fun getMonthly(params: GatheringMonthlyParams): GatheringMonthlyResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly") {
                 parameter("year", params.year)
                 parameter("month", params.month)
-            }.body<GatheringMonthlyResponse>().data
+            }.body<GatheringMonthlyResponse>()
         }
 
     @JsName("getMonthlyDistance")
@@ -63,7 +63,7 @@ public class GatheringApi internal constructor(
         params: GatheringMonthlyParams,
         lat: Double,
         lng: Double,
-    ): GatheringMonthlyDistanceData =
+    ): GatheringMonthlyDistanceResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
                 parameter("year", params.year)
@@ -71,29 +71,29 @@ public class GatheringApi internal constructor(
                 // #18：聚会月历距离.md 明示 lat/lng 必填
                 parameter("lat", lat)
                 parameter("lng", lng)
-            }.body<GatheringMonthlyDistanceResponse>().data
+            }.body<GatheringMonthlyDistanceResponse>()
         }
 
     @JsName("getNearby")
-    public suspend fun getNearby(): List<GatheringNearbyItem> =
+    public suspend fun getNearby(): GatheringNearbyResponse =
         auth.withFreshToken {
-            // #26：聚会附近.md 无查询参数章节，lat/lng/radius 为文档外参数
+            // #26：聚会附近.md 无查询参数章节，文档外参数已移除
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby")
-                .body<GatheringNearbyResponse>().data
+                .body<GatheringNearbyResponse>()
         }
 
     @JsName("getNearbyMode")
-    public suspend fun getNearbyMode(): GatheringNearbyModeData =
+    public suspend fun getNearbyMode(): GatheringNearbyModeResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby-mode")
-                .body<GatheringNearbyModeResponse>().data
+                .body<GatheringNearbyModeResponse>()
         }
 
     @JsName("getGatheringDetail")
-    public suspend fun getGatheringDetail(id: String): GatheringDetailData =
+    public suspend fun getGatheringDetail(id: String): GatheringDetailResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$id")
-                .body<GatheringDetailResponse>().gathering
+                .body<GatheringDetailResponse>()
         }
 
     @JsName("getRegistrations")
