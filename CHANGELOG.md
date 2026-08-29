@@ -3,6 +3,26 @@
 本文件记录项目的所有重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 并遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
+## [Unreleased]
+
+### 重大变更 (BREAKING)
+
+- **`PopularUser.popularityScore` 类型 `Int?` → `String?`**：vds-docs 热门推荐响应中 `popularity_score` 为字符串（如 `"2989"`），原 `Int?` 与文档不符（审计项 #12）
+- **`BaseApi.checkAndroidVersion` 的 `currentVersionCode` 改为必填**：方法参数与 `AndroidVersionCheckRequest.currentVersionCode` 由 `Int?` 改为非空 `Int`；vds-docs 示例恒携带该参数（审计项 #40）
+
+### 变更
+
+- OAuth 授权 URL 的 query 参数值（`client_id`/`redirect_uri`/`scope`/`state` 等）按文档要求 URL 编码（审计项 #1）
+
+### 新增
+
+- `ContactRequestState` 补 `can_request` / `requires_auth` 映射（审计项 #7）
+- `UserProfile` 补 `contact_reputation_level`（审计项 #9）
+- `SearchUser` / `SpeciesSearchUser` 补 `like_count` / `is_liked`（审计项 #10）
+- `SearchResponse` / `SpeciesSearchResponse` 补顶层 `total_is_estimate`（审计项 #11）
+- `CharacterInfo` 补 `images` / `birthday` / `created_at` / `updated_at`（审计项 #16）
+- `TokenData` / `OAuthTokenData` / `UserInfoData` 补 `requestId`（审计项 #29）
+
 ### 内部改进
 
 - **文档清理**：`docs/authentication.md` + `docs/MIGRATION.md` 重写以匹配 `init-builder-refactor` 新模型（2 种初始化写法 + apiKey-only 禁用 + `socialLinks` 迁移示例）
