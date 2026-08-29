@@ -74,6 +74,15 @@ class DiscoveryContractTest {
         assertEquals(324, data.total)
     }
 
+    @Test fun `random endpoint flat shape`() {
+        // 审计项 #28：返回完整 RandomFursuitResponse（fixture 逐字取自随机推荐.md count=1 示例）
+        val data = json.decodeFromString<RandomFursuitResponse>(ContractFixture.readFixture("vdsdocs/discovery/random.json"))
+        assertEquals(true, data.success)
+        assertEquals("MCbcx", data.fursuit?.username)
+        assertEquals(1, data.count)
+        assertEquals("93ed4318-b9fe-4316-a3f0-fc489ac5edc7", data.requestId)
+    }
+
     @Test fun `locations flat with provinces and cities`() {
         val data = json.decodeFromString<PopularLocationsResponse>(ContractFixture.readFixture("vdsdocs/discovery/locations.json"))
         assertEquals(2, data.popularProvinces.size)

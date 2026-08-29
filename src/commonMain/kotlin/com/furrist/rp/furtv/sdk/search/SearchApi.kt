@@ -48,20 +48,16 @@ public class SearchApi internal constructor(
 
     /**
      * 获取随机兽装用户列表。
+     *
+     * #28：返回完整 [RandomFursuitResponse]（含 count/requested_count/debug_info/requestId）。
      */
     @JsName("getRandomFursuit")
-    public suspend fun getRandomFursuit(params: RandomFursuitParams): List<RandomFursuit> =
+    public suspend fun getRandomFursuit(params: RandomFursuitParams): RandomFursuitResponse =
         auth.withFreshToken {
-            val response =
-                httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
-                    params.count?.let { parameter("count", it) }
-                    params.personalized?.let { parameter("personalized", it) }
-                }.body<RandomFursuitResponse>()
-            when {
-                response.fursuits != null -> response.fursuits
-                response.fursuit != null -> listOf(response.fursuit)
-                else -> emptyList()
-            }
+            httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
+                params.count?.let { parameter("count", it) }
+                params.personalized?.let { parameter("personalized", it) }
+            }.body<RandomFursuitResponse>()
         }
 
     /**
