@@ -27,6 +27,11 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonTransformingSerializer
 
 // ============================================================================
 // Auth - 签名交换 & OAuth & 令牌管理模型
@@ -472,6 +477,7 @@ public data class UserProfile(
     @SerialName("location") public val location: String? = null,
     @SerialName("social_links") public val socialLinks: UserProfileSocialLinks? = null,
     @SerialName("contact_info") public val contactInfo: UserProfileContactInfo? = null,
+    @Serializable(with = UserProfilePrivacySettingsSerializer::class)
     @SerialName("privacy_settings") public val privacySettings: UserProfilePrivacySettings? = null,
     @SerialName("characters") public val characters: List<UserProfileCharacter>? = null,
     @SerialName("other_verified_types") public val otherVerifiedTypes: List<String>? = null,
@@ -578,7 +584,7 @@ public data class ContactRequestState(
     @SerialName("button_text") public val buttonText: String? = null,
 )
 
-/** 用户资料隐私设置。 */
+/** 用户资料隐私设置。文档示例中部分键仅以 camelCase 出现（如随机推荐.md:273-275），双拼写兼容。 */
 @JsExport
 @JsName("UserProfilePrivacySettings")
 @Serializable
@@ -595,6 +601,49 @@ public data class UserProfilePrivacySettings(
     @SerialName("contact_request_min_level") public val contactRequestMinLevel: Int? = null,
     @SerialName("contact_request_block_flagged_users") public val contactRequestBlockFlaggedUsers: Boolean? = null,
 )
+
+/**
+ * UserProfilePrivacySettings 的 KSerializer：把 camelCase 键改写为 snake_case（#13）。
+ * 服务端在不同端点混用两种拼写（用户资料公开信息.md、随机推荐.md），snake_case 原键优先不改写。
+ */
+public object UserProfilePrivacySettingsSerializer : KSerializer<UserProfilePrivacySettings> {
+    private val camelToSnake: Map<String, String> =
+        mapOf(
+            "showEmail" to "show_email",
+            "allowContact" to "allow_contact",
+            "showLocation" to "show_location",
+            "allowReturnImages" to "allow_return_images",
+            "allowMapShareInvites" to "allow_map_share_invites",
+            "contactRequestPolicy" to "contact_request_policy",
+            "contactRequestMinLevel" to "contact_request_min_level",
+            "contactRequestBlockFlaggedUsers" to "contact_request_block_flagged_users",
+        )
+
+    /** lazy：打破 "object 初始化 -> serializer() -> object 初始化" 的循环引用 */
+    private val plugin: KSerializer<UserProfilePrivacySettings> by lazy { UserProfilePrivacySettings.serializer() }
+
+    override val descriptor: SerialDescriptor
+        get() = plugin.descriptor
+
+    override fun serialize(encoder: Encoder, value: UserProfilePrivacySettings) {
+        plugin.serialize(encoder, value)
+    }
+
+    override fun deserialize(decoder: Decoder): UserProfilePrivacySettings {
+        val jsonDecoder = decoder as? JsonDecoder ?: error("UserProfilePrivacySettingsSerializer 仅支持 Json 格式")
+        return jsonDecoder.json.decodeFromJsonElement(plugin, transform(jsonDecoder.decodeJsonElement()))
+    }
+
+    private fun transform(element: JsonElement): JsonElement {
+        if (element !is JsonObject) return element
+        val mapped = LinkedHashMap<String, JsonElement>()
+        for ((key, value) in element) {
+            val mappedKey = camelToSnake[key]
+            mapped[mappedKey?.takeIf { !element.containsKey(it) } ?: key] = value
+        }
+        return JsonObject(mapped)
+    }
+}
 
 /** 用户角色信息。 */
 @JsExport
@@ -892,6 +941,29 @@ public data class RandomFursuit(
     @SerialName("is_verified")
     @Serializable(with = BooleanAsIntSerializer::class)
     public val isVerified: Boolean? = null,
+    @SerialName("fursuit_birthday") public val fursuitBirthday: String? = null,
+    @SerialName("showcase_portrait") public val showcasePortrait: String? = null,
+    @SerialName("showcase_landscape") public val showcaseLandscape: String? = null,
+    @SerialName("showcase_other") public val showcaseOther: String? = null,
+    @SerialName("destinations") public val destinations: List<String>? = null,
+    @SerialName("destination_expires_at") public val destinationExpiresAt: String? = null,
+    @Serializable(with = UserProfilePrivacySettingsSerializer::class)
+    @SerialName("privacy_settings") public val privacySettings: UserProfilePrivacySettings? = null,
+    @SerialName("has_all_images") public val hasAllImages: Boolean? = null,
+    @SerialName("contact_info") public val contactInfo: UserProfileContactInfo? = null,
+    @SerialName("contact_request") public val contactRequest: ContactRequestState? = null,
+    @SerialName("has_completed_contact")
+    @Serializable(with = BooleanAsIntSerializer::class)
+    public val hasCompletedContact: Boolean? = null,
+    @SerialName("today_status") public val todayStatus: TodayStatus? = null,
+)
+
+/** 随机推荐用户今日状态（随机推荐.md `today_status`）。 */
+@JsExport
+@JsName("TodayStatus")
+@Serializable
+public data class TodayStatus(
+    @SerialName("has_today") public val hasToday: Boolean? = null,
 )
 
 /** 随机推荐调试信息。 */

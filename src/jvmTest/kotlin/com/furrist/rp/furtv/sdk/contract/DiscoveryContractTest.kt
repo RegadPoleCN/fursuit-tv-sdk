@@ -81,6 +81,14 @@ class DiscoveryContractTest {
         assertEquals("MCbcx", data.fursuit?.username)
         assertEquals(1, data.count)
         assertEquals("93ed4318-b9fe-4316-a3f0-fc489ac5edc7", data.requestId)
+        // 审计项 #13：补齐的用户数据字段
+        assertEquals("2026-03-14T16:00:00.000Z", data.fursuit?.fursuitBirthday)
+        assertNotNull(data.fursuit?.showcasePortrait)
+        assertEquals(0, data.fursuit?.destinations?.size)
+        assertEquals(true, data.fursuit?.hasAllImages)
+        assertEquals("disabled", data.fursuit?.contactRequest?.buttonState)
+        assertEquals(false, data.fursuit?.todayStatus?.hasToday)
+        assertEquals(false, data.fursuit?.hasCompletedContact)
     }
 
     @Test fun `locations flat with provinces and cities`() {

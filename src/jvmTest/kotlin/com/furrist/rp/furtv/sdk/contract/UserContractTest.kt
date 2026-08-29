@@ -48,6 +48,18 @@ class UserContractTest {
         assertEquals(1, profile.contactReputationLevel)
     }
 
+    @Test fun `privacy settings accept camelCase-only variants`() {
+        // 审计项 #13：随机推荐.md 第三例 privacy_settings 仅含 camelCase 键
+        val data =
+            json.decodeFromString(
+                UserProfilePrivacySettingsSerializer,
+                """{"showEmail": true, "allowContact": false, "contactRequestPolicy": "level"}""",
+            )
+        assertEquals(true, data.showEmail)
+        assertEquals(false, data.allowContact)
+        assertEquals("level", data.contactRequestPolicy)
+    }
+
     @Test fun `id lookup flat`() {
         val wrapper = json.decodeFromString<UserIdResponse>(ContractFixture.readFixture("vdsdocs/user/id-lookup.json"))
         assertEquals(18, wrapper.user.id)
