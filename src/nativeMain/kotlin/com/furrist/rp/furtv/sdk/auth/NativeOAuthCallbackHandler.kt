@@ -52,6 +52,8 @@ private class NativeOAuthCallbackHandler(
 
     override suspend fun startListening() {
         mutex.withLock {
+            // #3：幂等守卫——已在监听时直接返回，避免二次 bind 抛 BindException
+            if (serverSocket != null) return
             pendingDeferred = CompletableDeferred()
         }
         val selectorManager = SelectorManager(Dispatchers.Default)
@@ -64,22 +66,59 @@ private class NativeOAuthCallbackHandler(
                     val readChannel = socket.openReadChannel()
                     val buf = ByteArray(READ_BUFFER_SIZE)
                     var total = 0
+                    // #4：读到请求头结束符（\r\n\r\n）即处理；浏览器 GET 保持连接时不再挂起到超时
                     while (total < buf.size) {
                         val n = readChannel.readAvailable(buf, total, buf.size - total)
                         if (n <= 0) break
                         total += n
+                        if (findHeaderEnd(buf, total) >= 0) break
                     }
-                    val request = buf.copyOf(total).decodeToString()
+                    var requestEnd = total
+                    val headerEnd = findHeaderEnd(buf, total)
+                    if (headerEnd >= 0) {
+                        // 有 body 时按 Content-Length 补读
+                        val contentLength = parseContentLength(buf, headerEnd)
+                        if (contentLength > 0) {
+                            while (total < buf.size && total < headerEnd + contentLength) {
+                                val n = readChannel.readAvailable(buf, total, buf.size - total)
+                                if (n <= 0) break
+                                total += n
+                            }
+                            requestEnd = total
+                        }
+                    }
+                    val request = buf.copyOf(requestEnd).decodeToString()
                     val firstLine = request.lineSequence().firstOrNull().orEmpty()
                     val rawQuery = firstLine.substringAfter('?').substringBefore(' ')
                     val parameters = parseQueryString(rawQuery)
                     val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
                     handleRequest(params, socket)
+                    try {
+                        socket.close()
+                    } catch (_: Throwable) {
+                    }
                 } catch (_: Throwable) {
                     // ignore
                 }
             }
         }
+    }
+
+    private fun findHeaderEnd(buf: ByteArray, limit: Int): Int {
+        val t = byteArrayOf(0x0D, 0x0A, 0x0D, 0x0A)
+        outer@ for (i in 0..limit - t.size) {
+            for (j in t.indices) if (buf[i + j] != t[j]) continue@outer
+            return i + t.size
+        }
+        return -1
+    }
+
+    private fun parseContentLength(buf: ByteArray, headerEnd: Int): Int {
+        val headers = buf.copyOf(headerEnd).decodeToString()
+        val line =
+            headers.lineSequence().firstOrNull { it.startsWith("content-length:", ignoreCase = true) }
+                ?: return 0
+        return line.substringAfter(':').trim().toIntOrNull() ?: 0
     }
 
     private suspend fun handleRequest(
