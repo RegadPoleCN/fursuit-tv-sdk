@@ -84,13 +84,13 @@ public class BaseApi internal constructor(
      * 检查 Android 客户端版本更新。
      *
      * @param currentVersion 当前版本字符串（如 "1.2.3"）
-     * @param currentVersionCode 当前版本号，null 表示不提供
+     * @param currentVersionCode 当前版本号（必填）
      * @return 版本检查结果数据对象
      */
     @JsName("checkAndroidVersion")
     public suspend fun checkAndroidVersion(
         currentVersion: String,
-        currentVersionCode: Int? = null,
+        currentVersionCode: Int,
     ): AndroidVersionCheckData =
         auth.withFreshToken {
             httpClient.post("$baseUrl/api/proxy/furtv/version/android/check") {

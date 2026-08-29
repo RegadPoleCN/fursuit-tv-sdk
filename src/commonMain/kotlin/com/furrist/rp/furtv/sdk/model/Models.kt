@@ -308,7 +308,7 @@ public data class AndroidVersionData(
 @Serializable
 public data class AndroidVersionCheckRequest(
     public val currentVersion: String,
-    public val currentVersionCode: Int? = null,
+    public val currentVersionCode: Int,
 )
 
 /** Android 版本检查响应包装。 */

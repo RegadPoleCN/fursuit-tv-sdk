@@ -16,6 +16,7 @@
 
 package com.furrist.rp.furtv.sdk.contract
 
+import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckRequest
 import com.furrist.rp.furtv.sdk.model.AndroidVersionData
 import com.furrist.rp.furtv.sdk.model.AndroidVersionResponse
 import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
@@ -23,6 +24,8 @@ import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
 import com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class BaseContractTest {
@@ -32,6 +35,16 @@ class BaseContractTest {
             isLenient = true
             coerceInputValues = true
         }
+
+    @Test
+    fun `android version check request requires currentVersionCode`() {
+        // 审计项 #40：文档示例恒携带 currentVersionCode，请求体字段改必填
+        val encoded = json.encodeToString(
+            AndroidVersionCheckRequest.serializer(),
+            AndroidVersionCheckRequest("1.2.3", 241),
+        )
+        assertTrue(encoded.contains("\"currentVersionCode\":241"))
+    }
 
     @Test
     fun `hello world response decodes`() {
