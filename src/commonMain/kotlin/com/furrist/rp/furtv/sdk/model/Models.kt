@@ -1693,8 +1693,6 @@ public data class RandomFursuitParams(
 public data class GatheringMonthlyParams(
     public val year: Int,
     public val month: Int,
-    public val lat: Double? = null,
-    public val lng: Double? = null,
 )
 
 /** 附近聚会参数。 */

@@ -82,11 +82,15 @@ public class UserApi internal constructor(
         }
 
     @JsName("getSocialBadges")
-    public suspend fun getSocialBadges(username: String): SocialBadgesResponse =
-        auth.withFreshToken {
-            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges")
-                .body<SocialBadgesResponse>()
+    public suspend fun getSocialBadges(username: String, limit: Int? = null): SocialBadgesResponse {
+        // #19：用户社交徽章列表.md 查询参数 limit，可选、最大 50（无下限）
+        require(limit == null || limit <= 50) { "limit must be <= 50" }
+        return auth.withFreshToken {
+            httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges") {
+                limit?.let { parameter("limit", it) }
+            }.body<SocialBadgesResponse>()
         }
+    }
 
     @JsName("getSocialBadgeDetail")
     public suspend fun getSocialBadgeDetail(username: String, userBadgeId: String): SocialBadgeDetailResponse =

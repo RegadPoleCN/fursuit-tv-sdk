@@ -59,13 +59,18 @@ public class GatheringApi internal constructor(
         }
 
     @JsName("getMonthlyDistance")
-    public suspend fun getMonthlyDistance(params: GatheringMonthlyParams): GatheringMonthlyDistanceData =
+    public suspend fun getMonthlyDistance(
+        params: GatheringMonthlyParams,
+        lat: Double,
+        lng: Double,
+    ): GatheringMonthlyDistanceData =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
                 parameter("year", params.year)
                 parameter("month", params.month)
-                params.lat?.let { parameter("lat", it) }
-                params.lng?.let { parameter("lng", it) }
+                // #18：聚会月历距离.md 明示 lat/lng 必填
+                parameter("lat", lat)
+                parameter("lng", lng)
             }.body<GatheringMonthlyDistanceResponse>().data
         }
 
