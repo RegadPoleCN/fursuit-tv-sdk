@@ -26,6 +26,9 @@ import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
+/** #19：getSocialBadges limit 上限（用户社交徽章列表.md，可选、最大 50）。 */
+private const val SOCIAL_BADGES_LIMIT_MAX = 50
+
 /**
  * 用户相关 API。
  *
@@ -84,7 +87,7 @@ public class UserApi internal constructor(
     @JsName("getSocialBadges")
     public suspend fun getSocialBadges(username: String, limit: Int? = null): SocialBadgesResponse {
         // #19：用户社交徽章列表.md 查询参数 limit，可选、最大 50（无下限）
-        require(limit == null || limit <= 50) { "limit must be <= 50" }
+        require(limit == null || limit <= SOCIAL_BADGES_LIMIT_MAX) { "limit must be <= 50" }
         return auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges") {
                 limit?.let { parameter("limit", it) }

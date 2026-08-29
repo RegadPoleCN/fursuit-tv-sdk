@@ -10,6 +10,10 @@
 - **`PopularUser.popularityScore` 类型 `Int?` → `String?`**：vds-docs 热门推荐响应中 `popularity_score` 为字符串（如 `"2989"`），原 `Int?` 与文档不符（审计项 #12）
 - **`BaseApi.checkAndroidVersion` 的 `currentVersionCode` 改为必填**：方法参数与 `AndroidVersionCheckRequest.currentVersionCode` 由 `Int?` 改为非空 `Int`；vds-docs 示例恒携带该参数（审计项 #40）
 - **PKCE 支持整体删除**：`loginWithOAuth` 不再自动生成/发送 code_challenge；`getOAuthAuthorizeUrl` 移除 `enablePkce`/`codeChallenge` 参数；`exchangeOAuthToken` 移除 `codeVerifier` 参数；`OAuthConfig.enablePkce` 删除；`Sha256`/`toHex` 工具删除（vds-docs 未记载 PKCE，属文档外扩展）（审计项 #6）
+- **`getMonthlyDistance` 新增必填 `lat`/`lng` 参数，`GatheringMonthlyParams` 移除 `lat`/`lng`**：聚会月历距离.md 明示两参数必填（审计项 #18）
+- **移除文档外请求参数**：`getNearby` 改无参（`GatheringNearbyParams` 删除）、`getRegistrations` 移除 `status`/`cursor`/`limit`、`searchSchools` 移除 `cursor`/`limit`、`getRandomFursuit` 移除 `personalized`（审计项 #26）
+- **移除文档外响应字段**：`RandomFursuit.location`、`PopularLocationsResponse.total_users`、`LikeStatusResponse.can_like`（严格依据 vds-docs，文档无即移除）（审计项 #27）
+- **`getRandomFursuit` 返回完整 `RandomFursuitResponse`**：不再自动解包为 `List<RandomFursuit>`，`count`/`requested_count`/`debug_info`/`requestId` 可达（审计项 #28）
 
 ### 变更
 
@@ -27,6 +31,11 @@
 - `SearchResponse` / `SpeciesSearchResponse` 补顶层 `total_is_estimate`（审计项 #11）
 - `CharacterInfo` 补 `images` / `birthday` / `created_at` / `updated_at`（审计项 #16）
 - `TokenData` / `OAuthTokenData` / `UserInfoData` 补 `requestId`（审计项 #29）
+- `RandomFursuit` 补 12 个用户数据字段，新增 `TodayStatus`（审计项 #13）
+- `GatheringDetailData` 补 14 字段（审计项 #14）
+- 新增 `GatheringNearbyModeItem`（nearby-mode 元素类型；`participants` 为文档明示预留字段，不建模）（审计项 #15）
+- `getSocialBadges` 新增 `limit` 参数（可选，最大 50）（审计项 #19）
+- `RandomDebugInfo` KDoc 声明有意子集（调试遥测字段不固化）（审计项 #38）
 
 ### 内部改进
 

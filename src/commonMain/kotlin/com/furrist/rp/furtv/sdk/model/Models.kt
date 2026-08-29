@@ -964,7 +964,13 @@ public data class TodayStatus(
     @SerialName("has_today") public val hasToday: Boolean? = null,
 )
 
-/** 随机推荐调试信息。 */
+/**
+ * 随机推荐调试信息。
+ *
+ * 测试名单标 random 端点"疑似 debug 泄露"；文档化的约 38 个调试遥测字段
+ * （session_key/request_rps/strict_count_fill_* 等）有意不建模，本类仅保留
+ * is_personalized / cache_hit_count / response_ms 有意义子集。
+ */
 @JsExport
 @JsName("RandomDebugInfo")
 @Serializable
