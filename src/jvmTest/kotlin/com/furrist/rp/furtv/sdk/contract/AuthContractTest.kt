@@ -29,7 +29,6 @@ class AuthContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test
@@ -67,5 +66,16 @@ class AuthContractTest {
         assertEquals(35L, data.aud)
         // 审计项 #29：userinfo 响应含 requestId
         assertEquals("ab7747a5-9601-49ad-ba58-9111592dc3b0", data.requestId)
+    }
+
+    @Test
+    fun `token refresh response decodes`() {
+        // #33：此前为孤儿 fixture 的 token-refresh.json 补上契约测试（签名换新.md 响应结构）
+        val data = json.decodeFromString<TokenData>(ContractFixture.readFixture("vdsdocs/auth/token-refresh.json"))
+        assertEquals("Bearer", data.tokenType)
+        assertEquals(7200, data.expiresIn)
+        assertEquals("vap_test_app_id", data.appId)
+        assertEquals("expiring", data.refresh?.mode)
+        assertEquals(300, data.refresh?.refreshWindowSeconds)
     }
 }

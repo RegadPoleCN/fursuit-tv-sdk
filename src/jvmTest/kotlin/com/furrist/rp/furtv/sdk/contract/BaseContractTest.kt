@@ -17,8 +17,10 @@
 package com.furrist.rp.furtv.sdk.contract
 
 import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckRequest
+import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckResponse
 import com.furrist.rp.furtv.sdk.model.AndroidVersionData
 import com.furrist.rp.furtv.sdk.model.AndroidVersionResponse
+import com.furrist.rp.furtv.sdk.model.HealthResponse
 import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
 import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
 import com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse
@@ -33,7 +35,6 @@ class BaseContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test
@@ -75,5 +76,27 @@ class BaseContractTest {
         assertEquals("moyufur", theme.id)
         assertEquals("百变墨煜", theme.metadata?.name)
         assertEquals("GeorgeBai", theme.metadata?.author?.username)
+    }
+
+    @Test
+    fun `health response decodes`() {
+        // #33：health 契约测试（fixture 逐字取自健康检查.md 成功示例；诊断字段有意不建模）
+        val data = json.decodeFromString<HealthResponse>(ContractFixture.readFixture("vdsdocs/base/health.json"))
+        assertEquals(true, data.success)
+        assertEquals("Fursuit.TV API is running", data.message)
+        assertEquals("23369f3f-f48e-48f3-85ee-6f7c2c241d9e", data.requestId)
+    }
+
+    @Test
+    fun `android version check response decodes`() {
+        // #33：checkAndroidVersion 端点契约测试（fixture 逐字取自安卓版本检查.md 成功示例）
+        val wrapper =
+            json.decodeFromString<AndroidVersionCheckResponse>(
+                ContractFixture.readFixture("vdsdocs/base/android-version-check.json"),
+            )
+        assertEquals(true, wrapper.success)
+        assertEquals(true, wrapper.data.needUpdate)
+        assertEquals(false, wrapper.data.forceUpdate)
+        assertEquals("ef739ad8-3072-4df2-a1f5-a0cf6578bfd0", wrapper.requestId)
     }
 }

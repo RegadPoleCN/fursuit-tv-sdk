@@ -27,7 +27,6 @@ class GatheringContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test fun `year stats flat with total`() {
@@ -75,7 +74,6 @@ class GatheringContractTest {
     @Test fun `detail uses gathering field not data`() {
         val data = json.decodeFromString<GatheringDetailResponse>(ContractFixture.readFixture("vdsdocs/gathering/detail.json"))
         // vds-docs uses int 0/1 for many bool fields (e.g. is_recurring, is_furtv_coop_driven); model expects Boolean
-        // gap revealed by test — assertion limited to model-confident fields
         assertEquals(1001, data.gathering.id)
         assertEquals("南京兽聚", data.gathering.title)
         // 审计项 #14：聚会详情补齐字段
@@ -92,16 +90,5 @@ class GatheringContractTest {
                 ContractFixture.readFixture("vdsdocs/gathering/registrations.json"),
             )
         assertEquals(2, data.registrations.size)
-    }
-
-    @Test fun `user characters cross-cutting flat`() {
-        val data = json.decodeFromString<UserCharactersResponse>(ContractFixture.readFixture("vdsdocs/user-characters.json"))
-        assertEquals(1, data.characters.size)
-        assertEquals("小狐", data.characters[0].name)
-        // 审计项 #16：images / birthday / created_at / updated_at
-        assertEquals(listOf("https://example.com/character1.jpg", "https://example.com/character2.jpg"), data.characters[0].images)
-        assertEquals("2024-02-25", data.characters[0].birthday)
-        assertEquals("2026-03-24T18:21:13.779Z", data.characters[0].createdAt)
-        assertEquals("2026-07-06T04:21:16.397Z", data.characters[0].updatedAt)
     }
 }

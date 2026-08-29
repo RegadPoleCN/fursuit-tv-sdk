@@ -18,6 +18,7 @@ package com.furrist.rp.furtv.sdk.contract
 
 import com.furrist.rp.furtv.sdk.model.SchoolDetailResponse
 import com.furrist.rp.furtv.sdk.model.SchoolSearchResponse
+import com.furrist.rp.furtv.sdk.model.UserCharactersResponse
 import com.furrist.rp.furtv.sdk.model.UserSchoolsResponse
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +29,6 @@ class SchoolContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test fun `school search no success field`() {
@@ -44,7 +44,17 @@ class SchoolContractTest {
 
     @Test fun `user schools no success field`() {
         val data = json.decodeFromString<UserSchoolsResponse>(ContractFixture.readFixture("vdsdocs/school/user-schools.json"))
-        // vds-docs uses "is_current":1 / "is_public":1 (int) but model expects Boolean — gap revealed, not asserted
         assertEquals(1, data.schools.size)
+    }
+
+    @Test fun `user characters with extended fields`() {
+        // #33：characters 测试自 GatheringContractTest 归位（School 域）；#16 扩展字段断言
+        val data = json.decodeFromString<UserCharactersResponse>(ContractFixture.readFixture("vdsdocs/user-characters.json"))
+        assertEquals(1, data.characters.size)
+        assertEquals("小狐", data.characters[0].name)
+        assertEquals(listOf("https://example.com/character1.jpg", "https://example.com/character2.jpg"), data.characters[0].images)
+        assertEquals("2024-02-25", data.characters[0].birthday)
+        assertEquals("2026-03-24T18:21:13.779Z", data.characters[0].createdAt)
+        assertEquals("2026-07-06T04:21:16.397Z", data.characters[0].updatedAt)
     }
 }

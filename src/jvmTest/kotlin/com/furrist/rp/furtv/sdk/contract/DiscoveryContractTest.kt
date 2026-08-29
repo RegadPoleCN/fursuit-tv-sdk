@@ -27,12 +27,10 @@ class DiscoveryContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test fun `popular endpoint flat shape`() {
         val data = json.decodeFromString<PopularResponse>(ContractFixture.readFixture("vdsdocs/discovery/popular.json"))
-        // vds-docs uses "is_verified":1 (int) but model expects Boolean — gap revealed, not asserted
         assertEquals(1, data.users.size)
         assertEquals(1024, data.users[0].id)
         assertEquals("fox_demo", data.users[0].username)
@@ -60,7 +58,6 @@ class DiscoveryContractTest {
 
     @Test fun `species search flat with species field`() {
         val data = json.decodeFromString<SpeciesSearchResponse>(ContractFixture.readFixture("vdsdocs/discovery/species-search.json"))
-        // vds-docs uses "is_verified":1 (int) but model expects Boolean — gap revealed, not asserted
         assertEquals("狐", data.species)
         // 审计项 #10/#11
         assertEquals(35, data.users[0].likeCount)

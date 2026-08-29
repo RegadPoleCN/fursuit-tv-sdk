@@ -28,7 +28,6 @@ class UserContractTest {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true
         }
 
     @Test fun `user profile flat with UserProfileSocialLinks typed wrapper`() {
