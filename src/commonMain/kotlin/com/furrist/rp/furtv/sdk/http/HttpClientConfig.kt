@@ -44,7 +44,6 @@ import kotlinx.serialization.json.JsonPrimitive
  * 调用方应使用 [FursuitTvSdk.auth] 的当前 TokenInfo 进行请求头注入。
  */
 internal object HttpClientConfig {
-    private const val REQUEST_ID_LENGTH = 16
 
     // #25：sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
     private val errorJson =
@@ -108,7 +107,6 @@ internal object HttpClientConfig {
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 header("Accept", "application/json")
-                header("X-Request-ID", generateRequestId())
                 header("User-Agent", USER_AGENT_CHROME)
 
                 // ✅ 每个请求从 AuthHolder 读取最新 apiKey（init-builder-refactor D8）
@@ -216,12 +214,5 @@ internal object HttpClientConfig {
             -> throw cause
             else -> throw NetworkException("Network error: ${cause.message}", cause)
         }
-    }
-
-    private fun generateRequestId(): String {
-        val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-        return (1..REQUEST_ID_LENGTH)
-            .map { chars.random() }
-            .joinToString("")
     }
 }
