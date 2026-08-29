@@ -16,6 +16,7 @@
 - **移除文档外响应字段**：`RandomFursuit.location`、`PopularLocationsResponse.total_users`、`LikeStatusResponse.can_like`（严格依据 vds-docs，文档无即移除）（审计项 #27）
 - **`getRandomFursuit` 返回完整 `RandomFursuitResponse`**：不再自动解包为 `List<RandomFursuit>`，`count`/`requested_count`/`debug_info`/`requestId` 可达（审计项 #28）
 - **全部 API 方法统一返回完整 `*Response` 包装**：11 个解包方法不再自动解包，`success`/`requestId` 等元数据可达；完整对照见 `docs/MIGRATION.md`「0.4.0 API 返回值统一」（审计项 #39）
+- **删除零引用的公开死代码类 `OAuthAuthorizeParams` / `OAuthTokenRequest`**：`@JsExport` 公开 API 移除，JS 消费方受影响（审计项 #35）
 
 ### 变更
 
@@ -27,6 +28,12 @@
 - 移除客户端自造的 `X-Request-ID` 请求头（requestId 以服务端响应为准）（审计项 #21）
 - 业务请求的令牌过期窗口内优先 refresh 端点换新，失败回落签名交换（审计项 #22）
 - 修复 `AuthHolder` 未接线导致业务请求从不携带 `X-Api-Key` 的缺陷（审计项 #41）
+
+### 内部改进
+
+- 消除 DSL 交换路径临时 HttpClient 并在 `close()` 时驱逐客户端缓存（#30）
+- `SdkLogLevel.ERROR/WARNING` 正确映射 Ktor LogLevel（#36）
+- `TokenInfo.isExpired()` 补充换新窗口语义注释（#36）
 
 ### 新增
 

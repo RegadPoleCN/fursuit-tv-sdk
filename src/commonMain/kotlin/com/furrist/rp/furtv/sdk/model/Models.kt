@@ -164,7 +164,10 @@ public sealed class TokenInfo {
     public abstract val expiresAt: Long
     public abstract val tokenType: String
 
-    /** 剩余有效期 ≤ 270s 时返回 true（refresh window 300s − skew 30s）。 */
+    /**
+     * 剩余有效期 ≤ 270s 时返回 true（refresh window 300s − skew 30s）。
+     * 注意：该判断实为"270 秒换新窗口"语义，非严格过期。
+     */
     @JsName("isExpired")
     public fun isExpired(): Boolean {
         val now = Clock.System.now().toEpochMilliseconds()
