@@ -19,7 +19,7 @@ val sdk = fursuitTvSdk {
 
 // SDK 自动完成签名交换，可直接使用所有 API
 val profile = sdk.user.getUserProfile("exampleUser")
-println("用户: ${profile.nickname}")
+println("用户: ${profile.user.nickname}")
 
 sdk.close()
 ```
@@ -255,7 +255,7 @@ SDK 中涉及 3 种不同的令牌：
 |------|------|------|--------|-------------|
 | **apiKey** (`TokenInfo.Platform.apiKey`) | 签名交换返回 | 业务 API 调用 | `X-Api-Key` | 所有业务 API |
 | **oauthToken** (`TokenInfo.OAuth.oauthToken`) | OAuth 授权码流程 | 用户身份验证 | `Authorization: Bearer` | `getUserInfo()` |
-| **refreshToken** (`TokenInfo.OAuth.refreshToken`) | OAuth 流程 | 刷新 OAuth token | 不直接用于头 | OAuth 刷新逻辑 |
+| **refreshToken** (`TokenInfo.OAuth.refreshToken`) | OAuth 流程 | — | 不直接用于头 | 解析并存储；vds-docs 未记载 OAuth 刷新端点，SDK 暂不使用 |
 
 ### 认证头机制说明
 
@@ -329,7 +329,7 @@ val sdk = fursuitTvSdk {
 **解决方案**:
 ```kotlin
 // ❌ 错误：未完成签名交换就尝试 OAuth
-val sdk = fursuitTvSdk { apiKey = "..." }  // apiKey-only 已被禁用
+// 0.4.0 起 `apiKey` 配置项已删除，apiKey-only 初始化在编译期不可表达
 sdk.auth.loginWithOAuth()  // 抛异常
 
 // ✅ 正确：先通过 DSL 初始化（自动完成签名交换）
@@ -368,7 +368,7 @@ val customLinks = user.socialLinks?.custom  // List<CustomLink>
 val customContact = user.contactInfo?.custom
 ```
 
-迁移点：所有 `?.get("...")` → `?.entries?.get("...")`。`MutableSdkConfig.apiKey` 字段保留但 `@Deprecated`（调用应改用 `clientId/clientSecret` + `auth.getApiKey()`）。
+迁移点：所有 `?.get("...")` → `?.entries?.get("...")`。0.4.0 起配置级 `apiKey` 已从 `MutableSdkConfig` / `SdkConfig` 中彻底删除（调用统一使用 `clientId/clientSecret`，platform apiKey 由 `auth.getApiKey()` 获取）。
 
 ## 浏览器中继页接入约定
 

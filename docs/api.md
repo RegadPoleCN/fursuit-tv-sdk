@@ -100,6 +100,12 @@ JS/Native 直接挂起调用）。
 - `getUserInfo()`：`Authorization: Bearer` 访问 userinfo
 - `withFreshToken { ... }`：业务请求令牌预检（过期窗口内优先换新、失败回落交换）
 
+## 认证与令牌语义
+
+- `AuthManager.isExpired()` 实为"270 秒换新窗口"判断（refresh window 300s − skew 30s），非严格过期
+- `FursuitTvSdk.close()` 会关闭共享 HttpClient 并驱逐客户端缓存条目（同配置重建 SDK 会得到新的客户端）
+- `loginWithOAuth` 在浏览器环境依赖中继页转发回调、Node.js 环境自动启动本地回调服务器，约定见 [authentication.md](authentication.md#浏览器中继页接入约定)
+
 ## DTO 一览
 
 按域定义于 `com.furrist.rp.furtv.sdk.model`（全部 `@JsExport`）：
@@ -107,6 +113,11 @@ JS/Native 直接挂起调用）。
 `GatheringRegistrationsParams` / `SchoolSearchParams`）、各端点 `*Response` 包装与
 嵌套数据类（含 0.4.0 新增的 `TodayStatus`、`GatheringNearbyModeItem`）。
 字段命名与 vds-docs 响应示例一一对应（snake_case → camelCase）。
+
+**有意子集**（服务端返回但有意不建模，`ignoreUnknownKeys` 下静默忽略）：
+
+- `HealthResponse`：服务端另返回内部诊断对象（`db` / `user_stats` / `user_stats_buffer`，测试名单标"疑似 debug 泄露"）
+- `RandomDebugInfo`：文档化的约 38 个调试遥测字段（session_key/request_rps/strict_count_fill_* 等），仅保留 `is_personalized` / `cache_hit_count` / `response_ms`
 
 ## 已移除的 API（0.4.0）
 

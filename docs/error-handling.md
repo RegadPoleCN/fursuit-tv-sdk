@@ -308,6 +308,6 @@ suspend fun <T> withRetry(
 
 ## 相关文档
 
-- [故障排除](TROUBLESHOOTING.md) - 常见问题诊断
-- [最佳实践](best-practices.md) - 错误处理最佳实践
-- [OAuth 指南](oauth-guide.md) - OAuth 错误处理详解
+- [认证详解](authentication.md) - 常见问题诊断
+- [API 参考](api.md) - 错误处理最佳实践
+- [OAuth 中继页约定](authentication.md#浏览器中继页接入约定) - OAuth 错误处理详解

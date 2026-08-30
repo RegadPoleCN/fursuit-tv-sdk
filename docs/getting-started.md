@@ -49,19 +49,9 @@ val sdk = fursuitTvSdk {
 }
 ```
 
-### 方式 2：使用已有 apiKey
+### 方式 2：使用 DSL 灵活配置
 
-适用于已有 VDS 颁发的 API 密钥。
-
-```kotlin
-val sdk = fursuitTvSdk {
-    apiKey = "your-api-key"
-}
-```
-
-### 方式 3：使用 DSL 灵活配置
-
-`fursuitTvSdk` 是 `suspend` 函数，提供 `clientId` + `clientSecret` 时自动完成令牌交换。
+除 `clientId` / `clientSecret` 外，DSL 还支持网络、重试、日志等进阶配置（全部选项见 [api.md](api.md) 与 `MutableSdkConfig` 定义）：
 
 ```kotlin
 val sdk = fursuitTvSdk {
@@ -98,7 +88,7 @@ CompletableFuture<FursuitTvSdk> future = FursuitTvSdkBuilder.create()
 FursuitTvSdk sdk = future.get();
 ```
 
-> 💡 Java 中调用 SDK 的 `suspend` 函数时，使用 `xxxBlocking()` 同步阻塞或 `xxxAsync()` 返回 `CompletableFuture`。详见 [平台指南 - Java 调用 suspend 函数](platform-guide.md#java-调用-suspend-函数)。
+> 💡 Java 中调用 SDK 的 `suspend` 函数时，使用 `xxxBlocking()` 同步阻塞或 `xxxAsync()` 返回 `CompletableFuture`。
 
 ### JavaScript/TypeScript 用户
 
@@ -111,7 +101,8 @@ const sdk = await fursuitTvSdk({
     logLevel: SdkLogLevel.INFO,
 });
 
-const profile = sdk.user.getUserProfile("username");
+const profile = await sdk.user.getUserProfile("username");
+console.log(profile.user.nickname);
 ```
 
 ## 3. 调用第一个 API
@@ -120,8 +111,8 @@ const profile = sdk.user.getUserProfile("username");
 
 ```kotlin
 val profile = sdk.user.getUserProfile("username")
-println("昵称：${profile.nickname}")
-println("物种：${profile.fursuitSpecies}")
+println("昵称：${profile.user.nickname}")
+println("物种：${profile.user.fursuitSpecies}")
 ```
 
 ### 获取热门推荐
@@ -135,7 +126,7 @@ println("热门用户数：${popular.users.size}")
 
 ```kotlin
 val health = sdk.base.health()
-println("服务状态：${health.status}")
+println("服务状态：${health.message}")
 ```
 
 ## 4. 完整示例
@@ -155,7 +146,7 @@ fun main() = runBlocking {
     try {
         // 调用 API
         val profile = sdk.user.getUserProfile("username")
-        println("用户：${profile.nickname}")
+        println("用户：${profile.user.nickname}")
     } catch (e: NotFoundException) {
         println("用户不存在")
     } catch (e: ApiException) {
@@ -183,7 +174,7 @@ public class Main {
 
         try {
             var profile = sdk.user.getUserProfileBlocking("username");
-            System.out.println("用户：" + profile.getNickname());
+            System.out.println("用户：" + profile.getUser().getNickname());
         } catch (Exception e) {
             System.out.println("错误：" + e.getMessage());
         } finally {
@@ -205,8 +196,8 @@ const sdk = await fursuitTvSdk({
 });
 
 try {
-    const profile = sdk.user.getUserProfile("username");
-    console.log(`用户：${profile.nickname}`);
+    const profile = await sdk.user.getUserProfile("username");
+    console.log(`用户：${profile.user.nickname}`);
 } catch (e) {
     console.error("错误：", e.message);
 } finally {
@@ -217,8 +208,7 @@ try {
 ## 5. 下一步
 
 - [认证详解](authentication.md) - 了解签名交换和 OAuth 的区别
-- [配置选项](configuration.md) - 查看所有可用的配置参数
-- [API 参考](api/README.md) - 完整的 API 文档
+- [API 参考](api.md) - 完整的 API 文档
 - [错误处理](error-handling.md) - 学习如何处理异常情况
 
 ## 常见问题
@@ -233,7 +223,7 @@ A: `apiKey` 用于签名交换认证，`accessToken` 用于 OAuth 认证。详�
 
 **Q: SDK 支持哪些平台？**
 
-A: JVM、JavaScript（浏览器 + Node.js）和 Kotlin Native（iOS/macOS/Linux/Windows）。详见 [平台指南](platform-guide.md)。
+A: JVM、JavaScript（浏览器 + Node.js）和 Kotlin Native（iOS/macOS/Linux/Windows）。
 
 ---
 

@@ -32,7 +32,7 @@ val sdk3 = FursuitTvSdk.create(config)
 FursuitTvSdk sdk = FursuitTvSdk.createForTokenExchange("vap_xxx", "your-secret");
 ```
 
-### 新版（v0.3.0 / v2.0）
+### 新版（v0.3.0）
 
 仅保留 2 种入口（按平台选择）：
 
@@ -103,17 +103,19 @@ sdk.getRandomFursuit(count = 5, personalized = true)
 sdk.searchSchools(query = "PKU")
 ```
 
-### 新版（v2.0）
+### 新版（v2.0，0.4.0 修订）
 
-每个 API 仅有一个签名，接收参数对象：
+每个 API 仅有一个签名，接收参数对象。0.4.0 起文档外请求参数已移除，参数类仅保留 vds-docs 定义的字段：
 
 ```kotlin
 sdk.search(SearchParams(query = "query", type = "users", limit = 50))
 sdk.getMonthly(GatheringMonthlyParams(year = 2024, month = 11))
-sdk.getMonthlyDistance(GatheringMonthlyParams(year = 2024, month = 11, lat = 1.0, lng = 2.0))
-sdk.getNearby(GatheringNearbyParams(lat = 1.0, lng = 2.0, radius = 5000))
-sdk.getRegistrations(GatheringRegistrationsParams(gatheringId = "abc", status = "approved"))
-sdk.getRandomFursuit(RandomFursuitParams(count = 5, personalized = true))
+// 月历距离的 lat/lng 为必填独立参数（0.4.0 起）
+sdk.getMonthlyDistance(GatheringMonthlyParams(year = 2024, month = 11), lat = 1.0, lng = 2.0)
+// 0.4.0 起 getNearby 无查询参数
+sdk.getNearby()
+sdk.getRegistrations(GatheringRegistrationsParams(gatheringId = "abc"))
+sdk.getRandomFursuit(RandomFursuitParams(count = 5))
 sdk.searchSchools(SchoolSearchParams(query = "PKU"))
 ```
 
@@ -122,12 +124,12 @@ sdk.searchSchools(SchoolSearchParams(query = "PKU"))
 | 旧 API | 替换为 |
 |--------|--------|
 | `search(query, type?, cursor?, limit?, page?)` | `search(SearchParams(...))` |
-| `getRandomFursuit(count?, personalized?)` | `getRandomFursuit(RandomFursuitParams(...))` |
+| `getRandomFursuit(count?, personalized?)` | `getRandomFursuit(RandomFursuitParams(count))` |
 | `getMonthly(year, month)` | `getMonthly(GatheringMonthlyParams(year, month))` |
-| `getMonthlyDistance(year, month, lat?, lng?)` | `getMonthlyDistance(GatheringMonthlyParams(year, month, lat?, lng?))` |
-| `getNearby(lat?, lng?, radius?)` | `getNearby(GatheringNearbyParams(lat?, lng?, radius?))` |
-| `getRegistrations(id, status?, cursor?, limit?)` | `getRegistrations(GatheringRegistrationsParams(...))` |
-| `searchSchools(query, cursor?, limit?)` | `searchSchools(SchoolSearchParams(query, cursor?, limit?))` |
+| `getMonthlyDistance(year, month, lat?, lng?)` | `getMonthlyDistance(GatheringMonthlyParams(year, month), lat, lng)`（lat/lng 必填） |
+| `getNearby(lat?, lng?, radius?)` | `getNearby()`（0.4.0 起无参） |
+| `getRegistrations(id, status?, cursor?, limit?)` | `getRegistrations(GatheringRegistrationsParams(gatheringId))` |
+| `searchSchools(query, cursor?, limit?)` | `searchSchools(SchoolSearchParams(query))` |
 
 ---
 
@@ -177,7 +179,8 @@ val handler = createDefaultOAuthHandler(oauthConfig)
 ### 数据模型合并
 
 - 所有 `*Models.kt` 文件合并为单一 [`src/commonMain/kotlin/com/furrist/rp/furtv/sdk/model/Models.kt`](../src/commonMain/kotlin/com/furrist/rp/furtv/sdk/model/Models.kt)
-- 所有 `*Response` / `*Data` 双层包装类合并保留为单一 API 返回类型（直接返回业务数据）
+- ~~所有 `*Response` / `*Data` 双层包装类合并保留为单一 API 返回类型（直接返回业务数据）~~
+  **0.4.0 更正**：全部 API 方法统一返回完整 `*Response` 包装（含 `success`/`requestId` 元数据），对照见本文末尾「0.4.0 API 返回值统一」
 
 ### 字段迁移
 
@@ -198,22 +201,21 @@ val handler = createDefaultOAuthHandler(oauthConfig)
 
 ## 5. AuthManager 方法迁移
 
-### 保留的方法（11 个）
+### 保留的方法（12 个）
 
 ```kotlin
 sdk.auth.exchangeToken(clientId, clientSecret)
 sdk.auth.refreshToken()
-sdk.auth.loginWithOAuth(oauthConfig)
+sdk.auth.loginWithOAuth(scope = "profile")   // 0.4.0 起 scope 默认 "profile"
 sdk.auth.setOAuthCallbackHandler(handler)
-sdk.auth.getOAuthAuthorizeUrl(params)
+sdk.auth.getOAuthAuthorizeUrl(redirectUri, scope = null, state = null)
 sdk.auth.exchangeOAuthToken(code, redirectUri)
-sdk.auth.refreshOAuthToken()
 sdk.auth.getUserInfo()
-sdk.auth.getAccessToken()
 sdk.auth.getApiKey()
 sdk.auth.isAuthenticated()
 sdk.auth.setTokenInfo(tokenInfo)
 sdk.auth.clearToken()
+sdk.auth.withFreshToken { /* 业务请求自动完成令牌预检 */ }
 ```
 
 ### 删除的方法
@@ -320,7 +322,8 @@ let sdk = try await FursuitTvSdkKt.fursuitTvSdk { cfg in
 | `docs/authentication.md` | 签名交换 + OAuth 完整流程 |
 | `docs/error-handling.md` | 异常体系 + 处理策略 |
 | `docs/api.md` | 合并所有 6 个 API 模块的单一文档 |
-| `docs/MIGRATION.md`（**新增**） | 本文档：v1.x → v2.0 迁移指南 |
+| `docs/MIGRATION.md` | 本文档：v1.x → v2.0 迁移指南（0.4.0 变更见下方专节） |
+
 ---
 
 ## 0.4.0 API 返回值统一
@@ -343,6 +346,9 @@ let sdk = try await FursuitTvSdkKt.fursuitTvSdk { cfg in
 | `school.getSchoolDetail` | `s.name` | `s.school.name` |
 | `search.getRandomFursuit` | `list.size` | `resp.fursuits?.size ?: resp.fursuit?.let { 1 } ?: 0` |
 
-其他 0.4.0 破坏性变更（详见 CHANGELOG）：配置级 apiKey 删除、PKCE 删除、
-`checkAndroidVersion` 的 `currentVersionCode` 改必填、`getMonthlyDistance`
-新增必填 `lat`/`lng`、文档外请求参数与响应字段移除。
+其他 0.4.0 变更（详见 CHANGELOG）：
+
+- **破坏性**：配置级 apiKey 删除、PKCE 删除、`checkAndroidVersion` 的 `currentVersionCode` 改必填、`getMonthlyDistance` 新增必填 `lat`/`lng`、文档外请求参数与响应字段移除、删除客户端自造的 `X-Request-ID` 请求头、删除零引用的 `OAuthAuthorizeParams`/`OAuthTokenRequest`
+- **行为**：`loginWithOAuth` scope 默认值改为 `"profile"`；`AuthHolder` 接线修复后业务请求恢复自动注入 `X-Api-Key`（`/account/sso/` 端点除外）；业务请求过期窗口内优先换新令牌；sso 端点错误结构化为 `OAuthException(errorCode)`
+- **新增字段/类型**：`RandomFursuit` 补 12 个用户数据字段（含新类型 `TodayStatus`）；`GatheringDetailData` 补 14 字段；新增 `GatheringNearbyModeItem`；`SearchUser`/`SpeciesSearchUser` 补 `like_count`/`is_liked`；三个认证 DTO 补 `requestId`
+- **有意子集**：`HealthResponse`（db/user_stats 等诊断对象）与 `RandomDebugInfo`（约 38 个调试遥测字段）有意不建模
