@@ -1,18 +1,41 @@
+/*
+ *   Copyright 2026 RegadPoleCN
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.furrist.rp.furtv.sdk.auth
 
-import kotlin.js.JsExport
-import kotlin.js.JsName
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
+import io.ktor.http.parseQueryString
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.EventListener
 
+/**
+ * JS 平台 OAuth 回调处理器。
+ *
+ * 运行时自动区分两种环境：
+ * - **浏览器**：通过 `window.postMessage` 接收中继页转发的回调（约定见 docs/authentication.md）
+ * - **Node.js**：动态加载 `node:http` 在本机启动回调服务器，直接接收 OAuth 重定向
+ */
 @JsExport
 @JsName("JsOAuthCallbackHandler")
 public class JsOAuthCallbackHandler(
-    private val config: OAuthCallbackServerConfig,
+    private val config: OAuthConfig,
 ) : OAuthCallbackHandler {
     override val callbackUrl: String = buildCallbackUrl(config)
 
@@ -21,178 +44,151 @@ public class JsOAuthCallbackHandler(
     private var deferredResult: CompletableDeferred<OAuthCallbackResult>? = null
     private var messageListener: EventListener? = null
 
-    private companion object {
-        private const val NODE_POLL_INTERVAL_MS = 500L
-    }
+    // Node.js 本地回调服务器（dynamic 持有 node:http Server 实例）
+    private var nodeServer: dynamic = null
+
+    private fun importNodeHttp(): dynamic = js("import('node:http')")
 
     override suspend fun startListening() {
-        if (isBrowser) {
-            startBrowserListening()
-        } else {
-            startNodeJsListening()
+        if (!isBrowser) {
+            startNodeServer()
+            return
         }
-    }
-
-    private fun startBrowserListening() {
-        messageListener?.let { window.removeEventListener("message", it) }
-        messageListener = null
-        deferredResult = CompletableDeferred()
-        messageListener =
+        val deferred = CompletableDeferred<OAuthCallbackResult>()
+        deferredResult = deferred
+        val listener =
             EventListener { event ->
-                val messageEvent = event as MessageEvent
-                val data = messageEvent.data.asDynamic()
-                if (data.type == "oauth_callback") {
-                    val code = data.code as? String
-                    val state = data.state as? String
-                    val error = data.error as? String
-                    val errorDescription = data.error_description as? String
-                    if (code != null && state != null) {
-                        deferredResult?.complete(OAuthCallbackResult.Success(code, state))
-                    } else if (error != null) {
-                        deferredResult?.complete(
-                            OAuthCallbackResult.Error(
-                                errorDescription ?: error,
-                                error,
-                            ),
-                        )
-                    }
-                }
+                @Suppress("UNCHECKED_CAST")
+                val data =
+                    (event as? MessageEvent)?.data?.toString()
+                        ?.takeIf { it.isNotBlank() } ?: return@EventListener
+                val params = parseQueryLike(data)
+                handleAuthorizationCallback(params, deferred)
             }
-        window.addEventListener("message", messageListener)
+        messageListener = listener
+        window.addEventListener("message", listener)
     }
 
-    private fun startNodeJsListening() {
-        js(
-            """
-            if (this._nodeServer) {
-                this._nodeServer.close();
-                this._nodeServer = null;
-            }
-            """,
-        )
-        this.asDynamic()._nodeResult = null
-        this.asDynamic()._callbackPort = config.callbackPort
-        this.asDynamic()._callbackPath = config.callbackPath
-        js(
-            """
-            var http = require('http');
-            var urlModule = require('url');
-            var self = this;
-            var port = self._callbackPort;
-            var path = self._callbackPath;
-            var server = http.createServer(function(req, res) {
-                var parsedUrl = urlModule.parse(req.url, true);
-                var query = parsedUrl.query;
-                if (query.error) {
-                    res.writeHead(400, {'Content-Type': 'text/html'});
-                    res.end('Authorization failed: ' + (query.error_description || query.error));
-                    self._nodeResult = {error: query.error, message: query.error_description || query.error};
-                } else if (query.code && query.state) {
-                    res.writeHead(200, {'Content-Type': 'text/html'});
-                    res.end('Success! You can close this window.');
-                    self._nodeResult = {code: query.code, state: query.state};
-                } else {
-                    res.writeHead(400, {'Content-Type': 'text/html'});
-                    res.end('Missing code or state parameter.');
+    private suspend fun startNodeServer() {
+        val deferred = CompletableDeferred<OAuthCallbackResult>()
+        deferredResult = deferred
+        val http = importNodeHttp().await<dynamic>()
+        val server =
+            http.createServer { req, res ->
+                try {
+                    val rawQuery = (req.url as String?).orEmpty().substringAfter('?', "")
+                    val parameters = parseQueryString(rawQuery)
+                    val params = parameters.entries().associate { it.key to it.value.firstOrNull().orEmpty() }
+                    handleAuthorizationCallback(params, deferred)
+                } catch (_: Throwable) {
+                    // 回调解析失败不影响服务器继续监听
                 }
-            });
-            server.listen(port, 'localhost', function() {
-                console.log('OAuth callback server listening on http://localhost:' + port + path);
-            });
-            self._nodeServer = server;
-            """,
-        )
+                // 禁止向 dynamic 的 Node API 传 Kotlin 集合当 headers，一律用 setHeader
+                res.setHeader("Content-Type", "text/plain")
+                res.writeHead(200)
+                res.end("Success. You can close this window.")
+                nodeServer?.close()
+            }
+        nodeServer = server
+        server.listen(config.callbackPort, config.callbackHost)
     }
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
-        return if (isBrowser) {
-            waitForBrowserCallback()
-        } else {
-            waitForNodeJsCallback()
-        }
-    }
-
-    private suspend fun waitForBrowserCallback(): OAuthCallbackResult {
-        val deferred =
-            deferredResult
-                ?: return OAuthCallbackResult.Error("Not listening. Call startListening() first.")
         val timeoutMillis = config.timeoutSeconds * 1000L
         return withTimeoutOrNull(timeoutMillis) {
-            deferred.await()
-        } ?: OAuthCallbackResult.Error("OAuth callback timed out")
-    }
-
-    private suspend fun waitForNodeJsCallback(): OAuthCallbackResult {
-        val timeoutMillis = config.timeoutSeconds * 1000L
-        return withTimeoutOrNull(timeoutMillis) {
-            while (this.asDynamic()._nodeResult == null) {
-                delay(NODE_POLL_INTERVAL_MS)
-            }
-            val result: dynamic = this.asDynamic()._nodeResult
-            if (result.code != null) {
-                OAuthCallbackResult.Success(result.code as String, result.state as String)
-            } else {
-                OAuthCallbackResult.Error(
-                    (result.message as? String) ?: "Unknown error",
-                    result.error as? String,
-                )
-            }
-        } ?: OAuthCallbackResult.Error("OAuth callback timed out")
+            deferredResult?.await()
+                ?: run {
+                    if (isBrowser) {
+                        OAuthCallbackResult.Error("No callback received. Did the browser listen for messages?")
+                    } else {
+                        OAuthCallbackResult.Error(
+                            "Node.js callback server is not running. Call startListening() first.",
+                        )
+                    }
+                }
+        } ?: OAuthCallbackResult.Error("Timeout waiting for OAuth callback")
     }
 
     override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
-        try {
-            startListening()
-            if (isBrowser) {
-                val authWindow = window.open(authorizeUrl, "oauth", "width=600,height=800")
-                if (authWindow == null) {
-                    return OAuthCallbackResult.Error(
-                        "Failed to open authorization window. Popup might be blocked.",
-                    )
-                }
-            } else {
-                println("Please open this URL in your browser: $authorizeUrl")
+        startListening()
+        // Node.js 无通用浏览器打开方式，控制台输出 URL 提示用户手动复制
+        if (!isBrowser) {
+            try {
+                js("console.log('Open this URL in your browser:', authorizeUrl)")
+            } catch (_: Throwable) {
             }
-            return waitForCallback()
-        } finally {
-            stop()
         }
+        return waitForCallback()
     }
 
     override suspend fun stop() {
+        deferredResult?.complete(OAuthCallbackResult.Error("Callback handler stopped"))
+        deferredResult = null
         if (isBrowser) {
-            messageListener?.let {
-                window.removeEventListener("message", it)
-                messageListener = null
-            }
-            deferredResult = null
-        } else {
-            stopNodeJs()
+            messageListener?.let { window.removeEventListener("message", it) }
         }
+        nodeServer?.close()
+        nodeServer = null
     }
 
-    private fun stopNodeJs() {
-        js(
-            """
-            if (this._nodeServer) {
-                this._nodeServer.close();
-                this._nodeServer = null;
+    private fun parseQueryLike(payload: String): Map<String, String> {
+        val params = mutableMapOf<String, String>()
+        val pairs = payload.trimStart('{').trimEnd('}').split(',')
+        for (pair in pairs) {
+            val sides = pair.split(':', limit = 2)
+            if (sides.size == 2) {
+                val key = sides[0].trim().trim('"', '\'')
+                val value = sides[1].trim().trim('"', '\'')
+                params[key] = value
             }
-            this._nodeResult = null;
-            """,
-        )
+        }
+        return params
+    }
+
+    private fun handleAuthorizationCallback(
+        params: Map<String, String>,
+        deferred: CompletableDeferred<OAuthCallbackResult>,
+    ) {
+        val error = params["error"]
+        if (error != null) {
+            deferred.complete(
+                OAuthCallbackResult.Error(
+                    message = params["error_description"] ?: error,
+                    errorCode = error,
+                ),
+            )
+            return
+        }
+        val code = params["code"]
+        val state = params["state"]
+        if (code == null || state == null) {
+            deferred.complete(OAuthCallbackResult.Error("Missing code or state in browser callback"))
+            return
+        }
+        deferred.complete(OAuthCallbackResult.Success(code = code, state = state))
     }
 }
 
-private const val JS_HTTP_PORT: Int = 80
-private const val JS_HTTPS_PORT: Int = 443
+/**
+ * JS 实现：创建 [JsOAuthCallbackHandler]（运行时检测浏览器 postMessage 或 Node.js http 模块）。
+ */
+@JsExport
+@JsName("createDefaultOAuthHandler")
+public actual fun createDefaultOAuthHandler(config: OAuthConfig): OAuthCallbackHandler =
+    JsOAuthCallbackHandler(config)
 
-private fun buildCallbackUrl(config: OAuthCallbackServerConfig): String {
-    val portSuffix =
-        if (config.callbackPort != JS_HTTP_PORT && config.callbackPort != JS_HTTPS_PORT) {
-            ":${config.callbackPort}"
-        } else {
-            ""
+/**
+ * 构建回调 URL（HTTP 协议下的本地 URL，例如 `http://localhost:8080/callback`）。
+ *
+ * JS 环境中 `localhost` 默认使用 HTTP，因为没有本地服务器证书。
+ */
+public fun buildCallbackUrl(c: OAuthConfig): String =
+    buildString {
+        append("http://")
+        append(c.callbackHost)
+        if (c.callbackPort != 80) {
+            append(':')
+            append(c.callbackPort)
         }
-    return "http://${config.callbackHost}$portSuffix${config.callbackPath}"
-}
+        append(c.callbackPath)
+    }

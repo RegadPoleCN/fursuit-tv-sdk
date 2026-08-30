@@ -1,10 +1,26 @@
+/*
+ *   Copyright 2026 RegadPoleCN
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.furrist.rp.furtv.sdk.school
 
-import com.furrist.rp.furtv.sdk.model.SchoolSearchParams
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.client.request.parameter
+import com.furrist.rp.furtv.sdk.auth.AuthManager
+import com.furrist.rp.furtv.sdk.model.*
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
 import kotlin.js.JsExport
 import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
@@ -13,8 +29,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 /**
  * 学校和角色相关 API。
  *
- * 提供学校搜索、学校详情、用户关联学校以及用户角色列表的访问接口。
- *
+ * @param auth 认证管理器（提供 `withFreshToken` 包装 + re-exchange）
  * @param httpClient 配置好的 HTTP 客户端
  * @param baseUrl API 基础 URL
  */
@@ -23,91 +38,41 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 @JsExport
 @JsName("SchoolApi")
 public class SchoolApi internal constructor(
+    private val auth: AuthManager,
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-    /**
-     * 按关键词搜索学校。
-     *
-     * @param params 搜索参数对象
-     * @return 学校搜索结果数据对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws AuthenticationException 认证凭证缺失或无效
-     * @throws ValidationException 参数验证失败
-     */
-    @JsName("searchSchoolsWithParams")
-    public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchData {
-        val response =
+    /** 按关键词搜索学校（学校搜索.md，查询参数仅 query）。 */
+    @JsName("searchSchools")
+    public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchResponse =
+        auth.withFreshToken {
+            // 学校搜索.md 查询参数仅 query，cursor/limit 为文档外参数（已移除）
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
                 parameter("query", params.query)
-                params.cursor?.let { parameter("cursor", it) }
-                params.limit?.let { parameter("limit", it) }
             }.body<SchoolSearchResponse>()
-        return response.data
-    }
+        }
 
-    /**
-     * 按关键词搜索学校（重载方法，保持向后兼容）。
-     *
-     * @param query 搜索关键词
-     * @param cursor 分页游标，null 表示首页
-     * @param limit 返回数量限制，null 表示使用服务端默认值
-     * @return 学校搜索结果数据对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws AuthenticationException 认证凭证缺失或无效
-     */
-    @JsName("searchSchools")
-    public suspend fun searchSchools(
-        query: String,
-        cursor: String? = null,
-        limit: Int? = null,
-    ): SchoolSearchData = searchSchools(SchoolSearchParams(query, cursor, limit))
-
-    /**
-     * 获取学校详情。
-     *
-     * @param schoolId 学校唯一标识符
-     * @return 学校详情对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws NotFoundException 指定 schoolId 的学校不存在
-     */
+    /** 获取学校详情（学校详情.md）。 */
     @JsName("getSchoolDetail")
-    public suspend fun getSchoolDetail(schoolId: String): SchoolDetail {
-        val response =
+    public suspend fun getSchoolDetail(schoolId: String): SchoolDetailResponse =
+        auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/schools/$schoolId")
                 .body<SchoolDetailResponse>()
-        return response.school
-    }
+        }
 
-    /**
-     * 获取用户的学校关联信息。
-     *
-     * @param userId 用户唯一标识符
-     * @return 用户学校信息对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws NotFoundException 指定 userId 的用户不存在
-     */
+    /** 获取用户学校信息（用户学校信息.md）。 */
     @JsName("getUserSchools")
-    public suspend fun getUserSchools(userId: String): UserSchoolsData {
-        val response =
+    public suspend fun getUserSchools(userId: String): UserSchoolsResponse =
+        auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/schools/user/$userId")
                 .body<UserSchoolsResponse>()
-        return response.data
-    }
+        }
 
-    /**
-     * 获取用户的角色列表。
-     *
-     * @param username 用户名
-     * @return 用户角色数据对象
-     * @throws NetworkException 网络连接失败或超时
-     * @throws NotFoundException 指定 username 的用户不存在
-     */
+    /** 获取用户角色列表（用户角色列表.md）。 */
     @JsName("getUserCharacters")
-    public suspend fun getUserCharacters(username: String): UserCharactersData {
-        val response =
+    public suspend fun getUserCharacters(username: String): UserCharactersResponse =
+        auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/characters/user/$username")
                 .body<UserCharactersResponse>()
-        return response.data
-    }
+        }
 }

@@ -1,16 +1,30 @@
+/*
+ *   Copyright 2026 RegadPoleCN
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
 package com.furrist.rp.furtv.sdk.auth
 
+import com.furrist.rp.furtv.sdk.model.OAuthConfig
 import kotlin.js.JsExport
 import kotlin.js.JsName
-import kotlin.jvm.JvmStatic
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 /**
  * OAuth 回调结果。
  */
-@JsExport
-@JsName("OAuthCallbackResult")
 public sealed class OAuthCallbackResult {
     /**
      * 授权成功，携带授权码和 state。
@@ -79,12 +93,13 @@ public interface OAuthCallbackHandler {
     public suspend fun waitForCallback(): OAuthCallbackResult
 
     /**
-     * 便捷方法：启动监听、引导用户到授权 URL 并等待回调。
+     * 便捷方法：启动监听并等待回调。
      *
-     * 等价于依次调用 [startListening]、打开 [authorizeUrl]、[waitForCallback]。
-     * 各平台实现会自动选择合适方式引导用户（如打开浏览器或弹窗）。
+     * 等价于依次调用 [startListening]、[waitForCallback]。接口默认实现**不会**打开
+     * [authorizeUrl]——如何引导用户完成授权由各平台 override 决定（JVM/Native 打开
+     * 浏览器或提示复制 URL，浏览器环境依赖中继页转发回调）。
      *
-     * @param authorizeUrl 授权端点 URL
+     * @param authorizeUrl 授权端点 URL（供平台实现引导用户时使用）
      * @return 回调结果
      */
     @JsName("startAndGetCallback")
@@ -101,30 +116,6 @@ public interface OAuthCallbackHandler {
 }
 
 /**
- * OAuth 回调服务器配置。
- *
- * @param callbackHost 监听主机名，默认 "localhost"
- * @param callbackPort 监听端口，默认 8080
- * @param callbackPath 回调路径，默认 "/callback"
- * @param timeoutSeconds 等待回调超时秒数，默认 300
- */
-@JsExport
-@Serializable
-@JsName("OAuthCallbackServerConfig")
-public data class OAuthCallbackServerConfig(
-    public val callbackHost: String = "localhost",
-    public val callbackPort: Int = 8080,
-    public val callbackPath: String = "/callback",
-    public val timeoutSeconds: Long = 300,
-) {
-    public companion object {
-        @JvmStatic
-        @JsName("default")
-        public val DEFAULT: OAuthCallbackServerConfig = OAuthCallbackServerConfig()
-    }
-}
-
-/**
  * 创建平台默认的 OAuth 回调处理器。
  *
  * 根据当前运行平台自动选择合适的实现：
@@ -133,11 +124,11 @@ public data class OAuthCallbackServerConfig(
  * - **JS (Node.js)**: 使用 Node.js http 模块创建本地服务器
  * - **Native**: 启动本地 HTTP 服务器接收回调
  *
- * @param config 回调服务器配置，默认使用 [OAuthCallbackServerConfig.DEFAULT]
+ * @param config OAuth 回调配置
  * @return 平台对应的 [OAuthCallbackHandler] 实例
  */
 @JsExport
 @JsName("createDefaultOAuthHandler")
 public expect fun createDefaultOAuthHandler(
-    config: OAuthCallbackServerConfig = OAuthCallbackServerConfig.DEFAULT,
+    config: OAuthConfig = OAuthConfig(),
 ): OAuthCallbackHandler

@@ -3,9 +3,112 @@
 本文件记录项目的所有重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 并遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
+## [0.4.0] - 2026-08-30
+
+### 重大变更 (BREAKING)
+
+- **`PopularUser.popularityScore` 类型 `Int?` → `String?`**：vds-docs 热门推荐响应中 `popularity_score` 为字符串（如 `"2989"`），原 `Int?` 与文档不符（审计项 #12）
+- **`BaseApi.checkAndroidVersion` 的 `currentVersionCode` 改为必填**：方法参数与 `AndroidVersionCheckRequest.currentVersionCode` 由 `Int?` 改为非空 `Int`；vds-docs 示例恒携带该参数（审计项 #40）
+- **PKCE 支持整体删除**：`loginWithOAuth` 不再自动生成/发送 code_challenge；`getOAuthAuthorizeUrl` 移除 `enablePkce`/`codeChallenge` 参数；`exchangeOAuthToken` 移除 `codeVerifier` 参数；`OAuthConfig.enablePkce` 删除；`Sha256`/`toHex` 工具删除（vds-docs 未记载 PKCE，属文档外扩展）（审计项 #6）
+- **配置级 apiKey 全链删除**：`MutableSdkConfig.apiKey`/`SdkConfig.apiKey`/`SdkConfig.withApiKey()`/`FursuitTvSdkBuilder.apiKey()` 删除；apiKey-only 初始化从此在编译期不可表达（审计项 #8）
+- **`getMonthlyDistance` 新增必填 `lat`/`lng` 参数，`GatheringMonthlyParams` 移除 `lat`/`lng`**：聚会月历距离.md 明示两参数必填（审计项 #18）
+- **移除文档外请求参数**：`getNearby` 改无参（`GatheringNearbyParams` 删除）、`getRegistrations` 移除 `status`/`cursor`/`limit`、`searchSchools` 移除 `cursor`/`limit`、`getRandomFursuit` 移除 `personalized`（审计项 #26）
+- **移除文档外响应字段**：`RandomFursuit.location`、`PopularLocationsResponse.total_users`、`LikeStatusResponse.can_like`（严格依据 vds-docs，文档无即移除）（审计项 #27）
+- **`getRandomFursuit` 返回完整 `RandomFursuitResponse`**：不再自动解包为 `List<RandomFursuit>`，`count`/`requested_count`/`debug_info`/`requestId` 可达（审计项 #28）
+- **全部 API 方法统一返回完整 `*Response` 包装**：11 个解包方法不再自动解包，`success`/`requestId` 等元数据可达；完整对照见 `docs/MIGRATION.md`「0.4.0 API 返回值统一」（审计项 #39）
+- **删除零引用的公开死代码类 `OAuthAuthorizeParams` / `OAuthTokenRequest`**：`@JsExport` 公开 API 移除，JS 消费方受影响（审计项 #35）
+
+### 变更
+
+- `loginWithOAuth` scope 默认值改为 `"profile"`（审计项 #24）
+- `/account/sso/*` 请求不再注入 `X-Api-Key`（审计项 #23）
+- sso 端点错误响应结构化为 `OAuthException(errorCode)`（审计项 #25）
+- OAuth 授权 URL 的 query 参数值（`client_id`/`redirect_uri`/`scope`/`state` 等）按文档要求 URL 编码（审计项 #1）
+- 修复 `loginWithOAuth` 双重启动回调服务器（审计项 #2）；Native `startListening` 幂等守卫（审计项 #3）；Native 回调读取改头结束符检测，浏览器 GET 保持连接不再挂起（审计项 #4）；Node.js 实现真实本地 OAuth 回调服务器并补浏览器中继页接入约定（审计项 #5）
+- 移除客户端自造的 `X-Request-ID` 请求头（requestId 以服务端响应为准）（审计项 #21）
+- 业务请求的令牌过期窗口内优先 refresh 端点换新，失败回落签名交换（审计项 #22）
+- 修复 `AuthHolder` 未接线导致业务请求从不携带 `X-Api-Key` 的缺陷（审计项 #41）
+
+### 内部改进
+
+- 消除 DSL 交换路径临时 HttpClient 并在 `close()` 时驱逐客户端缓存（#30）
+- `SdkLogLevel.ERROR/WARNING` 正确映射 Ktor LogLevel（#36）
+- `TokenInfo.isExpired()` 补充换新窗口语义注释（#36）
+
+### 新增
+
+- `ContactRequestState` 补 `can_request` / `requires_auth` 映射（审计项 #7）
+- `UserProfile` 补 `contact_reputation_level`（审计项 #9）
+- `SearchUser` / `SpeciesSearchUser` 补 `like_count` / `is_liked`（审计项 #10）
+- `SearchResponse` / `SpeciesSearchResponse` 补顶层 `total_is_estimate`（审计项 #11）
+- `CharacterInfo` 补 `images` / `birthday` / `created_at` / `updated_at`（审计项 #16）
+- `TokenData` / `OAuthTokenData` / `UserInfoData` 补 `requestId`（审计项 #29）
+- `RandomFursuit` 补 12 个用户数据字段，新增 `TodayStatus`（审计项 #13）
+- `GatheringDetailData` 补 14 字段（审计项 #14）
+- 新增 `GatheringNearbyModeItem`（nearby-mode 元素类型；`participants` 为文档明示预留字段，不建模）（审计项 #15）
+- `getSocialBadges` 新增 `limit` 参数（可选，最大 50）（审计项 #19）
+- `RandomDebugInfo` KDoc 声明有意子集（调试遥测字段不固化）（审计项 #38）
+
+### 内部改进
+
+- **文档清理**：`docs/authentication.md` + `docs/MIGRATION.md` 重写以匹配 `init-builder-refactor` 新模型（2 种初始化写法 + apiKey-only 禁用 + `socialLinks` 迁移示例）
+- **examples 同步**：`examples/java/Main.java` 用 `FursuitTvSdkBuilder`（替换 `JvmFursuitTvSdkBuilder`）；`examples/jvm/Main.kt` 用 builder 写法
+- **契约测试**：~32 个 vds-docs JSON fixture + 6 个 capability 测试类（auth / base / discovery / user / school / gathering + user-characters cross-cutting），验证前 5 个 change 重塑的 DTO 反序列化兼容性
+
 ***
 
-## \[0.2.0] - 2026-04-26
+## [0.3.0] - 2026-07-22
+
+### 重大变更 (BREAKING)
+
+- **Auth 重构**：`TokenInfo` 改 `sealed class`（`Platform` / `OAuth` 子类）；`getAccessToken()` / `refreshOAuthToken()` 删除；`getUserInfo()` 改用 `Authorization: Bearer <oauthToken>`；`exchangeOAuthToken()` 不发送 platform Bearer 头；`expiresAt` 减 30s skew 缓冲；`RefreshTooEarly` 自动 fallback 到 `exchangeToken()`
+- **SDK 初始化重构**：新增 `FursuitTvSdkBuilder`（chainable 跨语言入口）；删除 `JvmFursuitTvSdkBuilder` / `fursuitTvSdkBlocking` / 3 个平台文件 `FursuitTvSdkJvm/Js/Native.kt`；apiKey-only init 禁用（强制 `clientId` + `clientSecret`）；`HttpClientConfig.getClient` 改 2 参数 + `Pair<SdkConfig, AuthHolder>` 缓存键
+- **DTO 响应结构重塑**：22 个 `*Response` 重塑为 flat / typed-wrapped / no-success-field；4 个 auth 包装（`TokenExchangeResponse` / `TokenRefreshResponse` / `OAuthTokenResponse` / `UserInfoResponse`）+ 19 个 data wrapper 删除
+- **`UserProfile.socialLinks` / `contactInfo` 类型重构**：`Map<String, String>?` → 带自定义 `KSerializer` 的嵌套结构（`entries: Map<String, String>` + `custom: List<CustomLink>`）
+- **`ThemePacksManifestData` 重构**：删除 `packs`，新增 `themes` + 嵌套 `ThemePackMetadata`
+- **`VisitorInfo` 新增 `visitId`**（`@SerialName("visit_id")`）作为访问记录主键
+
+### 新增
+
+- `AuthHolder` 类（`@Volatile var auth: AuthManager?`）
+- `AuthManager.withFreshToken { ... }`（reactive re-exchange；check-then-call pattern 避开 `Mutex` 不可重入）
+- `HttpClientConfig.defaultRequest` 自动注入 `X-Api-Key`（从 `authHolder.auth?.getApiKey()` 按请求读取）
+- 8 个新 DTO 类：`ContactRequestState` / `CustomLink` / `UserProfileSocialLinks` / `UserProfileContactInfo` / `ThemePackMetadata` / `ThemePackAuthor` / `ThemePackHomeBackground` / `ThemePackPreview`
+- 26+ 个新 nullable 字段（`GatheringDetailData` / `UserProfile` / `UserVisitorsResponse` / `SearchPagination` 等）
+- **平台编译恢复**：JS target + 9 个 Native target 现在可正常编译（之前阻塞 npm 包和 Native 发版）
+
+### 删除
+
+- DTO 包装类 19 个（`PopularData` / `SearchData` / `UserCharactersData` 等）
+- 平台文件 `JvmFursuitTvSdkBuilder.kt` + 3 个 `FursuitTvSdkXxx.kt`
+- `expect/actual fursuitTvSdkBlocking` 整链（4 个声明位置）
+
+### 修复
+
+- **`HttpClientConfig` 修复 JVM-only `synchronized`**：JS + Native 编译恢复（改为无锁 `getOrPut`；JVM 多线程并发首次访问有已知轻微 race）
+- **`TokenInfo.Platform` / `TokenInfo.OAuth` 嵌套 `@JsExport` 删除**：JS 编译恢复
+- `HttpClientConfig` 内部化（移除 `@JsExport` / `@PublishedApi` / `@Suppress`）
+- `OAuthCallbackResult` 外层 `@JsExport` 删除（内部 flow 类型）
+- `HttpClientConfig` 错误响应 body 写入异常 message（原硬编码空字符串）
+- `StateStoreInternal` 用 `Mutex` 保护（KMP 线程安全）
+
+### 内部改进
+
+- `TokenInfo` 字段加 `@Volatile`（跨线程可见性）
+- `MutableSdkConfig.toImmutable()` 显式 `apiKey = null`（丢弃 caller 误设）
+- 5 个 `*Api` 类构造器增加 `auth: AuthManager` 参数；业务方法 wrap 在 `auth.withFreshToken { ... }`（省去 60+ 行 `header("X-Api-Key", apiKey)` boilerplate）
+
+***
+
+## [0.2.2] - 2026-05-02
+
+***
+
+## [0.2.1] - 2026-04-29
+
+***
+
+## [0.2.0] - 2026-04-26
 
 ### 新增
 
@@ -36,7 +139,7 @@
 
 ***
 
-## \[0.1.0] - 2026-04-15
+## [0.1.0] - 2026-04-15
 
 ### 新增
 
@@ -94,4 +197,3 @@
 - [GitHub Releases](https://github.com/RegadPoleCN/fursuit-tv-sdk/releases)
 - [Maven Central](https://central.sonatype.com/search?q=fursuit-tv-sdk)
 - [npm](https://www.npmjs.com/package/@regadpole/fursuit-tv-sdk)
-

@@ -1,14 +1,20 @@
 
-# 安卓版本检查（furtv.version.android.check）
+# 安卓版本检查
+
+**TODO: 初步测试未通过，可用状态未知**
 
 用于检查当前安卓版本是否需要更新。
 
-认证与端点统一说明请参考根目录文档：`认证方式与服务器端点`。
+权限节点：`furtv.version.android.check`
+
+## 请求头
+
+- `X-Api-Key: <apiKey>`
+
 
 ## 请求地址
 
 - `POST /api/proxy/furtv/version/android/check`
-- 权限节点：`furtv.version.android.check`
 
 ## 请求体参数
 
