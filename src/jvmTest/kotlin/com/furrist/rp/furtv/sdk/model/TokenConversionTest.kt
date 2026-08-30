@@ -22,6 +22,13 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 
+/** 测试用假令牌值，均为非真实凭据的占位串（统一走常量，便于安全扫描区分真实凭据与测试值）。 */
+private const val DUMMY_A = "dummy-value-a"
+private const val DUMMY_B = "dummy-value-b"
+private const val DUMMY_C = "dummy-value-c"
+private const val DUMMY_D = "dummy-value-d"
+private const val DUMMY_E = "dummy-value-e"
+
 /**
  * `TokenData.toTokenInfo()` 与 `OAuthTokenData.toTokenInfo(redirectUri)` 转换函数测试。
  *
@@ -37,8 +44,8 @@ class TokenConversionTest {
     fun tokenData_toTokenInfo_producesPlatform() {
         val source =
             TokenData(
-                accessToken = "access-token-value",
-                apiKey = "platform-api-key",
+                accessToken = DUMMY_A,
+                apiKey = DUMMY_B,
                 expiresIn = 3600,
                 tokenType = "Bearer",
             )
@@ -47,7 +54,7 @@ class TokenConversionTest {
         val platform = source.toTokenInfo()
         val after = nowMs()
 
-        assertEquals("platform-api-key", platform.apiKey, "apiKey must match server field")
+        assertEquals(DUMMY_B, platform.apiKey, "apiKey must match server field")
         assertEquals("Bearer", platform.tokenType)
         val expectedMin = before + 3600 * 1000L - 30_000L
         val expectedMax = after + 3600 * 1000L - 30_000L
@@ -77,19 +84,19 @@ class TokenConversionTest {
         val redirectUri = "https://example.com/callback"
         val source =
             OAuthTokenData(
-                accessToken = "oauth-access-token",
+                accessToken = DUMMY_C,
                 expiresIn = 7200,
                 tokenType = "Bearer",
                 scope = "openid profile",
-                refreshToken = "oauth-refresh-token",
+                refreshToken = DUMMY_D,
             )
 
         val before = nowMs()
         val oauth = source.toTokenInfo(redirectUri = redirectUri)
         val after = nowMs()
 
-        assertEquals("oauth-access-token", oauth.oauthToken)
-        assertEquals("oauth-refresh-token", oauth.refreshToken)
+        assertEquals(DUMMY_C, oauth.oauthToken)
+        assertEquals(DUMMY_D, oauth.refreshToken)
         assertEquals("openid profile", oauth.scope)
         assertEquals(redirectUri, oauth.redirectUri)
         assertEquals("Bearer", oauth.tokenType)
@@ -105,7 +112,7 @@ class TokenConversionTest {
     fun oauthTokenData_toTokenInfo_nullRefreshToken() {
         val source =
             OAuthTokenData(
-                accessToken = "oauth-token",
+                accessToken = DUMMY_E,
                 expiresIn = 60,
                 tokenType = "Bearer",
                 scope = null,

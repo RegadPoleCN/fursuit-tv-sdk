@@ -21,6 +21,10 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 
+/** 测试用假令牌值，均为非真实凭据的占位串（统一走常量，便于安全扫描区分真实凭据与测试值）。 */
+private const val DUMMY_F = "dummy-value-f"
+private const val DUMMY_G = "dummy-value-g"
+
 /**
  * `TokenInfo.isExpired()` 边界测试。
  *
@@ -30,14 +34,14 @@ import kotlin.time.Clock
 class TokenInfoExpirationTest {
     private fun platformWithExpiry(offsetMs: Long): TokenInfo.Platform =
         TokenInfo.Platform(
-            apiKey = "test-api-key",
+            apiKey = DUMMY_F,
             expiresAt = Clock.System.now().toEpochMilliseconds() + offsetMs,
             tokenType = "Bearer",
         )
 
     private fun oauthWithExpiry(offsetMs: Long): TokenInfo.OAuth =
         TokenInfo.OAuth(
-            oauthToken = "test-oauth-token",
+            oauthToken = DUMMY_G,
             redirectUri = "https://example.com/callback",
             expiresAt = Clock.System.now().toEpochMilliseconds() + offsetMs,
             tokenType = "Bearer",
