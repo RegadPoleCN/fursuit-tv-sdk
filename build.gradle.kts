@@ -141,8 +141,9 @@ npmPublish {
     access = NpmAccess.PUBLIC
 
     registries {
-        npmjs {
-            authToken = project.findProperty("npmToken") as String? ?: ""
+        register("npmjs") {
+            uri("https://registry.npmjs.org")
+            authToken.set(project.findProperty("npmToken") as String? ?: "")
         }
     }
 
