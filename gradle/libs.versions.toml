@@ -4,7 +4,7 @@ fursuit-tv-sdk = "0.4.0"
 
 # Kotlin
 kotlin = "2.4.10"
-kotlin-npm-publish = "3.6.0"
+kotlin-npm-publish = "3.7.0"
 
 # Ktor
 ktor = "3.5.2"
