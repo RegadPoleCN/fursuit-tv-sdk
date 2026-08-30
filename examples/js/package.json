@@ -16,7 +16,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@regadpole/fursuit-tv-sdk": "0.3.0"
+    "@regadpole/fursuit-tv-sdk": "0.4.0"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

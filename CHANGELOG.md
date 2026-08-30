@@ -3,7 +3,7 @@
 本文件记录项目的所有重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 并遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
-## [Unreleased]
+## [0.4.0] - 2026-08-30
 
 ### 重大变更 (BREAKING)
 
@@ -54,8 +54,6 @@
 - **文档清理**：`docs/authentication.md` + `docs/MIGRATION.md` 重写以匹配 `init-builder-refactor` 新模型（2 种初始化写法 + apiKey-only 禁用 + `socialLinks` 迁移示例）
 - **examples 同步**：`examples/java/Main.java` 用 `FursuitTvSdkBuilder`（替换 `JvmFursuitTvSdkBuilder`）；`examples/jvm/Main.kt` 用 builder 写法
 - **契约测试**：~32 个 vds-docs JSON fixture + 6 个 capability 测试类（auth / base / discovery / user / school / gathering + user-characters cross-cutting），验证前 5 个 change 重塑的 DTO 反序列化兼容性
-
-**最新版本：0.3.0**（2026-07-22）
 
 ***
 
