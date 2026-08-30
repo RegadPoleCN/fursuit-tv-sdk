@@ -39,7 +39,7 @@ class BaseContractTest {
 
     @Test
     fun `android version check request requires currentVersionCode`() {
-        // 审计项 #40：文档示例恒携带 currentVersionCode，请求体字段改必填
+        // 文档示例恒携带 currentVersionCode，请求体字段改必填
         val encoded =
             json.encodeToString(
                 AndroidVersionCheckRequest.serializer(),
@@ -80,7 +80,7 @@ class BaseContractTest {
 
     @Test
     fun `health response decodes`() {
-        // #33：health 契约测试（fixture 逐字取自健康检查.md 成功示例；诊断字段有意不建模）
+        // health 契约测试（fixture 逐字取自健康检查.md 成功示例；诊断字段有意不建模）
         val data = json.decodeFromString<HealthResponse>(ContractFixture.readFixture("vdsdocs/base/health.json"))
         assertEquals(true, data.success)
         assertEquals("Fursuit.TV API is running", data.message)
@@ -89,7 +89,7 @@ class BaseContractTest {
 
     @Test
     fun `android version check response decodes`() {
-        // #33：checkAndroidVersion 端点契约测试（fixture 逐字取自安卓版本检查.md 成功示例）
+        // version-check 端点契约测试（fixture 逐字取自安卓版本检查.md 成功示例）
         val wrapper =
             json.decodeFromString<AndroidVersionCheckResponse>(
                 ContractFixture.readFixture("vdsdocs/base/android-version-check.json"),

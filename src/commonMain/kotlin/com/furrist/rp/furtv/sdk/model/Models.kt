@@ -108,10 +108,18 @@ public data class OAuthConfig(
     }
 
     public companion object {
+        /** 本地回调服务器默认主机名。 */
         public const val DEFAULT_CALLBACK_HOST: String = "localhost"
+
+        /** 本地回调服务器默认端口。 */
         public const val DEFAULT_CALLBACK_PORT: Int = 8080
+
+        /** 本地回调服务器默认路径。 */
         public const val DEFAULT_CALLBACK_PATH: String = "/callback"
+
+        /** 回调等待与 state 存储的默认超时（秒）。 */
         public const val DEFAULT_TIMEOUT_SECONDS: Int = 300
+
         private const val MAX_PORT_NUMBER = 65535
     }
 }
@@ -575,7 +583,7 @@ public data class UserProfilePrivacySettings(
 )
 
 /**
- * UserProfilePrivacySettings 的 KSerializer：把 camelCase 键改写为 snake_case（#13）。
+ * UserProfilePrivacySettings 的 KSerializer：把 camelCase 键改写为 snake_case。
  * 服务端在不同端点混用两种拼写（用户资料公开信息.md、随机推荐.md），snake_case 原键优先不改写。
  */
 public object UserProfilePrivacySettingsSerializer : KSerializer<UserProfilePrivacySettings> {
@@ -1284,7 +1292,7 @@ public data class GatheringNearbyModeData(
 )
 
 /**
- * 聚会附近模式项（聚会附近模式.md 响应元素；#15）。
+ * 聚会附近模式项（聚会附近模式.md 响应元素）。
  * 注：文档第 4 行明示 `participants` 为服务端预留字段（现阶段不处理），故不建模。
  */
 @JsExport

@@ -22,7 +22,7 @@ import kotlin.test.Test
 import kotlin.test.assertTrue
 
 /**
- * 审计项 #1：授权 URL 的 query 参数必须 URL 编码（vds-docs《VDS账户快速接入（OAuth）》:54、
+ * 授权 URL 的 query 参数必须 URL 编码（vds-docs《VDS账户快速接入（OAuth）》:54、
  * 《授权端点》:36 要求 redirect_uri 等参数编码）。
  */
 class OAuthAuthorizeUrlEncodingTest {

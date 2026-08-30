@@ -35,17 +35,17 @@ import kotlinx.serialization.json.JsonPrimitive
  * HTTP 客户端配置（内部缓存工厂），提供 Ktor 客户端的创建和配置功能。
  *
  * 单例化：同 `(SdkConfig, AuthHolder)` 共享一个 [HttpClient] 实例，通过 Ktor `defaultRequest { header(...) }`
- * 在每个请求上决定认证头：
+ * 在每个请求上按以下规则决定认证头：
  *
- * 1. `authHolder.auth?.getApiKey()` 非空 → `X-Api-Key: <apiKey>`
- * 2. 全部为空 → 不发送认证头（用于 `/api/auth/token` 等未认证场景）
+ * 1. 请求路径不含 `/account/sso/` 且 `authHolder.auth?.getApiKey()` 非空 → 注入 `X-Api-Key: <apiKey>`
+ * 2. 请求路径含 `/account/sso/` → 跳过 `X-Api-Key`（sso 端点无需任何平台签名头）
+ * 3. `authHolder.auth?.getApiKey()` 为空 → 不发送认证头（此时令牌尚未交换）
  *
- * 头 (1) 由 `defaultRequest` 通过 `AuthHolder.auth?.getApiKey()` 按请求自动注入（per `init-builder-refactor` D8）。
- * 调用方应使用 [FursuitTvSdk.auth] 的当前 TokenInfo 进行请求头注入。
+ * 认证头完全由 `defaultRequest` 按请求自动注入，调用方无需（也不应）手工设置认证头。
  */
 internal object HttpClientConfig {
 
-    // #25：sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
+    // sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
     private val errorJson =
         Json {
             ignoreUnknownKeys = true
@@ -76,7 +76,7 @@ internal object HttpClientConfig {
     /**
      * 单例工厂：为同一 `(SdkConfig, AuthHolder)` 始终返回同一个 [HttpClient] 实例。
      *
-     * **已知限制**（fix-js-compile 简化）：不再加锁。JVM 上多线程并发首次访问同一 key 时
+     * **已知限制**：不再加锁。JVM 上多线程并发首次访问同一 key 时
      * 可能并发调用 `buildClient`，导致多构造一个 HttpClient 但旧实例仍在缓存中被覆盖——
      * 行为正确，仅有轻微内存浪费。实际应用通常单 SDK 实例单线程，无影响。
      * JS / Native 单线程，无此问题。
@@ -89,7 +89,7 @@ internal object HttpClientConfig {
         instance.getOrPut(config to authHolder) { buildClient(config, authHolder) }
 
     /**
-     * #30：关闭并驱逐 `(config, authHolder)` 对应的缓存条目。
+     * 关闭并驱逐 `(config, authHolder)` 对应的缓存条目。
      * remove 对不存在的 key 返回 null，天然幂等。驱逐后同 key 再 [getClient]
      * 会重建新活客户端（调用方 close 后继续使用属未定义行为）。
      */
@@ -118,7 +118,7 @@ internal object HttpClientConfig {
                 header("Accept", "application/json")
                 header("User-Agent", USER_AGENT_CHROME)
 
-                // ✅ 每个请求从 AuthHolder 读取最新 apiKey（init-builder-refactor D8）
+                // 每个请求从 AuthHolder 读取最新 apiKey，实现认证头的按请求自动注入
                 // /account/sso/* 端点无需任何平台签名头（vds-docs：VDS账户各篇"无需任何开放平台签名"）
                 if (!url.encodedPath.contains("/account/sso/")) {
                     authHolder.auth?.getApiKey()?.let { apiKey ->
@@ -160,7 +160,7 @@ internal object HttpClientConfig {
     private suspend fun validateStatusCode(response: io.ktor.client.statement.HttpResponse) {
         if (response.status.value !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
             val errorBody = readErrorBody(response)
-            // #25：sso 端点（OAuth token / userinfo）错误体为 {error, error_description}，结构化抛出
+            // sso 端点（OAuth token / userinfo）错误体为 {error, error_description}，结构化抛出
             if (response.request.url.encodedPath.contains("/account/sso/")) {
                 throwOAuthError(response.status.value, errorBody)
             }
@@ -198,7 +198,7 @@ internal object HttpClientConfig {
     }
 
     /**
-     * #25：解析 sso 端点的 OAuth 错误体 `{error, error_description}`（签名交换端点.md:66-72、
+     * 解析 sso 端点的 OAuth 错误体 `{error, error_description}`（签名交换端点.md:66-72、
      * 用户信息端点.md:70-75），结构化抛出 [OAuthException]；解析失败回落为通用消息。
      */
     private fun throwOAuthError(statusCode: Int, errorBody: String?): Nothing {

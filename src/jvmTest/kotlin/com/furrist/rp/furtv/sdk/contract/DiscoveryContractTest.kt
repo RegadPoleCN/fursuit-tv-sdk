@@ -34,7 +34,7 @@ class DiscoveryContractTest {
         assertEquals(1, data.users.size)
         assertEquals(1024, data.users[0].id)
         assertEquals("fox_demo", data.users[0].username)
-        // 审计项 #12：popularity_score 在文档中为字符串
+        // popularity_score 在文档中为字符串
         assertEquals("2989", data.users[0].popularityScore)
     }
 
@@ -44,7 +44,7 @@ class DiscoveryContractTest {
         assertNotNull(data.pagination)
         assertEquals(1, data.pagination?.page)
         assertEquals("general", data.searchType)
-        // 审计项 #10/#11：like_count / is_liked / 顶层 total_is_estimate
+        // like_count / is_liked / 顶层 total_is_estimate 映射
         assertEquals(4, data.users[0].likeCount)
         assertEquals(false, data.users[0].isLiked)
         assertEquals(false, data.totalIsEstimate)
@@ -59,7 +59,6 @@ class DiscoveryContractTest {
     @Test fun `species search flat with species field`() {
         val data = json.decodeFromString<SpeciesSearchResponse>(ContractFixture.readFixture("vdsdocs/discovery/species-search.json"))
         assertEquals("狐", data.species)
-        // 审计项 #10/#11
         assertEquals(35, data.users[0].likeCount)
         assertEquals(false, data.users[0].isLiked)
         assertEquals(false, data.totalIsEstimate)
@@ -72,13 +71,13 @@ class DiscoveryContractTest {
     }
 
     @Test fun `random endpoint flat shape`() {
-        // 审计项 #28：返回完整 RandomFursuitResponse（fixture 逐字取自随机推荐.md count=1 示例）
+        // 返回完整 RandomFursuitResponse（fixture 逐字取自随机推荐.md count=1 示例）
         val data = json.decodeFromString<RandomFursuitResponse>(ContractFixture.readFixture("vdsdocs/discovery/random.json"))
         assertEquals(true, data.success)
         assertEquals("MCbcx", data.fursuit?.username)
         assertEquals(1, data.count)
         assertEquals("93ed4318-b9fe-4316-a3f0-fc489ac5edc7", data.requestId)
-        // 审计项 #13：补齐的用户数据字段
+        // 补齐的用户数据字段
         assertEquals("2026-03-14T16:00:00.000Z", data.fursuit?.fursuitBirthday)
         assertNotNull(data.fursuit?.showcasePortrait)
         assertEquals(0, data.fursuit?.destinations?.size)

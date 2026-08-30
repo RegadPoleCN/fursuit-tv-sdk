@@ -48,7 +48,7 @@ class SchoolContractTest {
     }
 
     @Test fun `user characters with extended fields`() {
-        // #33：characters 测试自 GatheringContractTest 归位（School 域）；#16 扩展字段断言
+        // characters 测试自 GatheringContractTest 归位（School 域）；扩展字段断言
         val data = json.decodeFromString<UserCharactersResponse>(ContractFixture.readFixture("vdsdocs/user-characters.json"))
         assertEquals(1, data.characters.size)
         assertEquals("小狐", data.characters[0].name)

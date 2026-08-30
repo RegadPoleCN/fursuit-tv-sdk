@@ -70,7 +70,7 @@ public class BaseApi internal constructor(
     /**
      * 获取 Android 客户端最新版本信息。
      *
-     * @return 版本信息响应包装（#39：含 success/requestId）
+     * @return 版本信息响应包装（含 success/requestId 元数据）
      */
     @JsName("getAndroidVersion")
     public suspend fun getAndroidVersion(): AndroidVersionResponse =
@@ -84,7 +84,7 @@ public class BaseApi internal constructor(
      *
      * @param currentVersion 当前版本字符串（如 "1.2.3"）
      * @param currentVersionCode 当前版本号（必填）
-     * @return 版本检查响应包装（#39：含 success/requestId）
+     * @return 版本检查响应包装（含 success/requestId 元数据）
      */
     @JsName("checkAndroidVersion")
     public suspend fun checkAndroidVersion(
@@ -101,7 +101,7 @@ public class BaseApi internal constructor(
     /**
      * 获取主题包清单。
      *
-     * @return 主题包清单响应包装（#39：含 success/requestId）
+     * @return 主题包清单响应包装（含 success/requestId 元数据）
      */
     @JsName("getThemePacksManifest")
     public suspend fun getThemePacksManifest(): ThemePacksManifestResponse =

@@ -46,24 +46,34 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 public class FursuitTvSdkBuilder {
     private val config = MutableSdkConfig()
 
+    /** 设置 API 基础 URL（默认官方节点）。 */
     public fun baseUrl(value: String): FursuitTvSdkBuilder = apply { config.baseUrl = value }
 
+    /** 设置客户端 ID（即 VDS 文档中的 appId，格式 vap_xxx）。 */
     public fun clientId(value: String): FursuitTvSdkBuilder = apply { config.clientId = value }
 
+    /** 设置客户端密钥。 */
     public fun clientSecret(value: String): FursuitTvSdkBuilder = apply { config.clientSecret = value }
 
+    /** 设置请求超时时间（毫秒）。 */
     public fun requestTimeout(value: Long): FursuitTvSdkBuilder = apply { config.requestTimeout = value }
 
+    /** 设置连接超时时间（毫秒）。 */
     public fun connectTimeout(value: Long): FursuitTvSdkBuilder = apply { config.connectTimeout = value }
 
+    /** 设置套接字超时时间（毫秒）。 */
     public fun socketTimeout(value: Long): FursuitTvSdkBuilder = apply { config.socketTimeout = value }
 
+    /** 设置 HTTP 日志级别。 */
     public fun logLevel(value: SdkLogLevel): FursuitTvSdkBuilder = apply { config.logLevel = value }
 
+    /** 设置是否启用请求重试。 */
     public fun enableRetry(value: Boolean): FursuitTvSdkBuilder = apply { config.enableRetry = value }
 
+    /** 设置最大重试次数。 */
     public fun maxRetries(value: Int): FursuitTvSdkBuilder = apply { config.maxRetries = value }
 
+    /** 设置重试间隔（毫秒）。 */
     public fun retryInterval(value: Long): FursuitTvSdkBuilder = apply { config.retryInterval = value }
 
     /**

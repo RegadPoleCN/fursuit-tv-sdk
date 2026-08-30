@@ -20,7 +20,7 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 
 /**
- * 可变的 SDK 配置构建器，作为 `fursuitTvSdk { ... }` / `fursuitTvSdkBlocking { ... }` DSL 的内部 builder。
+ * 可变的 SDK 配置构建器，作为 `fursuitTvSdk { ... }` DSL 的内部 builder。
  *
  * 用户只需直接设置属性即可，例如：
  *
@@ -97,10 +97,10 @@ public class MutableSdkConfig {
 }
 
 /**
- * Copy all fields from `this` MutableSdkConfig to [target].
+ * 将 `this` 的全部配置字段复制到 [target]。
  *
- * Used by `FursuitTvSdkBuilder.build()` to forward builder-captured config into the
- * `fursuitTvSdk { ... }` DSL block (single source of truth for `toImmutable()`).
+ * 由 `FursuitTvSdkBuilder.build()` 调用，把 builder 捕获的配置转发到
+ * `fursuitTvSdk { ... }` DSL 块（保证 `toImmutable()` 的单一来源）。
  */
 internal fun MutableSdkConfig.copyTo(target: MutableSdkConfig) {
     target.baseUrl = baseUrl

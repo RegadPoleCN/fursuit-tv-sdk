@@ -25,6 +25,13 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.EventListener
 
+/**
+ * JS 平台 OAuth 回调处理器。
+ *
+ * 运行时自动区分两种环境：
+ * - **浏览器**：通过 `window.postMessage` 接收中继页转发的回调（约定见 docs/authentication.md）
+ * - **Node.js**：动态加载 `node:http` 在本机启动回调服务器，直接接收 OAuth 重定向
+ */
 @JsExport
 @JsName("JsOAuthCallbackHandler")
 public class JsOAuthCallbackHandler(
@@ -37,7 +44,7 @@ public class JsOAuthCallbackHandler(
     private var deferredResult: CompletableDeferred<OAuthCallbackResult>? = null
     private var messageListener: EventListener? = null
 
-    // #5：Node.js 本地回调服务器（dynamic 持有 node:http Server 实例）
+    // Node.js 本地回调服务器（dynamic 持有 node:http Server 实例）
     private var nodeServer: dynamic = null
 
     private fun importNodeHttp(): dynamic = js("import('node:http')")
@@ -104,7 +111,7 @@ public class JsOAuthCallbackHandler(
 
     override suspend fun startAndGetCallback(authorizeUrl: String): OAuthCallbackResult {
         startListening()
-        // In Node.js, attempt to open the URL via the `start` command if available (kept simple).
+        // Node.js 无通用浏览器打开方式，控制台输出 URL 提示用户手动复制
         if (!isBrowser) {
             try {
                 js("console.log('Open this URL in your browser:', authorizeUrl)")

@@ -93,12 +93,13 @@ public interface OAuthCallbackHandler {
     public suspend fun waitForCallback(): OAuthCallbackResult
 
     /**
-     * 便捷方法：启动监听、引导用户到授权 URL 并等待回调。
+     * 便捷方法：启动监听并等待回调。
      *
-     * 等价于依次调用 [startListening]、打开 [authorizeUrl]、[waitForCallback]。
-     * 各平台实现会自动选择合适方式引导用户（如打开浏览器或弹窗）。
+     * 等价于依次调用 [startListening]、[waitForCallback]。接口默认实现**不会**打开
+     * [authorizeUrl]——如何引导用户完成授权由各平台 override 决定（JVM/Native 打开
+     * 浏览器或提示复制 URL，浏览器环境依赖中继页转发回调）。
      *
-     * @param authorizeUrl 授权端点 URL
+     * @param authorizeUrl 授权端点 URL（供平台实现引导用户时使用）
      * @return 回调结果
      */
     @JsName("startAndGetCallback")
@@ -123,7 +124,7 @@ public interface OAuthCallbackHandler {
  * - **JS (Node.js)**: 使用 Node.js http 模块创建本地服务器
  * - **Native**: 启动本地 HTTP 服务器接收回调
  *
- * @param config OAuth 配置，使用 [OAuthConfig]
+ * @param config OAuth 回调配置
  * @return 平台对应的 [OAuthCallbackHandler] 实例
  */
 @JsExport

@@ -26,16 +26,17 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 /**
- * Verifies HttpClientConfig.getClient is thread-safe under concurrent access.
- * Same config (equals) must return the same HttpClient (single instance per cache miss).
+ * 验证并发访问下 `HttpClientConfig.getClient` 的行为。
+ *
+ * 已知限制：缓存使用普通 `MutableMap.getOrPut`，JVM 多线程并发首次访问可能重复构建
+ * HttpClient（行为正确，旧实例被覆盖，仅有轻微内存浪费）。同配置必须返回同一个实例。
  */
 class HttpClientConfigConcurrencyTest {
     @Test
     fun concurrentFirstTimeAccessReturnsSameInstance() =
         runBlocking {
             val sameConfig = SdkConfig()
-            // Per init-builder-refactor: cache key is Pair<SdkConfig, AuthHolder>;
-            // shared holder => shared cache entry => same HttpClient instance.
+            // 缓存键为 Pair<SdkConfig, AuthHolder>；共享 holder 即共享缓存条目，返回同一实例。
             val sharedHolder = com.furrist.rp.furtv.sdk.auth.AuthHolder()
             val n = 100
             val results = mutableListOf<Any>()

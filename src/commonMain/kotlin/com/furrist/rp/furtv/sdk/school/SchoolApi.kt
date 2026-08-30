@@ -42,15 +42,17 @@ public class SchoolApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
+    /** 按关键词搜索学校（学校搜索.md，查询参数仅 query）。 */
     @JsName("searchSchools")
     public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchResponse =
         auth.withFreshToken {
-            // #26：学校搜索.md 查询参数仅 query，cursor/limit 为文档外参数
+            // 学校搜索.md 查询参数仅 query，cursor/limit 为文档外参数（已移除）
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
                 parameter("query", params.query)
             }.body<SchoolSearchResponse>()
         }
 
+    /** 获取学校详情（学校详情.md）。 */
     @JsName("getSchoolDetail")
     public suspend fun getSchoolDetail(schoolId: String): SchoolDetailResponse =
         auth.withFreshToken {
@@ -58,6 +60,7 @@ public class SchoolApi internal constructor(
                 .body<SchoolDetailResponse>()
         }
 
+    /** 获取用户学校信息（用户学校信息.md）。 */
     @JsName("getUserSchools")
     public suspend fun getUserSchools(userId: String): UserSchoolsResponse =
         auth.withFreshToken {
@@ -65,6 +68,7 @@ public class SchoolApi internal constructor(
                 .body<UserSchoolsResponse>()
         }
 
+    /** 获取用户角色列表（用户角色列表.md）。 */
     @JsName("getUserCharacters")
     public suspend fun getUserCharacters(username: String): UserCharactersResponse =
         auth.withFreshToken {

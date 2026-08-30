@@ -65,7 +65,7 @@ class GatheringContractTest {
         val data = json.decodeFromString<GatheringNearbyModeResponse>(ContractFixture.readFixture("vdsdocs/gathering/nearby-mode.json"))
         assertEquals(1, data.data.gatherings.size)
         assertEquals(2, data.data.intentGatheringIds.size)
-        // 审计项 #15：nearby-mode 元素类型切换为 GatheringNearbyModeItem
+        // nearby-mode 元素类型为 GatheringNearbyModeItem
         assertEquals("https://example.com/gathering-logo.jpg", data.data.gatherings[0].avatarUrl)
         assertEquals(0, data.data.gatherings[0].currentParticipants)
         assertEquals(null, data.data.gatherings[0].maxParticipants)
@@ -73,10 +73,10 @@ class GatheringContractTest {
 
     @Test fun `detail uses gathering field not data`() {
         val data = json.decodeFromString<GatheringDetailResponse>(ContractFixture.readFixture("vdsdocs/gathering/detail.json"))
-        // vds-docs uses int 0/1 for many bool fields (e.g. is_recurring, is_furtv_coop_driven); model expects Boolean
+        // vds-docs 在部分布尔字段使用 0/1 整数，模型经 BooleanAsIntSerializer 兼容两者
         assertEquals(1001, data.gathering.id)
         assertEquals("南京兽聚", data.gathering.title)
-        // 审计项 #14：聚会详情补齐字段
+        // 聚会详情补齐字段
         assertEquals("official", data.gathering.contentSource)
         assertEquals("system", data.gathering.organizerType)
         assertEquals("2026-02-16T00:00:00.000Z", data.gathering.createdAt)

@@ -37,7 +37,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 /**
  * Fursuit.TV SDK 主客户端，提供 base、user、search、gathering、school 等 API 模块的访问接口。
  *
- * 推荐通过 [fursuitTvSdk]（Kotlin suspend）或 [fursuitTvSdkBlocking]（Java / JVM 阻塞）创建实例。
+ * 推荐通过 [fursuitTvSdk]（Kotlin suspend DSL）或 [FursuitTvSdkBuilder]（链式 Builder，JVM 上提供 Blocking/Async 变体）创建实例。
  *
  * @param config SDK 配置
  * @param tokenInfo 可选的令牌信息（用于外部注入已缓存的 TokenInfo）
@@ -68,7 +68,7 @@ public class FursuitTvSdk internal constructor(
         }
 
     init {
-        // #41：将 AuthManager 晚绑定到 authHolder，defaultRequest 才能按请求
+        // 将 AuthManager 晚绑定到 authHolder，defaultRequest 才能按请求
         // 读取并注入 X-Api-Key（此前全仓库无赋值，业务请求从不携带认证头）。
         authHolder.auth = auth
     }
@@ -102,7 +102,9 @@ public class FursuitTvSdk internal constructor(
     public fun getConfig(): SdkConfig = config
 
     /**
-     * 关闭 SDK 客户端并释放资源（关闭共享的 HttpClient 并驱逐缓存条目，#30）。
+     * 关闭 SDK 客户端并释放资源（关闭共享的 HttpClient 并驱逐缓存条目）。
+     *
+     * @throws IllegalStateException 重复调用 close 时抛出（close 不可逆）
      */
     @JsName("close")
     public fun close() {
@@ -124,7 +126,7 @@ public class FursuitTvSdk internal constructor(
  * }
  * ```
  *
- * Java 调用方请使用 [fursuitTvSdkBlocking] 或 `JvmFursuitTvSdkBuilder` 链式 Builder。
+ * Java 调用方请使用 [FursuitTvSdkBuilder] 链式 Builder（其 build() 在 JVM 上生成 buildBlocking()/buildAsync() 变体）。
  *
  * @param block 配置块
  * @return FursuitTvSdk 实例
@@ -138,9 +140,9 @@ public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk
     block(mutableConfig)
     val config = mutableConfig.toImmutable()
 
-    // #8：配置级 apiKey 已删除，条件简化为 clientId + clientSecret
+    // 配置级 apiKey 已删除，条件简化为 clientId + clientSecret
     if (config.clientId != null && config.clientSecret != null) {
-        // #30：复用 SDK 自身的 holder/client 完成交换，tokenInfo 写入其 AuthManager，
+        // 复用 SDK 自身的 holder/client 完成交换，tokenInfo 写入其 AuthManager，
         // 不再创建临时 AuthHolder/HttpClient（否则泄漏到缓存中永远不驱逐）
         val sdk = FursuitTvSdk(config)
         sdk.auth.exchangeToken(config.clientId, config.clientSecret)

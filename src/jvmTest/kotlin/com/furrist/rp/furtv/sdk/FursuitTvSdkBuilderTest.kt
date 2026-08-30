@@ -21,8 +21,8 @@ import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
 
 /**
- * FursuitTvSdkBuilder 校验：必须提供 clientId + clientSecret（#8：配置级 apiKey 已删除）。
- * per `init-builder-refactor` D2.4 约束。
+ * FursuitTvSdkBuilder 校验：必须提供 clientId + clientSecret。
+ * 0.4.0 起配置级 apiKey 已删除，apiKey-only 初始化在编译期不可表达。
  */
 class FursuitTvSdkBuilderTest {
     @Test

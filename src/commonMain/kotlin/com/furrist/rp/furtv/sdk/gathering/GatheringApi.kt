@@ -42,6 +42,7 @@ public class GatheringApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
+    /** 获取本年度聚会统计数据（聚会年度统计.md）。 */
     @JsName("getYearStats")
     public suspend fun getYearStats(): GatheringYearStatsResponse =
         auth.withFreshToken {
@@ -49,6 +50,7 @@ public class GatheringApi internal constructor(
                 .body<GatheringYearStatsResponse>()
         }
 
+    /** 获取指定月份的聚会月历（聚会月历.md）。 */
     @JsName("getMonthly")
     public suspend fun getMonthly(params: GatheringMonthlyParams): GatheringMonthlyResponse =
         auth.withFreshToken {
@@ -58,6 +60,13 @@ public class GatheringApi internal constructor(
             }.body<GatheringMonthlyResponse>()
         }
 
+    /**
+     * 获取指定月份的聚会月历（按距离排序）（聚会月历距离.md）。
+     *
+     * @param params 年月参数（仅 year/month）
+     * @param lat 纬度（文档必填）
+     * @param lng 经度（文档必填）
+     */
     @JsName("getMonthlyDistance")
     public suspend fun getMonthlyDistance(
         params: GatheringMonthlyParams,
@@ -68,20 +77,22 @@ public class GatheringApi internal constructor(
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
                 parameter("year", params.year)
                 parameter("month", params.month)
-                // #18：聚会月历距离.md 明示 lat/lng 必填
+                // 聚会月历距离.md 明示 lat/lng 必填
                 parameter("lat", lat)
                 parameter("lng", lng)
             }.body<GatheringMonthlyDistanceResponse>()
         }
 
+    /** 获取附近聚会列表（聚会附近.md，无查询参数）。 */
     @JsName("getNearby")
     public suspend fun getNearby(): GatheringNearbyResponse =
         auth.withFreshToken {
-            // #26：聚会附近.md 无查询参数章节，文档外参数已移除
+            // 聚会附近.md 无查询参数章节，文档外参数已移除
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby")
                 .body<GatheringNearbyResponse>()
         }
 
+    /** 获取附近模式聚会列表（聚会附近模式.md，返回带 avatar_url/参与人数的增强元素）。 */
     @JsName("getNearbyMode")
     public suspend fun getNearbyMode(): GatheringNearbyModeResponse =
         auth.withFreshToken {
@@ -89,6 +100,7 @@ public class GatheringApi internal constructor(
                 .body<GatheringNearbyModeResponse>()
         }
 
+    /** 获取聚会详情（聚会详情.md）。 */
     @JsName("getGatheringDetail")
     public suspend fun getGatheringDetail(id: String): GatheringDetailResponse =
         auth.withFreshToken {
@@ -96,10 +108,11 @@ public class GatheringApi internal constructor(
                 .body<GatheringDetailResponse>()
         }
 
+    /** 获取聚会报名列表（聚会报名列表.md；该端点在官方测试名单标注返回值含大量 Buffer 字段）。 */
     @JsName("getRegistrations")
     public suspend fun getRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsResponse =
         auth.withFreshToken {
-            // #26：聚会报名列表.md 仅定义路径参数 id，status/cursor/limit 为文档外参数
+            // 聚会报名列表.md 仅定义路径参数 id，status/cursor/limit 为文档外参数（已移除）
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations")
                 .body<GatheringRegistrationsResponse>()
         }

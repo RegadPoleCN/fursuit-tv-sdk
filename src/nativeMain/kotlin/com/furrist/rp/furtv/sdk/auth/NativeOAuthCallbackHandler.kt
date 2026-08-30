@@ -54,7 +54,7 @@ private class NativeOAuthCallbackHandler(
 
     override suspend fun startListening() {
         mutex.withLock {
-            // #3：幂等守卫——已在监听时直接返回，避免二次 bind 抛 BindException
+            // 幂等守卫——已在监听时直接返回，避免二次 bind 抛 BindException
             if (serverSocket != null) return
             pendingDeferred = CompletableDeferred()
         }
@@ -83,7 +83,7 @@ private class NativeOAuthCallbackHandler(
     }
 
     /**
-     * #4：读到请求头结束符（\r\n\r\n）即返回；浏览器 GET 保持连接时不再挂起到超时。
+     * 读到请求头结束符（\r\n\r\n）即返回；浏览器 GET 保持连接时不再挂起到超时。
      * 有 body 时按 Content-Length 补读。
      */
     private suspend fun readCallbackRequest(readChannel: ByteReadChannel): String {

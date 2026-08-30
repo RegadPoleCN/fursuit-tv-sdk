@@ -26,7 +26,7 @@ import kotlin.js.JsName
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
-/** #19：getSocialBadges limit 上限（用户社交徽章列表.md，可选、最大 50）。 */
+/** getSocialBadges 的 limit 上限（用户社交徽章列表.md，可选、最大 50）。 */
 private const val SOCIAL_BADGES_LIMIT_MAX = 50
 
 /**
@@ -47,6 +47,7 @@ public class UserApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
+    /** 获取用户公开资料（用户资料公开信息.md）。 */
     @JsName("getUserProfile")
     public suspend fun getUserProfile(username: String): UserProfileResponse =
         auth.withFreshToken {
@@ -54,6 +55,7 @@ public class UserApi internal constructor(
                 .body<UserProfileResponse>()
         }
 
+    /** 通过用户数字 ID 查询用户基础信息（用户基础信息ID查询.md）。 */
     @JsName("getUserId")
     public suspend fun getUserId(id: String): UserIdResponse =
         auth.withFreshToken {
@@ -61,6 +63,7 @@ public class UserApi internal constructor(
                 .body<UserIdResponse>()
         }
 
+    /** 查询当前凭证对目标用户的点赞状态（用户点赞状态.md）。 */
     @JsName("getLikeStatus")
     public suspend fun getLikeStatus(username: String): LikeStatusResponse =
         auth.withFreshToken {
@@ -68,6 +71,7 @@ public class UserApi internal constructor(
                 .body<LikeStatusResponse>()
         }
 
+    /** 查询用户公开关系列表（用户关系公开列表.md）。 */
     @JsName("getUserRelationships")
     public suspend fun getUserRelationships(userId: String): UserRelationshipsResponse =
         auth.withFreshToken {
@@ -75,6 +79,7 @@ public class UserApi internal constructor(
                 .body<UserRelationshipsResponse>()
         }
 
+    /** 查询用户访客记录（用户访客记录.md）。 */
     @JsName("getUserVisitors")
     public suspend fun getUserVisitors(username: String): UserVisitorsResponse =
         auth.withFreshToken {
@@ -82,9 +87,15 @@ public class UserApi internal constructor(
                 .body<UserVisitorsResponse>()
         }
 
+    /**
+     * 获取用户社交徽章列表（用户社交徽章列表.md）。
+     *
+     * @param username 目标用户名
+     * @param limit 可选，单页数量上限（文档约定最大 50，超过抛 [IllegalArgumentException]）
+     */
     @JsName("getSocialBadges")
     public suspend fun getSocialBadges(username: String, limit: Int? = null): SocialBadgesResponse {
-        // #19：用户社交徽章列表.md 查询参数 limit，可选、最大 50（无下限）
+        // 用户社交徽章列表.md 查询参数 limit，可选、最大 50（无下限）
         require(limit == null || limit <= SOCIAL_BADGES_LIMIT_MAX) { "limit must be <= 50" }
         return auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/users/$username/social-badges") {
@@ -93,6 +104,7 @@ public class UserApi internal constructor(
         }
     }
 
+    /** 获取单个社交徽章详情（用户社交徽章详情.md）。 */
     @JsName("getSocialBadgeDetail")
     public suspend fun getSocialBadgeDetail(username: String, userBadgeId: String): SocialBadgeDetailResponse =
         auth.withFreshToken {
@@ -100,6 +112,7 @@ public class UserApi internal constructor(
                 .body<SocialBadgeDetailResponse>()
         }
 
+    /** 获取用户商店在售商品（用户商店商品.md）。 */
     @JsName("getStoreProducts")
     public suspend fun getStoreProducts(username: String): StoreProductsResponse =
         auth.withFreshToken {

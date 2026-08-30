@@ -74,7 +74,7 @@ public class AuthManager internal constructor(
     public fun isAuthenticated(): Boolean = tokenInfo?.isExpired()?.not() == true
 
     /**
-     * 响应式 re-exchange 包装器（init-builder-refactor D11）。
+     * 带令牌预检与重试的业务请求包装器。
      *
      * - 预检 `ensureFreshToken(clientId, clientSecret)`：过期/缺失则触发 `exchangeToken`
      * - 执行 [block]；如抛 `TokenExpiredException`（401），再次 `ensureFreshToken` 后重试 [maxRetries] 次
@@ -108,20 +108,20 @@ public class AuthManager internal constructor(
         }
     }
 
-    /** Throws [IllegalStateException] if [SdkConfig.clientId] is missing. */
+    /** 校验 clientId 已配置，缺失时抛 [IllegalStateException]。 */
     private fun requireClientId(): String =
         config.clientId
             ?: error("withFreshToken requires SDK init with clientId. Configure via fursuitTvSdk { clientId = \"...\" }.")
 
-    /** Throws [IllegalStateException] if [SdkConfig.clientSecret] is missing. */
+    /** 校验 clientSecret 已配置，缺失时抛 [IllegalStateException]。 */
     private fun requireClientSecret(): String =
         config.clientSecret
             ?: error("withFreshToken requires SDK init with clientSecret.")
 
     /**
-     * 预检 token：过期/缺失时优先走 refresh 端点换新（#22），失败回落 `exchangeToken`。
+     * 预检 token：过期/缺失时优先走 refresh 端点换新，失败回落 `exchangeToken`。
      *
-     * **check-then-call** 模式：`tokenMutex` 不可重入，锁内只做判断，锁**外**执行
+     * 先判后调模式：`tokenMutex` 不可重入，锁内只做判断，锁**外**执行
      * `refreshToken` / `exchangeToken`。
      * 依据 vds-docs《接入实践参考》:4-8：临近过期窗口优先换新、失败回落签名交换。
      */
@@ -154,7 +154,7 @@ public class AuthManager internal constructor(
 
     /**
      * 清除令牌信息
-     * 清除当前存储的令牌并重置 HTTP 客户端
+     * 清除当前存储的令牌（不影响已创建的 HTTP 客户端）
      */
     @JsName("clearToken")
     public fun clearToken() {
@@ -194,7 +194,7 @@ public class AuthManager internal constructor(
         val state = StateStoreInternal.generateState()
         StateStoreInternal.storeState(state, oauthConfig.timeoutSeconds / SECONDS_PER_MINUTE)
 
-        // startListening 由 handler.startAndGetCallback 内部调用（#2：此处不得重复启动，
+        // startListening 由 handler.startAndGetCallback 内部调用（此处不得重复启动，
         // 否则 Native 二次 bind 崩溃 / JVM 二次 start 抛异常 / JS 覆盖 deferred）
 
         val authorizeUrl =
@@ -289,7 +289,6 @@ public class AuthManager internal constructor(
 
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
-            // isOAuthToken / platformAccessToken 已删除（D4 字段已删）
         }
 
         return newTokenInfo
@@ -389,7 +388,7 @@ public class AuthManager internal constructor(
         val response =
             httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {
                 contentType(ContentType.Application.FormUrlEncoded)
-                // ✅ 显式无 Authorization / X-Api-Key header（OAuth 端点不需要）
+                // 认证头由 defaultRequest 跳过（sso 端点无需平台签名）
                 setBody(requestBody)
             }.body<OAuthTokenData>()
 
@@ -397,7 +396,6 @@ public class AuthManager internal constructor(
 
         tokenMutex.withLock {
             tokenInfo = newTokenInfo
-            // isOAuthToken / oauthClientId / oauthRedirectUri 已删除（D4 字段已删）
         }
         return newTokenInfo
     }
@@ -418,7 +416,7 @@ public class AuthManager internal constructor(
         val response =
             httpClient.get("${config.baseUrl}/api/proxy/account/sso/userinfo") {
                 header("Authorization", "Bearer ${oauth.oauthToken}")
-                // ✅ 只发 Authorization Bearer（X-OAuth-Access-Token 已删除）
+                // 只发 Authorization Bearer（vds-docs：X-OAuth-Access-Token 已废弃）
             }.body<UserInfoData>()
 
         return response

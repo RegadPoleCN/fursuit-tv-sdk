@@ -40,7 +40,7 @@ class UserContractTest {
         assertNotNull(profile.socialLinks)
         // The fixture's social_links has "weibo" and a "custom" array — assert at least one is present
         assertTrue(profile.socialLinks?.custom?.isNotEmpty() == true || profile.socialLinks?.entries?.isNotEmpty() == true)
-        // 审计项 #7/#9：can_request / requires_auth / contact_reputation_level 必须正确映射
+        // can_request / requires_auth / contact_reputation_level 必须正确映射
         assertNotNull(profile.contactRequest)
         assertEquals(false, profile.contactRequest?.canRequest)
         assertEquals(true, profile.contactRequest?.requiresAuth)
@@ -48,7 +48,7 @@ class UserContractTest {
     }
 
     @Test fun `privacy settings accept camelCase-only variants`() {
-        // 审计项 #13：随机推荐.md 第三例 privacy_settings 仅含 camelCase 键
+        // 随机推荐.md 第三例 privacy_settings 仅含 camelCase 键
         val data =
             json.decodeFromString(
                 UserProfilePrivacySettingsSerializer,
