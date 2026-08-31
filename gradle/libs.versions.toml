@@ -15,7 +15,7 @@ serialization = "1.11.0"
 datetime = "0.8.0"
 
 # Detekt
-detekt = "2.0.0-alpha.2"
+detekt = "2.0.0-alpha.6"
 
 # ktlint
 ktlint = "14.2.0"
