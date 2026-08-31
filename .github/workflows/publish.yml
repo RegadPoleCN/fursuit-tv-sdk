@@ -6,30 +6,65 @@ on:
       - 'v*'
   workflow_dispatch:
 
+# 发布流不做并发取消：取消进行中的发布可能留下半途状态
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.parallel=true"
 
 jobs:
-  publish:
+  # 质量门：全平台构建（含 Native）+ 静态检查，并校验 tag 与项目版本一致
+  quality-gate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v7
-
-    - name: Validate Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v3
 
     - name: Set up JDK 17
       uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+
+    - name: Verify tag matches project version
+      run: |
+        TAG_VERSION="${GITHUB_REF_NAME#v}"
+        PROJECT_VERSION=$(grep -oP 'fursuit-tv-sdk = "\K[^"]+' gradle/libs.versions.toml)
+        if [ "$TAG_VERSION" != "$PROJECT_VERSION" ]; then
+          echo "::error::Tag version ($TAG_VERSION) does not match project version ($PROJECT_VERSION)"
+          exit 1
+        fi
+        echo "Tag version matches project version: $PROJECT_VERSION"
+
+    - name: Build and run all checks (including Native)
+      run: ./gradlew build checkAll --stacktrace
+
+  # 发布到 Maven Central（仅注入 Maven 相关密钥）
+  maven-central:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v5
+      with:
+        java-version: '17'
+        distribution: 'temurin'
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
@@ -46,8 +81,55 @@ jobs:
         ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingPassword }}
         ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_signingInMemoryKey }}
 
+  # 发布到 npm（仅注入 npm 密钥）
+  npm:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v5
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v6
+
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+
     - name: Publish to NPM Registry
       run: ./gradlew publishJsPackageToNpmjsRegistry --stacktrace
       env:
         ORG_GRADLE_PROJECT_npmToken: ${{ secrets.NPM_TOKEN }}
 
+  # 两个发布目标均成功后，基于 CHANGELOG 对应小节创建 GitHub Release
+  create-release:
+    needs: [maven-central, npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v7
+
+    - name: Extract release notes from CHANGELOG
+      run: |
+        VERSION="${GITHUB_REF_NAME#v}"
+        awk -v section="## [$VERSION]" 'index($0, section) { found = 1; next } found && /^## /{ exit } found { print }' CHANGELOG.md > release-notes.md
+        if [ ! -s release-notes.md ]; then
+          echo "::warning::No CHANGELOG section found for $VERSION, falling back to tag name"
+          echo "Release $GITHUB_REF_NAME" > release-notes.md
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        body_path: release-notes.md
