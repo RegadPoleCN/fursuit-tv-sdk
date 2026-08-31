@@ -32,11 +32,6 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    ignore:
-      # 不自动提 alpha/beta/rc 等预发布版本的升级 PR
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-prerelease"
 
   # npm 依赖（examples/js，随 SDK 发版自动跟进，monthly check）
   - package-ecosystem: "npm"
