@@ -33,22 +33,9 @@ updates:
           - "minor"
           - "patch"
 
-  # npm 依赖（examples/js，随 SDK 发版自动跟进，monthly check）
-  - package-ecosystem: "npm"
-    directory: "/examples/js"
-    schedule:
-      interval: "monthly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Asia/Shanghai"
-    open-pull-requests-limit: 3
-    labels:
-      - "dependencies"
-      - "npm"
-    commit-message:
-      prefix: "chore(deps)"
-    reviewers:
-      - "RegadPoleCN"
+    ignore:
+      # examples/java、examples/jvm 内引用的是本 SDK 自身（examples 文件夹不参与 Dependabot 更新）
+      - dependency-name: "com.furrist.rp:fursuit-tv-sdk"
 
   # GitHub Actions (monthly check)
   - package-ecosystem: "github-actions"
