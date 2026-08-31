@@ -142,7 +142,7 @@ npmPublish {
 
     registries {
         register("npmjs") {
-            uri("https://registry.npmjs.org")
+            uri.set("https://registry.npmjs.org")
             authToken.set(project.findProperty("npmToken") as String? ?: "")
         }
     }
