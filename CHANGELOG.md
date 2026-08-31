@@ -3,6 +3,12 @@
 本文件记录项目的所有重要变更。格式基于 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
 并遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
+## [0.4.1] - 2025-08-31
+
+- **更新依赖版本**
+
+***
+
 ## [0.4.0] - 2026-08-30
 
 ### 重大变更 (BREAKING)
