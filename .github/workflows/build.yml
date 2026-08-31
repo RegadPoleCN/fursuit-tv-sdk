@@ -17,6 +17,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   GRADLE_OPTS: "-Dorg.gradle.parallel=true"
 
@@ -30,15 +33,11 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v7
 
-    - name: Validate Gradle Wrapper
-      uses: gradle/wrapper-validation-action@v3
-
     - name: Set up JDK 17
       uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
-        cache: gradle
 
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v6
@@ -46,8 +45,8 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x gradlew
 
-    - name: Build all platforms
-      run: ./gradlew build
+    - name: Build all platforms and run all checks
+      run: ./gradlew build checkAll --stacktrace
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v7
@@ -56,3 +55,13 @@ jobs:
         name: fursuit-tv-sdk
         path: |
           build/libs/
+
+    - name: Upload test and lint reports on failure
+      uses: actions/upload-artifact@v7
+      if: failure()
+      with:
+        name: failure-reports
+        path: |
+          build/reports/tests/
+          build/reports/detekt/
+          build/reports/ktlint/

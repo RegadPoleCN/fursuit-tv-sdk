@@ -189,13 +189,13 @@ detekt {
     parallel = true
 }
 
-// Configure Dokka for API documentation
-tasks.dokkaHtml {
-    outputDirectory.set(layout.buildDirectory.dir("dokka"))
-
+// Configure Dokka for API documentation（Dokka 2 扩展 DSL，作用于 dokkaGenerate 任务；
+// 输出保持默认 build/dokka/html，与 docs workflow 的 Pages 上传路径一致。
+// include 文件须为 DCL 格式（# Module / # Package 头），不能用 README.md）
+dokka {
     dokkaSourceSets {
         configureEach {
-            includes.from("README.md")
+            includes.from("docs/dokka-module.md")
 
             perPackageOption {
                 matchingRegex.set(".*\\.internal.*")
