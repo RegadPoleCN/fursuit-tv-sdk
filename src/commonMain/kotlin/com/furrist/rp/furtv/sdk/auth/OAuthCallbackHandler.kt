@@ -127,8 +127,6 @@ public interface OAuthCallbackHandler {
  * @param config OAuth 回调配置
  * @return 平台对应的 [OAuthCallbackHandler] 实例
  */
-@JsExport
-@JsName("createDefaultOAuthHandler")
 public expect fun createDefaultOAuthHandler(
     config: OAuthConfig = OAuthConfig(),
 ): OAuthCallbackHandler

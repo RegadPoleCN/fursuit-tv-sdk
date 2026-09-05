@@ -84,7 +84,7 @@ private class NativeOAuthCallbackHandler(
 
     /**
      * 读到请求头结束符（\r\n\r\n）即返回；浏览器 GET 保持连接时不再挂起到超时。
-     * 有 body 时按 Content-Length 补读。
+     * 有 body 时按 Content-Length 补充读取。
      */
     private suspend fun readCallbackRequest(readChannel: ByteReadChannel): String {
         val buf = ByteArray(READ_BUFFER_SIZE)
@@ -129,7 +129,7 @@ private class NativeOAuthCallbackHandler(
 
     private suspend fun handleRequest(
         params: Map<String, String>,
-        socket: io.ktor.network.sockets.Socket,
+        socket: Socket,
     ) {
         val deferred = pendingDeferred ?: return
         val outcome = dispatch(params)

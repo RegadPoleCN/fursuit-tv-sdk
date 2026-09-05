@@ -107,7 +107,7 @@ private class JvmOAuthCallbackHandler(
                 }
             }
         }
-        println("Please open this URL in your browser: $authorizeUrl")
+        logger.info("Please open this URL in your browser: $authorizeUrl")
     }
 
     private suspend fun handleCallback(call: ApplicationCall) {

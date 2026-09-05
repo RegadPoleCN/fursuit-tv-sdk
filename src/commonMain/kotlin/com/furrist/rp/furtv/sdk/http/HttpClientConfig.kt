@@ -157,7 +157,7 @@ internal object HttpClientConfig {
     /**
      * 验证 HTTP 状态码是否在成功范围内（200-299），否则抛出对应异常。
      */
-    private suspend fun validateStatusCode(response: io.ktor.client.statement.HttpResponse) {
+    private suspend fun validateStatusCode(response: HttpResponse) {
         if (response.status.value !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
             val errorBody = readErrorBody(response)
             // sso 端点（OAuth token / userinfo）错误体为 {error, error_description}，结构化抛出
@@ -168,7 +168,7 @@ internal object HttpClientConfig {
         }
     }
 
-    private suspend fun readErrorBody(response: io.ktor.client.statement.HttpResponse): String? =
+    private suspend fun readErrorBody(response: HttpResponse): String? =
         try {
             response.bodyAsText().take(MAX_ERROR_BODY_LENGTH)
         } catch (_: Exception) {

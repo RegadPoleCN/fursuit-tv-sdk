@@ -24,12 +24,12 @@ import kotlin.jvm.JvmStatic
 /**
  * SDK 日志级别枚举，控制 HTTP 请求日志输出详细程度。
  *
- * @property OFF 关闭所有日志
- * @property ERROR 仅输出错误日志
- * @property WARNING 输出警告及以上级别日志
- * @property INFO 输出信息及以上级别日志（默认）
- * @property DEBUG 输出调试及以上级别日志，包含请求/响应体
- * @property ALL 输出所有级别日志
+ * [OFF] 关闭所有日志
+ * [ERROR] 仅输出错误日志
+ * [WARNING] 输出警告及以上级别日志
+ * [INFO] 输出信息及以上级别日志（默认）
+ * [DEBUG] 输出调试及以上级别日志，包含请求/响应体
+ * [ALL] 输出所有级别日志
  */
 @JsExport
 @JsName("SdkLogLevel")
@@ -74,16 +74,16 @@ public enum class SdkLogLevel {
 @JsExport
 @JsName("SdkConfig")
 public class SdkConfig(
-    @JsName("baseUrl") public val baseUrl: String = Companion.DEFAULT_BASE_URL,
+    @JsName("baseUrl") public val baseUrl: String = DEFAULT_BASE_URL,
     @JsName("clientId") public val clientId: String? = null,
     @JsName("clientSecret") public val clientSecret: String? = null,
-    @JsName("requestTimeout") public val requestTimeout: Long = Companion.DEFAULT_REQUEST_TIMEOUT,
-    @JsName("connectTimeout") public val connectTimeout: Long = Companion.DEFAULT_CONNECT_TIMEOUT,
-    @JsName("socketTimeout") public val socketTimeout: Long = Companion.DEFAULT_SOCKET_TIMEOUT,
+    @JsName("requestTimeout") public val requestTimeout: Long = DEFAULT_REQUEST_TIMEOUT,
+    @JsName("connectTimeout") public val connectTimeout: Long = DEFAULT_CONNECT_TIMEOUT,
+    @JsName("socketTimeout") public val socketTimeout: Long = DEFAULT_SOCKET_TIMEOUT,
     @JsName("logLevel") public val logLevel: SdkLogLevel = SdkLogLevel.INFO,
     @JsName("enableRetry") public val enableRetry: Boolean = true,
-    @JsName("maxRetries") public val maxRetries: Int = Companion.DEFAULT_MAX_RETRIES,
-    @JsName("retryInterval") public val retryInterval: Long = Companion.DEFAULT_RETRY_INTERVAL,
+    @JsName("maxRetries") public val maxRetries: Int = DEFAULT_MAX_RETRIES,
+    @JsName("retryInterval") public val retryInterval: Long = DEFAULT_RETRY_INTERVAL,
 ) {
     public companion object {
         /** API 基础 URL 默认值。 */

@@ -17,10 +17,10 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import com.furrist.rp.furtv.sdk.model.OAuthConfig
-import io.ktor.http.parseQueryString
+import io.ktor.http.*
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.browser.window
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.await
 import kotlinx.coroutines.withTimeoutOrNull
 import org.w3c.dom.MessageEvent
 import org.w3c.dom.events.EventListener
@@ -69,7 +69,7 @@ public class JsOAuthCallbackHandler(
         window.addEventListener("message", listener)
     }
 
-    private suspend fun startNodeServer() {
+    private fun startNodeServer() {
         val deferred = CompletableDeferred<OAuthCallbackResult>()
         deferredResult = deferred
         val http = importNodeHttp().await<dynamic>()
@@ -95,7 +95,7 @@ public class JsOAuthCallbackHandler(
 
     override suspend fun waitForCallback(): OAuthCallbackResult {
         val timeoutMillis = config.timeoutSeconds * 1000L
-        return withTimeoutOrNull(timeoutMillis) {
+        return withTimeoutOrNull(timeoutMillis.milliseconds) {
             deferredResult?.await()
                 ?: run {
                     if (isBrowser) {
