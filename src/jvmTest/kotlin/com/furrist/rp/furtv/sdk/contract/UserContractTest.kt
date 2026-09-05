@@ -39,11 +39,11 @@ class UserContractTest {
         // socialLinks is a typed wrapper; verify deserialization works
         assertNotNull(profile.socialLinks)
         // The fixture's social_links has "weibo" and a "custom" array — assert at least one is present
-        assertTrue(profile.socialLinks?.custom?.isNotEmpty() == true || profile.socialLinks?.entries?.isNotEmpty() == true)
+        assertTrue(profile.socialLinks.custom.isNotEmpty() || profile.socialLinks.entries.isNotEmpty())
         // can_request / requires_auth / contact_reputation_level 必须正确映射
         assertNotNull(profile.contactRequest)
-        assertEquals(false, profile.contactRequest?.canRequest)
-        assertEquals(true, profile.contactRequest?.requiresAuth)
+        assertEquals(false, profile.contactRequest.canRequest)
+        assertEquals(true, profile.contactRequest.requiresAuth)
         assertEquals(1, profile.contactReputationLevel)
     }
 
@@ -81,11 +81,11 @@ class UserContractTest {
     @Test fun `visitors flat with counters`() {
         val data = json.decodeFromString<UserVisitorsResponse>(ContractFixture.readFixture("vdsdocs/user/visitors.json"))
         assertNotNull(data.visitors)
-        assertEquals(1, data.visitors!!.size)
+        assertEquals(1, data.visitors.size)
         assertEquals(123456, data.visitors[0].visitId)
         assertEquals(66, data.visitors[0].visitorId)
         assertEquals(1L, data.totalViews)
-        assertTrue(data.hasMore == true)
+        assertEquals(true, data.hasMore)
     }
 
     @Test fun `social badges flat`() {
@@ -105,6 +105,6 @@ class UserContractTest {
         assertEquals(1, data.products.size)
         assertEquals("尾巴挂件", data.products[0].name)
         assertEquals("129.00", data.products[0].price)
-        assertTrue(data.isMerchantVerified == true)
+        assertEquals(true, data.isMerchantVerified)
     }
 }

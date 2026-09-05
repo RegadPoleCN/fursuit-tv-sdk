@@ -42,7 +42,7 @@ class DiscoveryContractTest {
         val data = json.decodeFromString<SearchResponse>(ContractFixture.readFixture("vdsdocs/discovery/search.json"))
         assertEquals(1, data.users.size)
         assertNotNull(data.pagination)
-        assertEquals(1, data.pagination?.page)
+        assertEquals(1, data.pagination.page)
         assertEquals("general", data.searchType)
         // like_count / is_liked / 顶层 total_is_estimate 映射
         assertEquals(4, data.users[0].likeCount)
@@ -80,11 +80,11 @@ class DiscoveryContractTest {
         // 补齐的用户数据字段
         assertEquals("2026-03-14T16:00:00.000Z", data.fursuit?.fursuitBirthday)
         assertNotNull(data.fursuit?.showcasePortrait)
-        assertEquals(0, data.fursuit?.destinations?.size)
-        assertEquals(true, data.fursuit?.hasAllImages)
-        assertEquals("disabled", data.fursuit?.contactRequest?.buttonState)
-        assertEquals(false, data.fursuit?.todayStatus?.hasToday)
-        assertEquals(false, data.fursuit?.hasCompletedContact)
+        assertEquals(0, data.fursuit.destinations?.size)
+        assertEquals(true, data.fursuit.hasAllImages)
+        assertEquals("disabled", data.fursuit.contactRequest?.buttonState)
+        assertEquals(false, data.fursuit.todayStatus?.hasToday)
+        assertEquals(false, data.fursuit.hasCompletedContact)
     }
 
     @Test fun `locations flat with provinces and cities`() {

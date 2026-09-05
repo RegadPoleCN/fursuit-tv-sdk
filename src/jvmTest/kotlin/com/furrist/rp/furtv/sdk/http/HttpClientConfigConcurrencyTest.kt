@@ -42,7 +42,7 @@ class HttpClientConfigConcurrencyTest {
             val results = mutableListOf<Any>()
             val errors = mutableListOf<Throwable>()
             coroutineScope {
-                (1..n).map { i ->
+                (1..n).map {
                     async {
                         try {
                             val c = HttpClientConfig.getClient(sameConfig, sharedHolder)

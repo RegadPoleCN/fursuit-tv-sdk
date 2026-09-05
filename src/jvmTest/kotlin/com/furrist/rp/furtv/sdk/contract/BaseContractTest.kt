@@ -16,18 +16,10 @@
 
 package com.furrist.rp.furtv.sdk.contract
 
-import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckRequest
-import com.furrist.rp.furtv.sdk.model.AndroidVersionCheckResponse
-import com.furrist.rp.furtv.sdk.model.AndroidVersionData
-import com.furrist.rp.furtv.sdk.model.AndroidVersionResponse
-import com.furrist.rp.furtv.sdk.model.HealthResponse
-import com.furrist.rp.furtv.sdk.model.HelloWorldResponse
-import com.furrist.rp.furtv.sdk.model.ThemePacksManifestData
-import com.furrist.rp.furtv.sdk.model.ThemePacksManifestResponse
+import com.furrist.rp.furtv.sdk.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class BaseContractTest {
