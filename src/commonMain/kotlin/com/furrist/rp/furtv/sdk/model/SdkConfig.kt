@@ -23,22 +23,38 @@ import kotlin.jvm.JvmStatic
 
 /**
  * SDK 日志级别枚举，控制 HTTP 请求日志输出详细程度。
- *
- * [OFF] 关闭所有日志
- * [ERROR] 仅输出错误日志
- * [WARNING] 输出警告及以上级别日志
- * [INFO] 输出信息及以上级别日志（默认）
- * [DEBUG] 输出调试及以上级别日志，包含请求/响应体
- * [ALL] 输出所有级别日志
  */
 @JsExport
 @JsName("SdkLogLevel")
 public enum class SdkLogLevel {
+    /**
+     * 关闭所有日志
+     */
     OFF,
+
+    /**
+     * 仅输出错误日志
+     */
     ERROR,
+
+    /**
+     * 输出警告及以上级别日志
+     */
     WARNING,
+
+    /**
+     * 输出信息及以上级别日志（默认）
+     */
     INFO,
+
+    /**
+     * 输出调试及以上级别日志，包含请求/响应体
+     */
     DEBUG,
+
+    /**
+     * 输出所有级别日志
+     */
     ALL, ;
 
     /**

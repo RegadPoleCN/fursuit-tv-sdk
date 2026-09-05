@@ -25,6 +25,8 @@ import kotlinx.serialization.Transient
 /**
  * OAuth 回调结果。
  */
+@JsExport
+@JsName("OAuthCallbackResult")
 public sealed class OAuthCallbackResult {
     /**
      * 授权成功，携带授权码和 state。
