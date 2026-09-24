@@ -41,7 +41,8 @@ private class NativeOAuthCallbackHandler(
     private var serverSocket: ServerSocket? = null
 
     private companion object {
-        private const val READ_BUFFER_SIZE = 4096
+        private const val INITIAL_BUFFER_SIZE = 4096
+        private const val MAX_HEADER_SIZE = 65536 // 64KB 上限，防止超大包恶意消耗内存
         private const val HEADER_END_NOT_FOUND = -1
         private val HEADER_TERMINATOR = byteArrayOf(0x0D, 0x0A, 0x0D, 0x0A)
         private const val RESPONSE_OK =
@@ -83,13 +84,15 @@ private class NativeOAuthCallbackHandler(
     }
 
     /**
-     * 读到请求头结束符（\r\n\r\n）即返回；浏览器 GET 保持连接时不再挂起到超时。
-     * 有 body 时按 Content-Length 补充读取。
+     * 支持缓冲区动态扩容，读到请求头结束符（\r\n\r\n）即返回；避免大 Cookie/Header 截断导致 400。
      */
     private suspend fun readCallbackRequest(readChannel: ByteReadChannel): String {
-        val buf = ByteArray(READ_BUFFER_SIZE)
+        var buf = ByteArray(INITIAL_BUFFER_SIZE)
         var total = 0
-        while (total < buf.size && findHeaderEnd(buf, total) < 0) {
+        while (total < MAX_HEADER_SIZE && findHeaderEnd(buf, total) < 0) {
+            if (total == buf.size) {
+                buf = buf.copyOf(buf.size * 2)
+            }
             val n = readChannel.readAvailable(buf, total, buf.size - total)
             if (n <= 0) break
             total += n
@@ -99,8 +102,12 @@ private class NativeOAuthCallbackHandler(
         if (headerEnd >= 0) {
             val contentLength = parseContentLength(buf, headerEnd)
             if (contentLength > 0) {
-                while (total < buf.size && total < headerEnd + contentLength) {
-                    val n = readChannel.readAvailable(buf, total, buf.size - total)
+                val needed = headerEnd + contentLength
+                if (buf.size < needed) {
+                    buf = buf.copyOf(needed)
+                }
+                while (total < needed) {
+                    val n = readChannel.readAvailable(buf, total, needed - total)
                     if (n <= 0) break
                     total += n
                 }

@@ -29,7 +29,7 @@ import org.w3c.dom.events.EventListener
  * JS 平台 OAuth 回调处理器。
  *
  * 运行时自动区分两种环境：
- * - **浏览器**：通过 `window.postMessage` 接收中继页转发的回调（约定见 docs/authentication.md）
+ * - **浏览器**：通过 `window.postMessage` 接收中继页转发的回调（支持原生 JS Object 与 JSON 字符串）
  * - **Node.js**：动态加载 `node:http` 在本机启动回调服务器，直接接收 OAuth 重定向
  */
 @JsExport
@@ -58,12 +58,11 @@ public class JsOAuthCallbackHandler(
         deferredResult = deferred
         val listener =
             EventListener { event ->
-                @Suppress("UNCHECKED_CAST")
-                val data =
-                    (event as? MessageEvent)?.data?.toString()
-                        ?.takeIf { it.isNotBlank() } ?: return@EventListener
-                val params = parseQueryLike(data)
-                handleAuthorizationCallback(params, deferred)
+                val rawData = (event as? MessageEvent)?.data ?: return@EventListener
+                val params = extractParamsFromData(rawData)
+                if (params.isNotEmpty()) {
+                    handleAuthorizationCallback(params, deferred)
+                }
             }
         messageListener = listener
         window.addEventListener("message", listener)
@@ -131,11 +130,52 @@ public class JsOAuthCallbackHandler(
         nodeServer = null
     }
 
+    /**
+     * 兼容原生 JS 对象、JSON 字符串以及 query-string 格式的 postMessage 数据。
+     */
+    private fun extractParamsFromData(raw: dynamic): Map<String, String> {
+        if (raw == null) return emptyMap()
+        return when {
+            js("typeof raw === 'object'") as Boolean -> {
+                val map = mutableMapOf<String, String>()
+                val code = raw.code as? String
+                val state = raw.state as? String
+                val error = raw.error as? String
+                val errorDesc = (raw.error_description ?: raw.errorDescription) as? String
+                if (code != null) map["code"] = code
+                if (state != null) map["state"] = state
+                if (error != null) map["error"] = error
+                if (errorDesc != null) map["error_description"] = errorDesc
+                map
+            }
+            else -> {
+                val str = raw.toString()
+                if (str.isBlank()) {
+                    emptyMap()
+                } else {
+                    val parsedObj: dynamic =
+                        try {
+                            val parsed = JSON.parse<dynamic>(str)
+                            if (parsed != null && js("typeof parsed === 'object'") as Boolean) parsed else null
+                        } catch (_: Throwable) {
+                            null
+                        }
+                    if (parsedObj != null) {
+                        extractParamsFromData(parsedObj)
+                    } else {
+                        parseQueryLike(str)
+                    }
+                }
+            }
+        }
+    }
+
     private fun parseQueryLike(payload: String): Map<String, String> {
         val params = mutableMapOf<String, String>()
-        val pairs = payload.trimStart('{').trimEnd('}').split(',')
+        val pairs = payload.trimStart('{').trimEnd('}').split('&', ',')
         for (pair in pairs) {
-            val sides = pair.split(':', limit = 2)
+            val delimiter = if (pair.contains('=')) '=' else ':'
+            val sides = pair.split(delimiter, limit = 2)
             if (sides.size == 2) {
                 val key = sides[0].trim().trim('"', '\'')
                 val value = sides[1].trim().trim('"', '\'')
@@ -179,8 +219,6 @@ public actual fun createDefaultOAuthHandler(config: OAuthConfig): OAuthCallbackH
 
 /**
  * 构建回调 URL（HTTP 协议下的本地 URL，例如 `http://localhost:8080/callback`）。
- *
- * JS 环境中 `localhost` 默认使用 HTTP，因为没有本地服务器证书。
  */
 public fun buildCallbackUrl(c: OAuthConfig): String =
     buildString {
