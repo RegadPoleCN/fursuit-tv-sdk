@@ -17,17 +17,22 @@
 package com.furrist.rp.furtv.sdk.auth
 
 import kotlin.concurrent.Volatile
+import kotlin.js.JsExport
+import kotlin.js.JsName
 
 /**
- * 跨线程持有 [AuthManager] 引用，供 `HttpClientConfig.defaultRequest` 在每个请求时
- * 通过闭包读取最新 `apiKey`。
+ * [OBSOLETE / DEPRECATED in v0.5.0]
+ * 旧版用于在全局单例 HttpClient 与 AuthManager 之间传递晚绑定引用的凭证持有器。
  *
- * 设计动机：
- * - `HttpClient` 在 `FursuitTvSdk` 构造时创建（早于 `AuthManager`）
- * - `defaultRequest` 块按 Ktor 默认行为**每个请求都执行**
- * - 通过 `@Volatile var auth` 保证跨线程可见性，主线程设值后，其他线程的请求
- *   能立即看到最新的 `AuthManager` 实例，从而拿到当前 token 的 `apiKey`
+ * 在 v0.5.0 中，HttpClient 生命周期已收敛由 [com.furrist.rp.furtv.sdk.FursuitTvSdk] 实例直接管理，
+ * 不再使用全局缓存与晚绑定，此类已废弃并计划在 v0.6.0 完全移除。
  */
+@Deprecated(
+    message = "AuthHolder is obsolete and no longer used internally. It will be removed in v0.6.0.",
+    level = DeprecationLevel.WARNING,
+)
+@JsExport
+@JsName("AuthHolder")
 public class AuthHolder {
     @Volatile
     public var auth: AuthManager? = null

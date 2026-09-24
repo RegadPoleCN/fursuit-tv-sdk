@@ -16,7 +16,6 @@
 
 package com.furrist.rp.furtv.sdk
 
-import com.furrist.rp.furtv.sdk.auth.AuthHolder
 import com.furrist.rp.furtv.sdk.auth.AuthManager
 import com.furrist.rp.furtv.sdk.base.BaseApi
 import com.furrist.rp.furtv.sdk.gathering.GatheringApi
@@ -37,7 +36,9 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 /**
  * Fursuit.TV SDK 主客户端，提供 base、user、search、gathering、school 等 API 模块的访问接口。
  *
- * 推荐通过 [fursuitTvSdk]（Kotlin suspend DSL）或 [FursuitTvSdkBuilder]（链式 Builder，JVM 上提供 Blocking/Async 变体）创建实例。
+ * 实现了 [AutoCloseable] 接口，客户端生命周期由本实例自主管控，支持通过 `use { ... }` 块自动释放资源。
+ *
+ * 推荐通过 [fursuitTvSdk]（Kotlin suspend DSL）或 [FursuitTvSdkBuilder]（链式 Builder）创建实例。
  *
  * @param config SDK 配置
  * @param tokenInfo 可选的令牌信息（用于外部注入已缓存的 TokenInfo）
@@ -47,30 +48,25 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 public class FursuitTvSdk internal constructor(
     private val config: SdkConfig,
     tokenInfo: TokenInfo? = null,
-    @Volatile private var closed: Boolean = false,
-) {
-    /**
-     * AuthHolder：late-bound AuthManager 引用，供 `HttpClientConfig.defaultRequest` 通过
-     * 闭包按请求读取最新 apiKey（@Volatile 保证跨线程可见性）。
-     */
-    private val authHolder: AuthHolder = AuthHolder()
-
-    @JsName("_httpClient")
-    private val httpClient: HttpClient = HttpClientConfig.getClient(config, authHolder)
+) : AutoCloseable {
+    @Volatile
+    private var closed: Boolean = false
 
     /**
      * 认证管理器
      */
     @JsName("auth")
     public val auth: AuthManager =
-        AuthManager(config, httpClient).apply {
+        AuthManager(config).apply {
             tokenInfo?.let { setTokenInfo(it) }
         }
 
+    @JsName("_httpClient")
+    private val httpClient: HttpClient =
+        HttpClientConfig.createClient(config) { auth.getApiKey() }
+
     init {
-        // 将 AuthManager 晚绑定到 authHolder，defaultRequest 才能按请求
-        // 读取并注入 X-Api-Key（此前全仓库无赋值，业务请求从不携带认证头）。
-        authHolder.auth = auth
+        auth.bindHttpClient(httpClient)
     }
 
     /** 基础接口 API */
@@ -102,22 +98,19 @@ public class FursuitTvSdk internal constructor(
     public fun getConfig(): SdkConfig = config
 
     /**
-     * 关闭 SDK 客户端并释放资源（关闭共享的 HttpClient 并驱逐缓存条目）。
-     *
-     * @throws IllegalStateException 重复调用 close 时抛出（close 不可逆）
+     * 关闭 SDK 客户端并释放底层 HTTP 客户端与协程资源。
      */
-    @JsName("close")
-    public fun close() {
-        check(!closed) { "FursuitTvSdk already closed (close is irreversible)" }
-        HttpClientConfig.evict(config, authHolder)
+    override fun close() {
+        if (closed) return
         closed = true
+        httpClient.close()
     }
 }
 
 /**
  * 使用 DSL 方式创建 FursuitTvSdk（Kotlin suspend 入口）。
  *
- * 当同时提供 `clientId` + `clientSecret` 时，自动完成签名交换获取令牌。
+ * 当同时提供 `clientId` + `clientSecret` 且未提供 `tokenInfo` 时，自动完成签名交换获取令牌。
  *
  * ```kotlin
  * val sdk = fursuitTvSdk {
@@ -126,8 +119,7 @@ public class FursuitTvSdk internal constructor(
  * }
  * ```
  *
- * Java 调用方请使用 [FursuitTvSdkBuilder] 链式 Builder（其 build() 在 JVM 上生成 buildBlocking()/buildAsync() 变体）。
- *
+ * @param tokenInfo 可选的已缓存 TokenInfo，用于多进程/分布式恢复
  * @param block 配置块
  * @return FursuitTvSdk 实例
  */
@@ -135,19 +127,27 @@ public class FursuitTvSdk internal constructor(
 @JvmAsync
 @JsExport
 @JsName("fursuitTvSdk")
-public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk {
+public suspend fun fursuitTvSdk(
+    tokenInfo: TokenInfo? = null,
+    block: (MutableSdkConfig) -> Unit,
+): FursuitTvSdk {
     val mutableConfig = MutableSdkConfig()
     block(mutableConfig)
     val config = mutableConfig.toImmutable()
 
-    // 配置级 apiKey 已删除，条件简化为 clientId + clientSecret
-    if (config.clientId != null && config.clientSecret != null) {
-        // 复用 SDK 自身的 holder/client 完成交换，tokenInfo 写入其 AuthManager，
-        // 不再创建临时 AuthHolder/HttpClient（否则泄漏到缓存中永远不驱逐）
-        val sdk = FursuitTvSdk(config)
+    val sdk = FursuitTvSdk(config, tokenInfo)
+    if (config.clientId != null && config.clientSecret != null && tokenInfo == null) {
         sdk.auth.exchangeToken(config.clientId, config.clientSecret)
-        return sdk
     }
-
-    return FursuitTvSdk(config)
+    return sdk
 }
+
+/**
+ * 兼容原有单参数无 tokenInfo 重载。
+ */
+@JvmBlocking
+@JvmAsync
+@JsExport
+@JsName("fursuitTvSdkSimple")
+public suspend fun fursuitTvSdk(block: (MutableSdkConfig) -> Unit): FursuitTvSdk =
+    fursuitTvSdk(tokenInfo = null, block = block)

@@ -16,34 +16,31 @@
 
 package com.furrist.rp.furtv.sdk.http
 
-import com.furrist.rp.furtv.sdk.auth.AuthHolder
+import com.furrist.rp.furtv.sdk.FursuitTvSdk
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import kotlin.test.Test
 import kotlin.test.assertNotSame
-import kotlin.test.assertSame
 
 /**
- * Verifies cache behavior: cache is keyed by Pair<SdkConfig, AuthHolder>.
- * Note: SdkConfig is a regular class (not data class), so equality is reference-based.
- * Different SdkConfig instances are never equal, even with identical field values.
+ * 验证生命周期隔离性：不同的 FursuitTvSdk 实例拥有各自独立的 HttpClient 实例，避免全局静态共享带来的状态污染与内存泄漏。
  */
 class HttpClientConfigEqualsTest {
     @Test
-    fun sameConfigSameHolderReturnsSameInstance() {
-        val config = SdkConfig(clientId = "test", clientSecret = "secret")
-        val holder = AuthHolder()
-        val clientA = HttpClientConfig.getClient(config, holder)
-        val clientB = HttpClientConfig.getClient(config, holder)
-        assertSame(clientA, clientB, "same config + same holder should return the same HttpClient")
-    }
+    fun differentSdkInstancesHaveDistinctHttpClients() {
+        val configA = SdkConfig(clientId = "client-a", clientSecret = "secret-a")
+        val configB = SdkConfig(clientId = "client-b", clientSecret = "secret-b")
 
-    @Test
-    fun differentConfigsReturnDistinctInstances() {
-        val a = SdkConfig(clientId = "client-a", clientSecret = "secret")
-        val b = SdkConfig(clientId = "client-b", clientSecret = "secret")
-        val holder = AuthHolder()
-        val clientA = HttpClientConfig.getClient(a, holder)
-        val clientB = HttpClientConfig.getClient(b, holder)
-        assertNotSame(clientA, clientB, "different clientId should map to different HttpClient")
+        val sdkA = FursuitTvSdk(configA)
+        val sdkB = FursuitTvSdk(configB)
+
+        try {
+            val clientAField = FursuitTvSdk::class.java.getDeclaredField("httpClient").apply { isAccessible = true }
+            val clientA = clientAField.get(sdkA)
+            val clientB = clientAField.get(sdkB)
+            assertNotSame(clientA, clientB, "different SDK instances must own distinct HttpClient instances")
+        } finally {
+            sdkA.close()
+            sdkB.close()
+        }
     }
 }

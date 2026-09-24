@@ -19,33 +19,28 @@ package com.furrist.rp.furtv.sdk.http
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertSame
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 /**
- * 验证并发访问下 `HttpClientConfig.getClient` 的行为。
- *
- * 已知限制：缓存使用普通 `MutableMap.getOrPut`，JVM 多线程并发首次访问可能重复构建
- * HttpClient（行为正确，旧实例被覆盖，仅有轻微内存浪费）。同配置必须返回同一个实例。
+ * 验证无状态工厂 `HttpClientConfig.createClient` 在高并发下的线程安全性。
  */
 class HttpClientConfigConcurrencyTest {
     @Test
-    fun concurrentFirstTimeAccessReturnsSameInstance() =
+    fun concurrentClientCreationSucceeds() =
         runBlocking {
             val sameConfig = SdkConfig()
-            // 缓存键为 Pair<SdkConfig, AuthHolder>；共享 holder 即共享缓存条目，返回同一实例。
-            val sharedHolder = com.furrist.rp.furtv.sdk.auth.AuthHolder()
-            val n = 100
+            val n = 50
             val results = mutableListOf<Any>()
             val errors = mutableListOf<Throwable>()
             coroutineScope {
                 (1..n).map {
                     async {
                         try {
-                            val c = HttpClientConfig.getClient(sameConfig, sharedHolder)
+                            val c = HttpClientConfig.createClient(sameConfig) { "mock-key" }
                             synchronized(results) { results.add(c) }
                         } catch (e: Throwable) {
                             synchronized(errors) { errors.add(e) }
@@ -53,8 +48,11 @@ class HttpClientConfigConcurrencyTest {
                     }
                 }.awaitAll()
             }
-            assertEquals(0, errors.size, "no concurrent access should throw: ${errors.map { it.message }}")
+            assertEquals(0, errors.size, "no concurrent creation should throw: ${errors.map { it.message }}")
             assertEquals(n, results.size, "all $n concurrent calls should return a client")
-            assertSame(results.first(), results.last(), "all concurrent callers (same holder) get the same instance")
+            for (c in results) {
+                assertNotNull(c)
+                (c as io.ktor.client.HttpClient).close()
+            }
         }
 }

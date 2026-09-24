@@ -26,25 +26,23 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 
 /**
- * Verifies HttpClientConfig.getClient returns distinct HttpClient instances
- * for distinct SdkConfig (different config => different cache key => different instance).
+ * 验证并发独立构造不同配置的 HttpClient 时各自独立且能够安全关闭。
  */
 class HttpClientConfigDifferentConfigsTest {
     @Test
     fun differentConfigsReturnDistinctInstances() =
         runBlocking {
-            val n = 50
-            val results = mutableListOf<Any>()
+            val n = 30
+            val results = mutableListOf<io.ktor.client.HttpClient>()
             val errors = mutableListOf<Throwable>()
             coroutineScope {
                 (1..n).map { i ->
                     async {
                         try {
                             val c =
-                                HttpClientConfig.getClient(
+                                HttpClientConfig.createClient(
                                     SdkConfig(clientId = "client-$i"),
-                                    com.furrist.rp.furtv.sdk.auth.AuthHolder(),
-                                )
+                                ) { "key-$i" }
                             synchronized(results) { results.add(c) }
                         } catch (e: Throwable) {
                             synchronized(errors) { errors.add(e) }
@@ -54,10 +52,11 @@ class HttpClientConfigDifferentConfigsTest {
             }
             assertEquals(0, errors.size)
             assertEquals(n, results.size)
-            // All should be unique instances (different cache keys)
             val unique = results.toSet()
             assertEquals(n, unique.size, "expected $n distinct instances, got ${unique.size}")
-            // Spot-check: first and last are not the same
             assertNotSame(results.first(), results.last())
+            for (c in results) {
+                c.close()
+            }
         }
 }

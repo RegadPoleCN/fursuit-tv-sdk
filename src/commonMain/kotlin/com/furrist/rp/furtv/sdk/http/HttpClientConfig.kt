@@ -16,7 +16,6 @@
 
 package com.furrist.rp.furtv.sdk.http
 
-import com.furrist.rp.furtv.sdk.auth.AuthHolder
 import com.furrist.rp.furtv.sdk.exception.*
 import com.furrist.rp.furtv.sdk.model.SdkConfig
 import io.ktor.client.*
@@ -27,25 +26,31 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
 /**
- * HTTP 客户端配置（内部缓存工厂），提供 Ktor 客户端的创建和配置功能。
+ * 通用服务端错误响应体结构，用于结构化提取错误码与请求追踪 ID。
+ */
+@Serializable
+internal data class ApiErrorResponse(
+    val success: Boolean = false,
+    val message: String? = null,
+    val errorCode: String? = null,
+    val code: String? = null,
+    val requestId: String? = null,
+)
+
+/**
+ * HTTP 客户端工厂，提供 Ktor 客户端的创建和通用配置。
  *
- * 单例化：同 `(SdkConfig, AuthHolder)` 共享一个 [HttpClient] 实例，通过 Ktor `defaultRequest { header(...) }`
- * 在每个请求上按以下规则决定认证头：
- *
- * 1. 请求路径不含 `/account/sso/` 且 `authHolder.auth?.getApiKey()` 非空 → 注入 `X-Api-Key: <apiKey>`
- * 2. 请求路径含 `/account/sso/` → 跳过 `X-Api-Key`（sso 端点无需任何平台签名头）
- * 3. `authHolder.auth?.getApiKey()` 为空 → 不发送认证头（此时令牌尚未交换）
- *
- * 认证头完全由 `defaultRequest` 按请求自动注入，调用方无需（也不应）手工设置认证头。
+ * [REFACTORED in v0.5.0]
+ * 旧代码通过静态 Map (instance) 尝试进行跨实例缓存，导致伪单例与不可逆的内存泄漏。
+ * 现已重构为无状态工厂：每个 [com.furrist.rp.furtv.sdk.FursuitTvSdk] 实例独立持有自身的 [HttpClient] 并管控其生命周期。
  */
 internal object HttpClientConfig {
-
-    // sso 错误体解析用（与生产 ContentNegotiation 宽容度一致）
     private val errorJson =
         Json {
             ignoreUnknownKeys = true
@@ -68,36 +73,16 @@ internal object HttpClientConfig {
             "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     /**
-     * (SdkConfig, AuthHolder) → HttpClient 单例映射。
-     * AuthHolder 加入缓存键——每个 SDK 实例独占自己的 HttpClient。
-     */
-    private val instance: MutableMap<Pair<SdkConfig, AuthHolder>, HttpClient> = mutableMapOf()
-
-    /**
-     * 单例工厂：为同一 `(SdkConfig, AuthHolder)` 始终返回同一个 [HttpClient] 实例。
-     *
-     * **已知限制**：不再加锁。JVM 上多线程并发首次访问同一 key 时
-     * 可能并发调用 `buildClient`，导致多构造一个 HttpClient 但旧实例仍在缓存中被覆盖——
-     * 行为正确，仅有轻微内存浪费。实际应用通常单 SDK 实例单线程，无影响。
-     * JS / Native 单线程，无此问题。
+     * 构建由 SDK 实例专属持有的 [HttpClient]。
      *
      * @param config SDK 配置
-     * @param authHolder AuthHolder 引用（供 defaultRequest 闭包读取）
-     * @return 配置好的 HttpClient 单例
+     * @param apiKeyProvider 动态提供当前最新 platform apiKey 的回调函数
+     * @return 配置好的 HttpClient
      */
-    internal fun getClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
-        instance.getOrPut(config to authHolder) { buildClient(config, authHolder) }
-
-    /**
-     * 关闭并驱逐 `(config, authHolder)` 对应的缓存条目。
-     * remove 对不存在的 key 返回 null，天然幂等。驱逐后同 key 再 [getClient]
-     * 会重建新活客户端（调用方 close 后继续使用属未定义行为）。
-     */
-    internal fun evict(config: SdkConfig, authHolder: AuthHolder) {
-        instance.remove(config to authHolder)?.close()
-    }
-
-    internal fun buildClient(config: SdkConfig, authHolder: AuthHolder): HttpClient =
+    internal fun createClient(
+        config: SdkConfig,
+        apiKeyProvider: () -> String?,
+    ): HttpClient =
         HttpClient {
             install(ContentNegotiation) {
                 json(
@@ -118,10 +103,10 @@ internal object HttpClientConfig {
                 header("Accept", "application/json")
                 header("User-Agent", USER_AGENT_CHROME)
 
-                // 每个请求从 AuthHolder 读取最新 apiKey，实现认证头的按请求自动注入
+                // 每个请求从 apiKeyProvider 读取最新 apiKey，实现认证头的按请求自动注入
                 // /account/sso/* 端点无需任何平台签名头（vds-docs：VDS账户各篇"无需任何开放平台签名"）
                 if (!url.encodedPath.contains("/account/sso/")) {
-                    authHolder.auth?.getApiKey()?.let { apiKey ->
+                    apiKeyProvider()?.let { apiKey ->
                         header("X-Api-Key", apiKey)
                     }
                 }
@@ -160,11 +145,12 @@ internal object HttpClientConfig {
     private suspend fun validateStatusCode(response: HttpResponse) {
         if (response.status.value !in SUCCESS_STATUS_START..SUCCESS_STATUS_END) {
             val errorBody = readErrorBody(response)
+            val path = response.request.url.encodedPath
             // sso 端点（OAuth token / userinfo）错误体为 {error, error_description}，结构化抛出
-            if (response.request.url.encodedPath.contains("/account/sso/")) {
+            if (path.contains("/account/sso/")) {
                 throwOAuthError(response.status.value, errorBody)
             }
-            throwExceptionForStatusCode(response.status.value, errorBody)
+            throwExceptionForStatusCode(response.status.value, errorBody, path)
         }
     }
 
@@ -175,11 +161,28 @@ internal object HttpClientConfig {
             ERROR_BODY_EMPTY
         }
 
-    private fun throwExceptionForStatusCode(statusCode: Int, errorBody: String?) {
-        val errorMessage = errorBody ?: "Unknown error"
+    private fun throwExceptionForStatusCode(
+        statusCode: Int,
+        errorBody: String?,
+        requestPath: String,
+    ) {
+        val errorDto =
+            errorBody?.let { body ->
+                runCatching { errorJson.decodeFromString<ApiErrorResponse>(body) }.getOrNull()
+            }
+        val errorMessage = errorDto?.message ?: errorBody ?: "Unknown error"
+        val errorCode = errorDto?.errorCode ?: errorDto?.code
+
         val exception =
             when (statusCode) {
-                UNAUTHORIZED -> TokenExpiredException("Authentication failed: $errorMessage")
+                UNAUTHORIZED -> {
+                    // 若是签名交换接口本身报 401，表明凭证错误，必须抛 AuthenticationException 阻断重试循环！
+                    if (requestPath.endsWith("/api/auth/token")) {
+                        AuthenticationException("Authentication failed (Invalid clientId or clientSecret): $errorMessage")
+                    } else {
+                        TokenExpiredException("Authentication failed: $errorMessage")
+                    }
+                }
                 FORBIDDEN -> AuthenticationException("Access forbidden: $errorMessage")
                 NOT_FOUND -> NotFoundException("Resource not found: $errorMessage")
                 BAD_REQUEST -> ValidationException("Invalid request: $errorMessage")
@@ -187,11 +190,13 @@ internal object HttpClientConfig {
                     ApiException(
                         statusCode,
                         "Server error: $errorMessage",
+                        errorCode = errorCode,
                     )
                 else ->
                     ApiException(
                         statusCode,
                         "HTTP error $statusCode: $errorMessage",
+                        errorCode = errorCode,
                     )
             }
         throw exception

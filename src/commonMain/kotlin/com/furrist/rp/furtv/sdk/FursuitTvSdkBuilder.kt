@@ -18,6 +18,7 @@ package com.furrist.rp.furtv.sdk
 
 import com.furrist.rp.furtv.sdk.model.MutableSdkConfig
 import com.furrist.rp.furtv.sdk.model.SdkLogLevel
+import com.furrist.rp.furtv.sdk.model.TokenInfo
 import com.furrist.rp.furtv.sdk.model.copyTo
 import kotlin.js.JsExport
 import kotlin.js.JsName
@@ -45,6 +46,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 @JsName("FursuitTvSdkBuilder")
 public class FursuitTvSdkBuilder {
     private val config = MutableSdkConfig()
+    private var cachedTokenInfo: TokenInfo? = null
 
     /** 设置 API 基础 URL（默认官方节点）。 */
     public fun baseUrl(value: String): FursuitTvSdkBuilder = apply { config.baseUrl = value }
@@ -54,6 +56,9 @@ public class FursuitTvSdkBuilder {
 
     /** 设置客户端密钥。 */
     public fun clientSecret(value: String): FursuitTvSdkBuilder = apply { config.clientSecret = value }
+
+    /** 设置外部持久化的 TokenInfo（用于冷启动恢复，避免重复交换签名）。 */
+    public fun tokenInfo(value: TokenInfo): FursuitTvSdkBuilder = apply { cachedTokenInfo = value }
 
     /** 设置请求超时时间（毫秒）。 */
     public fun requestTimeout(value: Long): FursuitTvSdkBuilder = apply { config.requestTimeout = value }
@@ -77,19 +82,20 @@ public class FursuitTvSdkBuilder {
     public fun retryInterval(value: Long): FursuitTvSdkBuilder = apply { config.retryInterval = value }
 
     /**
-     * 构建 `FursuitTvSdk` 实例。**必须**先设置 `clientId` 和 `clientSecret`，否则抛
-     * `IllegalStateException`。委托给 `fursuitTvSdk { config.copyTo(it) }` 复用 DSL 的
-     * require 校验 + token exchange 路径（单一来源）。
+     * 构建 `FursuitTvSdk` 实例。
+     *
+     * 当未提供 [cachedTokenInfo] 时，**必须**先设置 `clientId` 和 `clientSecret`。
      */
     @JvmBlocking
     @JvmAsync
     public suspend fun build(): FursuitTvSdk {
-        require(config.clientId != null && config.clientSecret != null) {
-            "FursuitTvSdkBuilder.build() requires both clientId and clientSecret. " +
-                "apiKey-only init is forbidden (the platform apiKey is auto-obtained via token exchange). " +
-                "Use .clientId(\"...\").clientSecret(\"...\") before .build()."
+        if (cachedTokenInfo == null) {
+            require(config.clientId != null && config.clientSecret != null) {
+                "FursuitTvSdkBuilder.build() requires both clientId and clientSecret when no cached tokenInfo is provided. " +
+                    "Use .clientId(\"...\").clientSecret(\"...\") before .build()."
+            }
         }
-        return fursuitTvSdk { mutableConfig -> config.copyTo(mutableConfig) }
+        return fursuitTvSdk(tokenInfo = cachedTokenInfo) { mutableConfig -> config.copyTo(mutableConfig) }
     }
 
     public companion object {
