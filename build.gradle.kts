@@ -99,6 +99,7 @@ kotlin {
         // Only JVM target supports callback server (based on CIO engine)
         jvmMain {
             dependencies {
+                implementation(libs.ktor.client.java)
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.cio)
                 implementation(libs.ktor.server.status.pages)
@@ -116,12 +117,15 @@ kotlin {
         jsMain {
             dependencies {
                 implementation(kotlin("stdlib-js"))
+                implementation(libs.ktor.client.js)
             }
         }
 
-        nativeMain {
-            dependencies {
-                implementation(libs.ktor.network)
+        if (!skipNative) {
+            nativeMain {
+                dependencies {
+                    implementation(libs.ktor.network)
+                }
             }
         }
     }
