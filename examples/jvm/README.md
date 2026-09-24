@@ -65,21 +65,21 @@ val health = sdk.base.health()
 println("服务状态: ${health.message}")
 
 val version = sdk.base.getAndroidVersion()
-println("最新版本: ${version.version}")
+println("最新版本: ${version.data.version}")
 
 val manifest = sdk.base.getThemePacksManifest()
-println("主题包数量: ${manifest.packs.size}")
+println("主题包数量: ${manifest.data.themes.size}")
 ```
 
 ### 用户资料 (UserApi)
 
 ```kotlin
 val profile = sdk.user.getUserProfile("username")
-println("用户名: ${profile.username}")
-println("昵称: ${profile.nickname}")
+println("用户名: ${profile.user.username}")
+println("昵称: ${profile.user.nickname}")
 
 val userId = sdk.user.getUserId("username")
-println("用户 ID: ${userId.id}")
+println("用户 ID: ${userId.user.id}")
 
 val likeStatus = sdk.user.getLikeStatus("username")
 println("已点赞: ${likeStatus.isLiked}")
@@ -92,9 +92,9 @@ val popular = sdk.search.getPopular()
 println("热门用户数: ${popular.users.size}")
 
 val randomFursuits = sdk.search.getRandomFursuit(count = 5)
-println("随机兽装数: ${randomFursuits.size}")
+println("随机推荐结果: ${randomFursuits.count}")
 
-val searchResult = sdk.search.search(query = "fox")
+val searchResult = sdk.search.search("fox")
 println("搜索结果: ${searchResult.users.size}")
 
 val speciesList = sdk.search.getSpeciesList()
@@ -107,17 +107,17 @@ println("物种数量: ${speciesList.species.size}")
 val yearStats = sdk.gathering.getYearStats()
 println("聚会总数: ${yearStats.total}")
 
-val monthly = sdk.gathering.getMonthly(year = 2025, month = 4)
-println("月历聚会数: ${monthly.size}")
+val monthly = sdk.gathering.getMonthly(year = 2026, month = 4)
+println("月历聚会数: ${monthly.data.gatherings.size}")
 
 val nearbyMode = sdk.gathering.getNearbyMode()
-println("附近聚会数: ${nearbyMode.gatherings.size}")
+println("附近聚会数: ${nearbyMode.data.gatherings.size}")
 ```
 
 ### 学校角色 (SchoolApi)
 
 ```kotlin
-val schools = sdk.school.searchSchools(query = "大学", limit = 10)
+val schools = sdk.school.searchSchools("大学")
 println("搜索结果: ${schools.schools.size}")
 
 val userSchools = sdk.school.getUserSchools(userId = "123")
