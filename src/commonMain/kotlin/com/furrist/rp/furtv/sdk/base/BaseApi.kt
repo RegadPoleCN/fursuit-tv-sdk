@@ -28,7 +28,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 
 /**
- * 基础接口 API，提供 helloWorld、health、version 和 theme-packs 端点。
+ * 基础接口 API，提供 helloWorld、health、version、theme-packs、request-logs 查询及安全图片鉴权能力。
  *
  * @param auth 认证管理器（提供 `withFreshToken` 包装 + re-exchange）
  * @param httpClient 配置好的 HTTP 客户端
@@ -108,5 +108,47 @@ public class BaseApi internal constructor(
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/theme-packs/manifest")
                 .body<ThemePacksManifestResponse>()
+        }
+
+    /**
+     * 按 query 关键词检索平台请求日志（官方《RequestID查询.md》）。
+     *
+     * @param query 检索词或 requestId
+     * @return 日志搜索结果响应
+     */
+    @JsName("searchRequestLogs")
+    public suspend fun searchRequestLogs(query: String): RequestLogsSearchResponse =
+        auth.withFreshToken {
+            httpClient.get("$baseUrl/api/vds-auth/request-logs/search") {
+                parameter("q", query)
+            }.body<RequestLogsSearchResponse>()
+        }
+
+    /**
+     * 按特定 requestId 精确查询日志详情（官方《RequestID查询.md》）。
+     *
+     * @param requestId 请求追踪 ID
+     * @return 日志详情响应
+     */
+    @JsName("getRequestLog")
+    public suspend fun getRequestLog(requestId: String): RequestLogDetailResponse =
+        auth.withFreshToken {
+            httpClient.get("$baseUrl/api/vds-auth/request-logs/$requestId")
+                .body<RequestLogDetailResponse>()
+        }
+
+    /**
+     * 下载官方可信代理后的安全图片。
+     *
+     * 依据官方《图片链接说明》，兽频道图片链接仅 30 秒有效期且必须携带应用签名头。
+     * 本方法自动在请求中注入最新 `X-Api-Key` 并获取原始二进制数据。
+     *
+     * @param imageUrl 可信代理图片地址（如 https://imageproxy-vdp.vdsentnet.com/ugc/...）
+     * @return 图片字节数组
+     */
+    @JsName("fetchAuthorizedImage")
+    public suspend fun fetchAuthorizedImage(imageUrl: String): ByteArray =
+        auth.withFreshToken {
+            httpClient.get(imageUrl).body<ByteArray>()
         }
 }
