@@ -35,6 +35,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
  */
 @JvmBlocking
 @JvmAsync
+@Suppress("TooManyFunctions")
 @JsExport
 @JsName("GatheringApi")
 public class GatheringApi internal constructor(
@@ -50,44 +51,77 @@ public class GatheringApi internal constructor(
                 .body<GatheringYearStatsResponse>()
         }
 
-    /** 获取指定月份的聚会月历（聚会月历.md）。 */
+    /**
+     * 获取指定月份的聚会月历（聚会月历.md）。
+     *
+     * @param year 年份（如 2026）
+     * @param month 月份（1-12）
+     * @return 聚会月历响应
+     */
     @JsName("getMonthly")
-    public suspend fun getMonthly(params: GatheringMonthlyParams): GatheringMonthlyResponse =
+    public suspend fun getMonthly(year: Int, month: Int): GatheringMonthlyResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly") {
-                parameter("year", params.year)
-                parameter("month", params.month)
+                parameter("year", year)
+                parameter("month", month)
             }.body<GatheringMonthlyResponse>()
         }
 
     /**
+     * [DEPRECATED in v0.5.0] 旧版使用 [GatheringMonthlyParams] 包装的入口，推荐直接使用展开参数版本 [getMonthly]。
+     */
+    @Deprecated(
+        message = "Use flat parameters getMonthly(year, month) instead.",
+        replaceWith = ReplaceWith("getMonthly(params.year, params.month)"),
+    )
+    @JsName("getMonthlyWithParams")
+    public suspend fun getMonthly(params: GatheringMonthlyParams): GatheringMonthlyResponse =
+        getMonthly(params.year, params.month)
+
+    /**
      * 获取指定月份的聚会月历（按距离排序）（聚会月历距离.md）。
      *
-     * @param params 年月参数（仅 year/month）
-     * @param lat 纬度（文档必填）
-     * @param lng 经度（文档必填）
+     * @param year 年份（如 2026）
+     * @param month 月份（1-12）
+     * @param lat 纬度（必填）
+     * @param lng 经度（必填）
+     * @return 聚会月历距离响应
      */
     @JsName("getMonthlyDistance")
     public suspend fun getMonthlyDistance(
-        params: GatheringMonthlyParams,
+        year: Int,
+        month: Int,
         lat: Double,
         lng: Double,
     ): GatheringMonthlyDistanceResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/monthly-distance") {
-                parameter("year", params.year)
-                parameter("month", params.month)
-                // 聚会月历距离.md 明示 lat/lng 必填
+                parameter("year", year)
+                parameter("month", month)
                 parameter("lat", lat)
                 parameter("lng", lng)
             }.body<GatheringMonthlyDistanceResponse>()
         }
 
+    /**
+     * [DEPRECATED in v0.5.0] 旧版半对象半扁平参数的入口，推荐直接使用全扁平参数版本 [getMonthlyDistance]。
+     */
+    @Deprecated(
+        message = "Use flat parameters getMonthlyDistance(year, month, lat, lng) instead.",
+        replaceWith = ReplaceWith("getMonthlyDistance(params.year, params.month, lat, lng)"),
+    )
+    @JsName("getMonthlyDistanceWithParams")
+    public suspend fun getMonthlyDistance(
+        params: GatheringMonthlyParams,
+        lat: Double,
+        lng: Double,
+    ): GatheringMonthlyDistanceResponse =
+        getMonthlyDistance(params.year, params.month, lat, lng)
+
     /** 获取附近聚会列表（聚会附近.md，无查询参数）。 */
     @JsName("getNearby")
     public suspend fun getNearby(): GatheringNearbyResponse =
         auth.withFreshToken {
-            // 聚会附近.md 无查询参数章节，文档外参数已移除
             httpClient.get("$baseUrl/api/proxy/furtv/gatherings/nearby")
                 .body<GatheringNearbyResponse>()
         }
@@ -108,12 +142,27 @@ public class GatheringApi internal constructor(
                 .body<GatheringDetailResponse>()
         }
 
-    /** 获取聚会报名列表（聚会报名列表.md；该端点在官方测试名单标注返回值含大量 Buffer 字段）。 */
+    /**
+     * 获取聚会报名列表（聚会报名列表.md）。
+     *
+     * @param gatheringId 聚会 ID
+     * @return 聚会报名列表响应
+     */
     @JsName("getRegistrations")
-    public suspend fun getRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsResponse =
+    public suspend fun getRegistrations(gatheringId: String): GatheringRegistrationsResponse =
         auth.withFreshToken {
-            // 聚会报名列表.md 仅定义路径参数 id，status/cursor/limit 为文档外参数（已移除）
-            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/${params.gatheringId}/registrations")
+            httpClient.get("$baseUrl/api/proxy/furtv/gatherings/$gatheringId/registrations")
                 .body<GatheringRegistrationsResponse>()
         }
+
+    /**
+     * [DEPRECATED in v0.5.0] 旧版使用 [GatheringRegistrationsParams] 包装的入口，推荐直接使用展开参数版本 [getRegistrations]。
+     */
+    @Deprecated(
+        message = "Use flat parameter getRegistrations(gatheringId) instead.",
+        replaceWith = ReplaceWith("getRegistrations(params.gatheringId)"),
+    )
+    @JsName("getRegistrationsWithParams")
+    public suspend fun getRegistrations(params: GatheringRegistrationsParams): GatheringRegistrationsResponse =
+        getRegistrations(params.gatheringId)
 }

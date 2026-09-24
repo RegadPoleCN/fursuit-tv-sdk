@@ -42,15 +42,30 @@ public class SchoolApi internal constructor(
     private val httpClient: HttpClient,
     private val baseUrl: String = "https://open-global.vdsentnet.com",
 ) {
-    /** 按关键词搜索学校（学校搜索.md，查询参数仅 query）。 */
+    /**
+     * 按关键词搜索学校（学校搜索.md）。
+     *
+     * @param query 搜索关键词
+     * @return 学校搜索响应
+     */
     @JsName("searchSchools")
-    public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchResponse =
+    public suspend fun searchSchools(query: String): SchoolSearchResponse =
         auth.withFreshToken {
-            // 学校搜索.md 查询参数仅 query，cursor/limit 为文档外参数（已移除）
             httpClient.get("$baseUrl/api/proxy/furtv/schools/search") {
-                parameter("query", params.query)
+                parameter("query", query)
             }.body<SchoolSearchResponse>()
         }
+
+    /**
+     * [DEPRECATED in v0.5.0] 旧版使用 [SchoolSearchParams] 包装的入口，推荐直接使用展开参数版本 [searchSchools]。
+     */
+    @Deprecated(
+        message = "Use flat parameter searchSchools(query) instead.",
+        replaceWith = ReplaceWith("searchSchools(params.query)"),
+    )
+    @JsName("searchSchoolsWithParams")
+    public suspend fun searchSchools(params: SchoolSearchParams): SchoolSearchResponse =
+        searchSchools(params.query)
 
     /** 获取学校详情（学校详情.md）。 */
     @JsName("getSchoolDetail")

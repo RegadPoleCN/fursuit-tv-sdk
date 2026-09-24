@@ -49,29 +49,72 @@ public class SearchApi internal constructor(
     /**
      * 获取随机兽装用户列表（随机推荐.md）。
      *
-     * 返回完整 [RandomFursuitResponse]（含 count/requested_count/debug_info/requestId）。
+     * @param count 可选的请求数量
+     * @return 完整随机推荐响应
      */
     @JsName("getRandomFursuit")
-    public suspend fun getRandomFursuit(params: RandomFursuitParams): RandomFursuitResponse =
+    public suspend fun getRandomFursuit(count: Int? = null): RandomFursuitResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/fursuit/random") {
-                params.count?.let { parameter("count", it) }
-                // 随机推荐.md 查询参数仅 count，文档外参数已移除
+                count?.let { parameter("count", it) }
             }.body<RandomFursuitResponse>()
         }
 
-    /** 按关键词搜索用户（搜索.md）。 */
+    /**
+     * [DEPRECATED in v0.5.0] 旧版使用 [RandomFursuitParams] 包装的入口，推荐直接使用展开参数版本 [getRandomFursuit]。
+     */
+    @Deprecated(
+        message = "Use flat parameter getRandomFursuit(count) instead.",
+        replaceWith = ReplaceWith("getRandomFursuit(params.count)"),
+    )
+    @JsName("getRandomFursuitWithParams")
+    public suspend fun getRandomFursuit(params: RandomFursuitParams): RandomFursuitResponse =
+        getRandomFursuit(params.count)
+
+    /**
+     * 按关键词搜索用户（搜索.md）。
+     *
+     * @param query 搜索关键词
+     * @param type 搜索类型（可选）
+     * @param cursor 分页游标（可选）
+     * @param limit 单页数量上限（可选）
+     * @param page 页码（可选）
+     * @return 搜索结果响应
+     */
     @JsName("search")
-    public suspend fun search(params: SearchParams): SearchResponse =
+    public suspend fun search(
+        query: String,
+        type: String? = null,
+        cursor: String? = null,
+        limit: Int? = null,
+        page: Int? = null,
+    ): SearchResponse =
         auth.withFreshToken {
             httpClient.get("$baseUrl/api/proxy/furtv/search") {
-                parameter("q", params.query)
-                params.type?.let { parameter("type", it) }
-                params.cursor?.let { parameter("cursor", it) }
-                params.limit?.let { parameter("limit", it) }
-                params.page?.let { parameter("page", it) }
+                parameter("q", query)
+                type?.let { parameter("type", it) }
+                cursor?.let { parameter("cursor", it) }
+                limit?.let { parameter("limit", it) }
+                page?.let { parameter("page", it) }
             }.body<SearchResponse>()
         }
+
+    /**
+     * [DEPRECATED in v0.5.0] 旧版使用 [SearchParams] 包装的入口，推荐直接使用展开参数版本 [search]。
+     */
+    @Deprecated(
+        message = "Use flat parameter search(query, type, cursor, limit, page) instead.",
+        replaceWith = ReplaceWith("search(params.query, params.type, params.cursor, params.limit, params.page)"),
+    )
+    @JsName("searchWithParams")
+    public suspend fun search(params: SearchParams): SearchResponse =
+        search(
+            query = params.query,
+            type = params.type,
+            cursor = params.cursor,
+            limit = params.limit,
+            page = params.page,
+        )
 
     /** 获取搜索建议（搜索建议.md）。 */
     @JsName("getSearchSuggestions")
