@@ -16,7 +16,6 @@
 
 package com.furrist.rp.furtv.sdk.auth
 
-import com.furrist.rp.furtv.sdk.auth.AuthManager.Companion.StateStoreInternal.stateStorage
 import com.furrist.rp.furtv.sdk.exception.OAuthException
 import com.furrist.rp.furtv.sdk.exception.TokenExpiredException
 import com.furrist.rp.furtv.sdk.exception.ValidationException
@@ -30,6 +29,7 @@ import kotlin.js.JsExport
 import kotlin.js.JsName
 import kotlin.random.Random
 import kotlin.time.Clock
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
@@ -49,13 +49,20 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 @JsName("AuthManager")
 public class AuthManager internal constructor(
     private val config: SdkConfig,
-    private val httpClient: HttpClient,
+    httpClient: HttpClient? = null,
 ) {
     private val tokenMutex = Mutex()
 
-    // 令牌信息（sealed class；用 @Volatile 保证跨线程可见性）
     @Volatile
     private var tokenInfo: TokenInfo? = null
+
+    private var injectedHttpClient: HttpClient? = httpClient
+    internal val client: HttpClient
+        get() = injectedHttpClient ?: error("HttpClient is not initialized in AuthManager. Did FursuitTvSdk finish initialization?")
+
+    internal fun bindHttpClient(httpClient: HttpClient) {
+        this.injectedHttpClient = httpClient
+    }
 
     private var callbackHandler: OAuthCallbackHandler? = createDefaultOAuthHandler()
 
@@ -67,6 +74,12 @@ public class AuthManager internal constructor(
     public fun getApiKey(): String? = (tokenInfo as? TokenInfo.Platform)?.apiKey
 
     /**
+     * 获取当前完整的令牌信息。
+     */
+    @JsName("getTokenInfo")
+    public fun getTokenInfo(): TokenInfo? = tokenInfo
+
+    /**
      * 检查是否已认证
      * @return 如果已认证且令牌未过期返回 true，否则返回 false
      */
@@ -76,11 +89,9 @@ public class AuthManager internal constructor(
     /**
      * 带令牌预检与重试的业务请求包装器。
      *
-     * - 预检 `ensureFreshToken(clientId, clientSecret)`：过期/缺失则触发 `exchangeToken`
+     * - 预检 `ensureFreshToken(clientId, clientSecret)`：过期/缺失时安全换新
      * - 执行 [block]；如抛 `TokenExpiredException`（401），再次 `ensureFreshToken` 后重试 [maxRetries] 次
-     * - X-Api-Key 由 `HttpClientConfig.defaultRequest` 自动注入（无需 `apiKey` 参数）
-     *
-     * 仅触发 **platform** token exchange；OAuth 路径不受影响（用 `Authorization: Bearer` 直传）。
+     * - X-Api-Key 由 HTTP 客户端拦截层自动注入
      */
     @JsName("withFreshToken")
     public suspend fun <T> withFreshToken(
@@ -92,12 +103,6 @@ public class AuthManager internal constructor(
         return runRetryLoop(maxRetries, block)
     }
 
-    /**
-     * 重试循环：执行 [block]；每次抛 [TokenExpiredException] 时重新触发
-     * [ensureFreshToken] 后重试 [remaining] 次。`remaining=0` 表示不再重试。
-     *
-     * 设计动机：防止 401 持续返回时无限循环（确保 maxRetries 是显式上界）。
-     */
     private suspend fun <T> runRetryLoop(remaining: Int, block: suspend () -> T): T {
         return try {
             block()
@@ -108,39 +113,44 @@ public class AuthManager internal constructor(
         }
     }
 
-    /** 校验 clientId 已配置，缺失时抛 [IllegalStateException]。 */
     private fun requireClientId(): String =
         config.clientId
             ?: error("withFreshToken requires SDK init with clientId. Configure via fursuitTvSdk { clientId = \"...\" }.")
 
-    /** 校验 clientSecret 已配置，缺失时抛 [IllegalStateException]。 */
     private fun requireClientSecret(): String =
         config.clientSecret
             ?: error("withFreshToken requires SDK init with clientSecret.")
 
     /**
-     * 预检 token：过期/缺失时优先走 refresh 端点换新，失败回落 `exchangeToken`。
+     * 预检 token：采用 Double-Checked Locking（双检锁）模式。
      *
-     * 先判后调模式：`tokenMutex` 不可重入，锁内只做判断，锁**外**执行
-     * `refreshToken` / `exchangeToken`。
-     * 依据 vds-docs《接入实践参考》:4-8：临近过期窗口优先换新、失败回落签名交换。
+     * 1. 锁外快速判断：未过期直接返回；
+     * 2. 加锁临界区：排队协程获取锁后二次校验，避免高并发 401 导致的惊群网络风暴；
+     * 3. 临界区内直接调用原子网络操作更新状态。
      */
     private suspend fun ensureFreshToken(clientId: String, clientSecret: String) {
-        val hasFreshPlatform =
-            tokenMutex.withLock { (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() } != null }
-        if (hasFreshPlatform) return
-        val hasPlatformToken = tokenMutex.withLock { tokenInfo is TokenInfo.Platform }
-        if (hasPlatformToken) {
-            try {
-                refreshToken()
-                return
-            } catch (e: Exception) {
-                // CancellationException 必须重抛（JVM 上它是 Exception 子类，会被本 catch 捕获）
-                if (e is kotlinx.coroutines.CancellationException) throw e
-                // 其余异常回落 exchangeToken（refreshToken 内部已含 RefreshTooEarly → exchange 回落）
+        // 1. 无锁快速路径
+        val fastPlatform = (tokenInfo as? TokenInfo.Platform)?.takeIf { !it.isExpired() }
+        if (fastPlatform != null) return
+
+        // 2. 互斥临界区（Double-Checked Locking，避免并发惊群网络风暴）
+        tokenMutex.withLock {
+            val current = tokenInfo as? TokenInfo.Platform
+            if (current != null && !current.isExpired()) {
+                // 已被前序并发协程完成刷新，直接复用
+            } else if (current != null) {
+                tokenInfo =
+                    try {
+                        doRefreshToken(current.apiKey)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        doExchangeToken(clientId, clientSecret)
+                    }
+            } else {
+                tokenInfo = doExchangeToken(clientId, clientSecret)
             }
         }
-        exchangeToken(clientId, clientSecret)
     }
 
     /**
@@ -172,20 +182,9 @@ public class AuthManager internal constructor(
 
     /**
      * 执行完整的 OAuth 登录流程
-     *
-     * 1. 自动生成状态参数
-     * 2. 调用回调处理器开始监听
-     * 3. 验证回调中的 state 参数（防止 CSRF 攻击）
-     * 4. 交换授权码获取用户令牌
-     *
-     * @param scope 权限范围（默认 "profile"，与 vds-docs 示例一致；显式传 null 则不发送 scope 参数）
-     * @return TokenInfo 获取到的用户令牌信息
-     * @throws IllegalStateException 如果没有可用的回调处理器
-     * @throws OAuthException 如果 state 验证失败或 OAuth 流程出错
      */
     @JsName("loginWithOAuth")
     public suspend fun loginWithOAuth(scope: String? = "profile"): TokenInfo {
-        // 1. 确保 platform 签名有效（隐式 exchange / refresh）
         ensurePlatformToken()
 
         val handler = callbackHandler ?: throw IllegalStateException("OAuth callback handler not set")
@@ -193,9 +192,6 @@ public class AuthManager internal constructor(
 
         val state = StateStoreInternal.generateState()
         StateStoreInternal.storeState(state, oauthConfig.timeoutSeconds / SECONDS_PER_MINUTE)
-
-        // startListening 由 handler.startAndGetCallback 内部调用（此处不得重复启动，
-        // 否则 Native 二次 bind 崩溃 / JVM 二次 start 抛异常 / JS 覆盖 deferred）
 
         val authorizeUrl =
             getOAuthAuthorizeUrl(
@@ -209,42 +205,16 @@ public class AuthManager internal constructor(
         return processOAuthCallbackResult(result, handler.callbackUrl)
     }
 
-    /**
-     * 确保 platform 签名有效（隐式 exchange / refresh）。
-     * - 无 platform token：exchangeToken 拿新签名
-     * - 有 platform token 但过期：refreshToken；失败则 fallback 到 exchangeToken
-     * - 有 valid platform token：直接复用
-     *
-     * 必须先于 [loginWithOAuth] 内部 OAuth 流程调用。
-     */
     private suspend fun ensurePlatformToken(): TokenInfo.Platform {
         val current = tokenInfo as? TokenInfo.Platform
-        return when {
-            current == null ->
-                exchangeToken(
-                    clientId = config.clientId ?: error("clientId not configured"),
-                    clientSecret = config.clientSecret ?: error("clientSecret not configured"),
-                )
-            current.isExpired() ->
-                try {
-                    refreshToken()
-                } catch (e: Exception) {
-                    // CancellationException 必须重抛（JVM 上它是 Exception 子类，会被本 catch 捕获）
-                    if (e is kotlinx.coroutines.CancellationException) throw e
-                    // refresh 失败后用 exchangeToken 作为 recovery path（spec scenario 要求）
-                    val clientId = config.clientId
-                    val clientSecret = config.clientSecret
-                    if (clientId == null || clientSecret == null) {
-                        throw IllegalStateException(
-                            "loginWithOAuth recovery failed: refresh failed AND clientId/clientSecret not configured at SDK init. " +
-                                "Original error: ${e.message}",
-                            e,
-                        )
-                    }
-                    exchangeToken(clientId, clientSecret)
-                }
-            else -> current
-        }
+        if (current != null && !current.isExpired()) return current
+
+        ensureFreshToken(
+            clientId = config.clientId ?: error("clientId not configured"),
+            clientSecret = config.clientSecret ?: error("clientSecret not configured"),
+        )
+        return (tokenInfo as? TokenInfo.Platform)
+            ?: error("Failed to acquire valid platform token")
     }
 
     private suspend fun processOAuthCallbackResult(
@@ -269,35 +239,33 @@ public class AuthManager internal constructor(
     }
 
     /**
-     * 使用应用凭证（clientId + clientSecret）进行签名交换，获取**平台签名**。
-     *
-     * 平台签名包含 accessToken 和 apiKey（vds-docs 明示两者字面值相同），是后续 OAuth 流程的前置步骤。
-     *
-     * @param clientId 应用 ID（格式 vap_xxxx），SDK 统一使用 clientId 命名，与 VDS 文档中的 appId 等价
-     * @param clientSecret 应用密钥
-     * @return 平台签名（TokenInfo.Platform），包含 apiKey
+     * 使用应用凭证（clientId + clientSecret）进行签名交换，获取平台签名。
      */
     @JsName("exchangeToken")
     public suspend fun exchangeToken(clientId: String, clientSecret: String): TokenInfo.Platform {
-        val response =
-            httpClient.post("${config.baseUrl}/api/auth/token") {
-                contentType(ContentType.Application.Json)
-                setBody(TokenExchangeRequest(clientId, clientSecret))
-            }.body<TokenData>()
-
-        val newTokenInfo = response.toTokenInfo()
-
-        tokenMutex.withLock {
-            tokenInfo = newTokenInfo
-        }
-
+        val newTokenInfo =
+            tokenMutex.withLock {
+                val res = doExchangeToken(clientId, clientSecret)
+                tokenInfo = res
+                res
+            }
         return newTokenInfo
     }
 
     /**
+     * 无锁原子操作：签名交换网络请求。
+     */
+    private suspend fun doExchangeToken(clientId: String, clientSecret: String): TokenInfo.Platform {
+        val response =
+            client.post("${config.baseUrl}/api/auth/token") {
+                contentType(ContentType.Application.Json)
+                setBody(TokenExchangeRequest(clientId, clientSecret))
+            }.body<TokenData>()
+        return response.toTokenInfo()
+    }
+
+    /**
      * 刷新访问令牌。
-     * @return TokenInfo.Platform 新的令牌信息
-     * @throws TokenExpiredException 如果没有可用的 platform token
      */
     @JsName("refreshToken")
     public suspend fun refreshToken(): TokenInfo.Platform {
@@ -305,37 +273,37 @@ public class AuthManager internal constructor(
             (tokenInfo as? TokenInfo.Platform)?.apiKey
                 ?: throw TokenExpiredException("No platform token to refresh")
 
-        val response =
-            try {
-                httpClient.post("${config.baseUrl}/api/auth/token/refresh") {
-                    // refreshToken 端点用 X-Api-Key 头（per vds-docs 业务 API 风格），不发送 Bearer。
-                    // 之前的 Bearer 是误用 apiKey（公开凭证）作 access token 的语义错误。
-                    header("X-Api-Key", currentApiKey)
-                }.body<TokenData>()
-            } catch (e: ValidationException) {
-                // RefreshTooEarly：旧 token 已不在 refresh 窗口，直接 exchange
-                if (e.message?.contains("RefreshTooEarly") == true) {
-                    return exchangeToken(
-                        clientId = config.clientId ?: error("clientId not configured"),
-                        clientSecret = config.clientSecret ?: error("clientSecret not configured"),
-                    )
-                }
-                throw e
+        val newTokenInfo =
+            tokenMutex.withLock {
+                val res = doRefreshToken(currentApiKey)
+                tokenInfo = res
+                res
             }
-
-        val newTokenInfo = response.toTokenInfo()
-
-        tokenMutex.withLock { tokenInfo = newTokenInfo }
         return newTokenInfo
     }
 
     /**
+     * 无锁原子操作：签名换新网络请求。
+     */
+    private suspend fun doRefreshToken(currentApiKey: String): TokenInfo.Platform {
+        val response =
+            try {
+                client.post("${config.baseUrl}/api/auth/token/refresh") {
+                    header("X-Api-Key", currentApiKey)
+                }.body<TokenData>()
+            } catch (e: ValidationException) {
+                if (e.message?.contains("RefreshTooEarly") == true) {
+                    val clientId = config.clientId ?: error("clientId not configured")
+                    val clientSecret = config.clientSecret ?: error("clientSecret not configured")
+                    return doExchangeToken(clientId, clientSecret)
+                }
+                throw e
+            }
+        return response.toTokenInfo()
+    }
+
+    /**
      * 生成 OAuth 授权 URL。
-     * @param redirectUri 重定向 URI
-     * @param scope 权限范围（可选）
-     * @param state 状态参数，用于防止 CSRF 攻击（可选）
-     * @return 完整的授权 URL
-     * @throws IllegalStateException 当缺少 clientId 时抛出
      */
     @JsName("getOAuthAuthorizeUrl")
     public fun getOAuthAuthorizeUrl(
@@ -358,14 +326,6 @@ public class AuthManager internal constructor(
 
     /**
      * 使用授权码换取 OAuth 用户令牌。
-     *
-     * 按 vds-docs `签名交换端点.md` 标准形式，**不发送任何 platform Authorization 头**。
-     * 客户端凭证（client_id / client_secret）直接在 form body 中。
-     *
-     * @param code OAuth 授权码（从回调 URL 中获取）
-     * @param redirectUri 重定向 URI（必须与授权时一致）
-     * @return OAuth 用户令牌信息（TokenInfo.OAuth）
-     * @throws IllegalStateException 如果 clientId 或 clientSecret 未配置
      */
     @JsName("exchangeOAuthToken")
     @Suppress("ThrowsCount")
@@ -386,9 +346,8 @@ public class AuthManager internal constructor(
             )
 
         val response =
-            httpClient.post("${config.baseUrl}/api/proxy/account/sso/token") {
+            client.post("${config.baseUrl}/api/proxy/account/sso/token") {
                 contentType(ContentType.Application.FormUrlEncoded)
-                // 认证头由 defaultRequest 跳过（sso 端点无需平台签名）
                 setBody(requestBody)
             }.body<OAuthTokenData>()
 
@@ -402,11 +361,6 @@ public class AuthManager internal constructor(
 
     /**
      * 查询已授权用户的公开信息。
-     *
-     * 按 vds-docs `用户信息端点.md` 标准形式，**只发送 `Authorization: Bearer <oauthToken>` 头**。
-     *
-     * @return 用户信息数据（UserInfoData）
-     * @throws IllegalStateException 如果没有有效的 OAuth token
      */
     @JsName("getUserInfo")
     public suspend fun getUserInfo(): UserInfoData {
@@ -414,24 +368,16 @@ public class AuthManager internal constructor(
             (tokenInfo as? TokenInfo.OAuth)?.takeIf { !it.isExpired() }
                 ?: throw IllegalStateException("No valid OAuth token. Call loginWithOAuth() first.")
         val response =
-            httpClient.get("${config.baseUrl}/api/proxy/account/sso/userinfo") {
+            client.get("${config.baseUrl}/api/proxy/account/sso/userinfo") {
                 header("Authorization", "Bearer ${oauth.oauthToken}")
-                // 只发 Authorization Bearer（vds-docs：X-OAuth-Access-Token 已废弃）
             }.body<UserInfoData>()
 
         return response
     }
 
     internal companion object {
-        /** OAuth state 过期时间单位换算常量（每分钟多少秒）。 */
         internal const val SECONDS_PER_MINUTE: Int = 60
 
-        /**
-         * OAuth `state` 内部管理器。生成、验证、消费 state，
-         * 作为 OAuth 回调服务器的 anti-CSRF token。
-         *
-         * 使用 [Mutex] 保护 [stateStorage] 读写，保证 KMP 线程安全。
-         */
         internal object StateStoreInternal {
             private const val STATE_LENGTH = 32
             private const val DEFAULT_TIMEOUT_MINUTES = 10
