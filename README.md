@@ -4,6 +4,7 @@
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1.20+-purple.svg)](https://kotlinlang.org)
 [![Platform](https://img.shields.io/badge/Platform-JVM%20%7C%20JS%20%7C%20Native-lightgrey.svg)](https://kotlinlang.org/docs/multiplatform.html)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRegadPoleCN%2Ffursuit-tv-sdk.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FRegadPoleCN%2Ffursuit-tv-sdk?ref=badge_shield)
 
 > 本仓库为第三方 SDK，与兽频道及 VDS 官方无关。基于 Kotlin Multiplatform 构建的跨平台 SDK，为 Fursuit.TV 和 VDS 账户系统提供完整的 API 访问能力。
 
@@ -68,3 +69,6 @@ MIT License - 查看 [LICENSE](LICENSE) 文件。
 ---
 
 **注意**: 本 SDK 仅供学习和研究使用。请确保遵守 Fursuit.TV 的使用条款和服务协议。
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FRegadPoleCN%2Ffursuit-tv-sdk.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FRegadPoleCN%2Ffursuit-tv-sdk?ref=badge_large)
